@@ -298,6 +298,7 @@ function Home() {
   }, []);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [showPromo, setShowPromo] = useState(true);
 
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
@@ -336,6 +337,31 @@ function Home() {
           scrolled ? "bg-background/85 backdrop-blur-xl border-b border-border/60" : "bg-transparent"
         }`}
       >
+        {/* Announcements Widget */}
+        {showPromo && (
+          <div className="bg-plum text-[#FAF9F5] border-b border-plum/10 relative overflow-hidden flex items-center justify-between px-6 py-2.5 md:px-12 z-50">
+            {/* Ambient sliding shimmer */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
+            
+            <div className="flex-1 flex items-center justify-center gap-2 text-[10px] md:text-xs uppercase tracking-widest font-semibold z-10 text-center">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping shrink-0" />
+              <span>
+                Get <strong className="text-amber-300 font-bold font-sans">50% off</strong> (up to ₦200,000) your first Luxury wig order and <strong className="text-amber-300 font-bold font-sans">20% off</strong> installation & services.
+              </span>
+              <span className="hidden sm:inline-block h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" />
+            </div>
+
+            <button
+              onClick={() => setShowPromo(false)}
+              className="text-[#FAF9F5]/50 hover:text-[#FAF9F5]/90 transition-colors p-1 z-10 cursor-pointer"
+              title="Close announcement"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
         <nav className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-5 md:px-12">
           <a href="#top" className="flex items-baseline gap-2">
             <span className="font-display text-2xl italic tracking-tight text-plum">Seddypluz</span>
