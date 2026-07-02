@@ -150,3 +150,12 @@
 @utility animate-float-up { animation: float-up 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @utility animate-veil-in { animation: veil-in 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @utility animate-shimmer { animation: shimmer 3s ease-in-out infinite; }
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@utility animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+

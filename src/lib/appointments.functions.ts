@@ -28,8 +28,12 @@ export const submitAppointment = createServerFn({ method: "POST" })
     }
   });
 
-export const getAppointments = createServerFn({ method: "GET" })
-  .handler(async () => {
+export const getAppointments = createServerFn({ method: "POST" })
+  .validator(z.object({ passcode: z.string() }))
+  .handler(async ({ data }) => {
+    if (data.passcode !== process.env.ADMIN_PASSCODE) {
+      throw new Error("Unauthorized: Invalid passcode.");
+    }
     try {
       const appointments = await getAppointmentRequestsFromFirestore();
       return appointments;
@@ -43,11 +47,15 @@ const updateSchema = z.object({
   id: z.string(),
   status: z.enum(["pending", "confirmed", "declined", "completed"]),
   notes: z.string().max(1000).nullable(),
+  passcode: z.string(),
 });
 
 export const updateAppointmentStatus = createServerFn({ method: "POST" })
   .validator(updateSchema)
   .handler(async ({ data }) => {
+    if (data.passcode !== process.env.ADMIN_PASSCODE) {
+      throw new Error("Unauthorized: Invalid passcode.");
+    }
     try {
       await updateAppointmentRequestInFirestore(data.id, data.status, data.notes);
       return { ok: true };

@@ -24,6 +24,7 @@ import artist from "@/assets/artist.jpg";
 import hairStraightImg from "@/assets/hair_straight.png";
 import hairWaveImg from "@/assets/hair_wave.png";
 import hairCurlImg from "@/assets/hair_curl.png";
+import hairBobImg from "@/assets/hair_bob.png";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -110,6 +111,26 @@ const shopProducts: Product[] = [
       { icon: "📏", label: "12-16\"" },
       { icon: "💎", label: "Remy Lace" },
       { icon: "⚖️", label: "250g" }
+    ]
+  },
+  {
+    id: "hair_bob",
+    name: "Blonde Bob Cut",
+    category: "Luxury Extensions",
+    desc: "A chic, precisely cut blonde bob wig offering a natural hairline, premium thickness, and a sophisticated silhouette.",
+    img: hairBobImg,
+    price: "$210.00",
+    bgClass: "bg-[#FAF7F2]",
+    dots: [
+      { color: "#EED7A1", name: "Blonde" },
+      { color: "#1C1C1C", name: "Black" },
+      { color: "#5C4033", name: "Brunette" }
+    ],
+    specs: [
+      { icon: "💇‍♀️", label: "Bob Cut" },
+      { icon: "📏", label: "12-14\"" },
+      { icon: "💎", label: "HD Lace" },
+      { icon: "⚖️", label: "200g" }
     ]
   }
 ];
@@ -342,21 +363,29 @@ function Home() {
 
       {/* HERO */}
       <section id="top" className="relative min-h-screen overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "var(--gradient-blush)" }} />
-        <div className="absolute inset-0" style={{ background: "var(--gradient-halo)" }} />
+        {/* Dynamic ambient background blobs */}
+        <div className="absolute inset-0 bg-[#FAF9F5]" />
+        <div className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-mauve/20 blur-3xl opacity-75 animate-pulse" style={{ animationDuration: "8s" }} />
+        <div className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full bg-lavender/25 blur-3xl opacity-75 animate-pulse" style={{ animationDuration: "12s" }} />
+        
+        {/* Fine-line grid pattern for luxury feel */}
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, var(--plum) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
 
-        <div className="relative mx-auto grid max-w-[1600px] grid-cols-1 gap-10 px-6 pt-32 pb-16 md:grid-cols-12 md:gap-8 md:px-12 md:pt-40 md:pb-24">
+        <div className="relative mx-auto grid max-w-[1600px] grid-cols-1 gap-10 px-6 pt-32 pb-16 md:grid-cols-12 md:gap-8 md:px-12 md:pt-40 md:pb-24 z-10">
           <div className="md:col-span-6 md:pt-16">
-            <p className="eyebrow animate-float-up text-lavender-deep" style={{ animationDelay: "0.1s" }}>
-              — Est. Luxury Beauty Atelier
-            </p>
+            <div className="inline-flex items-center gap-2 animate-float-up" style={{ animationDelay: "0.1s" }}>
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
+              <p className="eyebrow text-lavender-deep">
+                — Est. Luxury Beauty Atelier
+              </p>
+            </div>
             <h1
               className="mt-8 animate-float-up font-display text-[3.5rem] leading-[0.95] tracking-tight text-plum md:text-[6.5rem]"
               style={{ animationDelay: "0.25s" }}
             >
               Where the
               <br />
-              <em className="font-normal text-lavender-deep">quiet art</em>
+              <span className="font-normal italic text-transparent bg-clip-text bg-gradient-to-r from-lavender-deep via-plum to-[#D4AF37] drop-shadow-sm">quiet art</span>
               <br />
               of beauty
               <br />
@@ -366,64 +395,84 @@ function Home() {
               className="mt-10 max-w-md animate-float-up text-base leading-relaxed text-plum/70"
               style={{ animationDelay: "0.4s" }}
             >
-              Seddypluz Beauty Studio composes bridal, editorial, and transformative
-              makeup for the woman who moves through the world with intention.
+              Seddypluz Beauty Studio composes bespoke bridal, editorial, and transformative
+              artistry for the woman who moves through the world with intention.
             </p>
             <div
-              className="mt-10 flex animate-float-up flex-wrap items-center gap-4"
+              className="mt-10 flex animate-float-up flex-wrap items-center gap-8"
               style={{ animationDelay: "0.55s" }}
             >
               <a
                 href="#contact"
-                className="group inline-flex items-center gap-3 border border-plum bg-plum px-8 py-4 text-xs uppercase tracking-[0.32em] text-ivory transition-all hover:bg-lavender-deep hover:border-lavender-deep"
+                className="group relative inline-flex items-center gap-3 overflow-hidden border border-plum bg-plum px-8 py-4 text-xs uppercase tracking-[0.32em] text-ivory transition-all hover:bg-transparent hover:text-plum hover:shadow-[0_10px_30px_rgba(82,58,77,0.1)] active:scale-[0.98] duration-300"
               >
                 Reserve a session
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </a>
               <a
                 href="#portfolio"
-                className="text-xs uppercase tracking-[0.32em] text-plum/70 underline-offset-8 hover:underline"
+                className="group text-xs uppercase tracking-[0.32em] text-plum/70 flex flex-col items-start gap-1 transition-colors hover:text-plum"
               >
                 View the portfolio
+                <span className="h-[1px] w-8 bg-plum/40 transition-all duration-300 group-hover:w-full group-hover:bg-plum" />
               </a>
             </div>
           </div>
 
-          <div className="relative md:col-span-6">
+          <div className="relative md:col-span-6 flex items-center justify-center">
+            {/* Glassmorphic border container */}
             <div
-              className="relative aspect-[4/5] w-full animate-veil-in overflow-hidden"
-              style={{ boxShadow: "var(--shadow-bloom)" }}
+              className="relative aspect-[4/5] w-full max-w-[500px] animate-veil-in overflow-hidden rounded-[2.5rem] p-3 bg-white/30 backdrop-blur-md border border-plum/15 shadow-[0_30px_100px_rgba(82,58,77,0.12)]"
             >
-              <img
-                src={heroBride}
-                alt="Seddypluz Beauty Studio bridal editorial"
-                width={1280}
-                height={1600}
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0" style={{ background: "var(--gradient-veil)" }} />
-              <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-ivory">
-                <div>
-                  <p className="eyebrow opacity-80">Featured · Vol. IV</p>
-                  <p className="mt-2 font-display text-2xl italic">Her Royal Moment</p>
+              <div className="relative h-full w-full overflow-hidden rounded-[1.8rem]">
+                <img
+                  src={heroBride}
+                  alt="Seddypluz Beauty Studio bridal editorial"
+                  width={1280}
+                  height={1600}
+                  className="h-full w-full object-cover transition-transform duration-[4000ms] hover:scale-105"
+                />
+                <div className="absolute inset-0" style={{ background: "var(--gradient-veil)" }} />
+                <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-ivory">
+                  <div>
+                    <p className="eyebrow opacity-80">Featured · Vol. IV</p>
+                    <p className="mt-2 font-display text-2xl italic">Her Royal Moment</p>
+                  </div>
+                  <span className="font-display text-4xl italic">01</span>
                 </div>
-                <span className="font-display text-4xl italic">01</span>
               </div>
             </div>
-            <div className="absolute -left-6 -top-6 hidden md:block">
-              <div className="animate-shimmer flex h-24 w-24 items-center justify-center rounded-full border border-lavender-deep/40 text-plum">
-                <span className="eyebrow">Vol · IV</span>
+            
+            {/* Vol IV circular badge overlay */}
+            <div className="absolute -left-6 -top-6 hidden md:block z-10">
+              <div className="animate-shimmer flex h-24 w-24 flex-col items-center justify-center rounded-full border border-lavender-deep/30 bg-white/80 backdrop-blur-md text-plum shadow-md">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-lavender-deep">Vol</span>
+                <span className="font-display text-xl italic font-semibold mt-0.5">IV</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="relative border-t border-plum/10">
-          <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-12 gap-y-4 px-6 py-6 md:px-12">
-            <span className="eyebrow text-plum/50">Featured In</span>
-            {["Vogue Nigeria", "Bella Naija Weddings", "ThisDay Style", "Genevieve", "Bridal Ovation"].map((n) => (
-              <span key={n} className="font-display text-lg italic text-plum/60">{n}</span>
-            ))}
+        {/* Endless scrolling marquee for Featured In */}
+        <div className="relative border-t border-plum/10 bg-white/40 backdrop-blur-sm py-6 overflow-hidden z-10">
+          <div className="mx-auto max-w-[1600px] px-6 md:px-12 flex items-center gap-8">
+            <span className="eyebrow text-plum/50 shrink-0 select-none mr-4">Featured In</span>
+            <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]">
+              <div className="flex gap-16 w-[200%] animate-marquee shrink-0">
+                {/* Loop 1 */}
+                <div className="flex justify-around shrink-0 gap-16">
+                  {["Vogue Nigeria", "Bella Naija Weddings", "ThisDay Style", "Genevieve", "Bridal Ovation", "Elite Dossier", "Avenue Luxe"].map((n, idx) => (
+                    <span key={`f1-${idx}`} className="font-display text-lg italic text-plum/60 whitespace-nowrap">{n}</span>
+                  ))}
+                </div>
+                {/* Loop 2 (Identical for seamless loops) */}
+                <div className="flex justify-around shrink-0 gap-16">
+                  {["Vogue Nigeria", "Bella Naija Weddings", "ThisDay Style", "Genevieve", "Bridal Ovation", "Elite Dossier", "Avenue Luxe"].map((n, idx) => (
+                    <span key={`f2-${idx}`} className="font-display text-lg italic text-plum/60 whitespace-nowrap">{n}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -594,7 +643,7 @@ function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
             {shopProducts.map((p) => (
               <ProductCard key={p.id} p={p} />
             ))}

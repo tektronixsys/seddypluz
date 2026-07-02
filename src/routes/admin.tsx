@@ -1,5 +1,5 @@
+import React, { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -8,14 +8,14 @@ import {
   Mail,
   Phone,
   MessageSquare,
-  Search,
   Filter,
-  CheckCircle2,
-  XCircle,
+  Search,
   Clock3,
   Check,
   User,
   RefreshCw,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { getAppointments, updateAppointmentStatus } from "@/lib/appointments.functions";
 import type { AppointmentRequest } from "@/integrations/firebase/appointments";
@@ -28,8 +28,18 @@ function AdminDashboard() {
   const fetchAppointments = useServerFn(getAppointments);
   const updateStatus = useServerFn(updateAppointmentStatus);
 
+  const [passcode, setPasscode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("admin_passcode") || "";
+    }
+    return "";
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passcodeInput, setPasscodeInput] = useState("");
+  const [authChecking, setAuthChecking] = useState(false);
+
   const [appointments, setAppointments] = useState<AppointmentRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,24 +48,73 @@ function AdminDashboard() {
   const [editNotes, setEditNotes] = useState("");
   const [updating, setUpdating] = useState(false);
 
+  const verifyPasscode = async (codeToVerify: string, suppressToast = false) => {
+    setAuthChecking(true);
+    try {
+      const data = await fetchAppointments({ data: { passcode: codeToVerify } });
+      setAppointments(data);
+      setIsAuthenticated(true);
+      setPasscode(codeToVerify);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("admin_passcode", codeToVerify);
+      }
+      if (!suppressToast) {
+        toast.success("Atelier Access Granted.");
+      }
+    } catch (err) {
+      setIsAuthenticated(false);
+      if (!suppressToast) {
+        toast.error("Invalid passcode. Access denied.");
+      }
+    } finally {
+      setAuthChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    if (passcode) {
+      verifyPasscode(passcode, true);
+    }
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!passcodeInput.trim()) {
+      toast.error("Please enter the passcode.");
+      return;
+    }
+    verifyPasscode(passcodeInput);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setPasscode("");
+    setPasscodeInput("");
+    setAppointments([]);
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("admin_passcode");
+    }
+    toast.success("Atelier locked.");
+  };
+
   const loadData = async (showRefreshIndicator = false) => {
+    if (!passcode) return;
     if (showRefreshIndicator) setRefreshing(true);
     else setLoading(true);
 
     try {
-      const data = await fetchAppointments();
+      const data = await fetchAppointments({ data: { passcode } });
       setAppointments(data);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load requests.");
+      if (err instanceof Error && err.message.includes("Unauthorized")) {
+        setIsAuthenticated(false);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   const handleUpdate = async (id: string) => {
     setUpdating(true);
@@ -65,6 +124,7 @@ function AdminDashboard() {
           id,
           status: editStatus,
           notes: editNotes || null,
+          passcode,
         },
       });
       toast.success("Appointment request updated successfully.");
@@ -93,13 +153,13 @@ function AdminDashboard() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "confirmed":
-        return <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />;
+        return <Check className="h-3 w-3 shrink-0" />;
       case "declined":
-        return <XCircle className="h-4 w-4 shrink-0 text-rose-600" />;
+        return <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />;
       case "completed":
-        return <Check className="h-4 w-4 shrink-0 text-indigo-600" />;
+        return <User className="h-3 w-3 shrink-0" />;
       default:
-        return <Clock3 className="h-4 w-4 shrink-0 text-amber-600" />;
+        return <Clock3 className="h-3 w-3 shrink-0 animate-spin" style={{ animationDuration: "3s" }} />;
     }
   };
 
@@ -119,6 +179,62 @@ function AdminDashboard() {
     completed: appointments.filter((a) => a.status === "completed").length,
   };
 
+  // 1. LOGIN SCREEN (Unauthenticated state)
+  if (!isAuthenticated) {
+    return (
+      <div className="relative flex min-h-screen items-center justify-center bg-[#FAF9F5] text-plum px-6 overflow-hidden">
+        {/* Decorative background blobs */}
+        <div className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-mauve/15 blur-3xl opacity-70 pointer-events-none" />
+        <div className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full bg-lavender/20 blur-3xl opacity-70 pointer-events-none" />
+
+        <div className="relative w-full max-w-md rounded-3xl border border-plum/15 bg-white/70 p-8 md:p-10 shadow-[0_20px_50px_rgba(82,58,77,0.08)] backdrop-blur-xl z-10">
+          <div className="text-center">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-plum/5 text-plum border border-plum/10 shadow-inner">
+              <Lock className="h-5 w-5" />
+            </div>
+            <p className="eyebrow text-lavender-deep">— Administration</p>
+            <h2 className="mt-2 font-display text-3xl tracking-tight text-plum">Atelier Access</h2>
+            <p className="mt-3 text-sm leading-relaxed text-plum/60">
+              Please enter the studio passcode to view and manage client requests.
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="mt-8 space-y-5">
+            <div>
+              <input
+                type="password"
+                required
+                value={passcodeInput}
+                onChange={(e) => setPasscodeInput(e.target.value)}
+                placeholder="Enter Passcode"
+                className="h-12 w-full rounded-xl border border-plum/15 bg-white/50 px-4 text-center text-lg tracking-widest text-plum placeholder:tracking-normal placeholder:text-sm placeholder:text-plum/30 outline-none transition-all focus:border-lavender-deep focus:ring-1 focus:ring-lavender-deep"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={authChecking}
+              className="flex h-12 w-full items-center justify-center rounded-xl bg-plum text-xs uppercase tracking-[0.2em] font-bold text-white shadow-md transition-all hover:bg-plum-900 active:scale-[0.98] disabled:opacity-50"
+            >
+              {authChecking ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                "Unlock Dashboard"
+              )}
+            </button>
+          </form>
+
+          <div className="mt-8 border-t border-plum/10 pt-6 text-center">
+            <a href="/" className="text-xs uppercase tracking-wider text-plum/50 hover:text-plum">
+              ← Return to website
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. MAIN DASHBOARD (Authenticated state)
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-plum">
       {/* Top Header */}
@@ -136,6 +252,12 @@ function AdminDashboard() {
               title="Refresh requests"
             >
               <RefreshCw className={`h-4 w-4 text-plum ${refreshing ? "animate-spin" : ""}`} />
+            </button>
+            <button
+              onClick={handleLogout}
+              className="border border-plum/20 px-4 py-2 text-xs uppercase tracking-[0.2em] transition-colors hover:bg-rose-600 hover:text-white hover:border-rose-600"
+            >
+              Lock Atelier
             </button>
             <a
               href="/"

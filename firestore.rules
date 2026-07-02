@@ -1,10 +1,13 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow clients to submit booking requests (create only)
+    // Secure by default: Allow clients to submit requests, but block all read/update/delete access from the client side.
     match /appointment_requests/{document} {
       allow create: if true;
-      allow read, update, delete: if false; // Keep customer requests secure and private
+      
+      // Security Hardening: Client SDKs cannot read, update, or delete records directly.
+      // In production, database reads/updates should be executed via Firebase Admin SDK on the server, which bypasses these rules.
+      allow read, update, delete: if false;
     }
   }
 }
