@@ -21,10 +21,212 @@ import eventGlam from "@/assets/event-glam.jpg";
 import photoshoot from "@/assets/photoshoot.jpg";
 import training from "@/assets/training.jpg";
 import artist from "@/assets/artist.jpg";
+import lipstickImg from "@/assets/lipstick.png";
+import highlighterImg from "@/assets/highlighter.png";
+import brushImg from "@/assets/brush.png";
 
 export const Route = createFileRoute("/")({
   component: Home,
 });
+
+interface ProductDot {
+  color: string;
+  name: string;
+}
+
+interface ProductSpec {
+  icon: string;
+  label: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  desc: string;
+  img: string;
+  price: string;
+  bgClass: string;
+  dots: ProductDot[];
+  specs: ProductSpec[];
+}
+
+const shopProducts: Product[] = [
+  {
+    id: "lipstick",
+    name: "Atelier Lip Oil",
+    category: "Lip Care",
+    desc: "A nourishing glass-shine lip oil infused with organic jojoba and rosehip extract for all-day luminous hydration.",
+    img: lipstickImg,
+    price: "$22.00",
+    bgClass: "bg-[#F7EBE8]",
+    dots: [
+      { color: "#E08E88", name: "Rose" },
+      { color: "#E6A17A", name: "Peach" },
+      { color: "#B85D6B", name: "Plum" }
+    ],
+    specs: [
+      { icon: "💄", label: "8 ml" },
+      { icon: "✨", label: "Hydrate" },
+      { icon: "🕒", label: "12h" },
+      { icon: "🌱", label: "Vegan" }
+    ]
+  },
+  {
+    id: "highlighter",
+    name: "Aura Glow Powder",
+    category: "Face Glow",
+    desc: "A micro-milled baked highlighter that catches the light like dewy pearls, creating a seamless candlelit warmth.",
+    img: highlighterImg,
+    price: "$34.00",
+    bgClass: "bg-[#EAE4F8]",
+    dots: [
+      { color: "#EED7C5", name: "Champagne" },
+      { color: "#DFB091", name: "Bronze" },
+      { color: "#F6E8F1", name: "Pearl" }
+    ],
+    specs: [
+      { icon: "✨", label: "Baked" },
+      { icon: "⚖️", label: "10g" },
+      { icon: "🌟", label: "Satin" },
+      { icon: "🌿", label: "Clean" }
+    ]
+  },
+  {
+    id: "brush_set",
+    name: "Pro Artistry Brush",
+    category: "Tools",
+    desc: "Crafted with ultra-soft synthetic bristles and a walnut wood handle for seamless cream and powder blending.",
+    img: brushImg,
+    price: "$18.50",
+    bgClass: "bg-[#FAF7F2]",
+    dots: [
+      { color: "#5C4033", name: "Walnut" },
+      { color: "#1A1A1A", name: "Obsidian" },
+      { color: "#D4AF37", name: "Gold" }
+    ],
+    specs: [
+      { icon: "🖌️", label: "Single" },
+      { icon: "🌱", label: "Vegan" },
+      { icon: "✨", label: "Pro" },
+      { icon: "🪵", label: "Wood" }
+    ]
+  }
+];
+
+function ProductCard({ p }: { p: Product }) {
+  const [selectedColor, setSelectedColor] = useState(p.dots[0].name);
+
+  return (
+    <div
+      className="group relative flex flex-col justify-between rounded-[2.5rem] bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+      style={{ boxShadow: "0 20px 40px -15px rgba(82, 58, 77, 0.05)" }}
+    >
+      <div>
+        {/* Top Image area */}
+        <div className={`relative w-full h-[320px] ${p.bgClass} rounded-3xl rounded-bl-[5rem] overflow-hidden flex items-center justify-center transition-colors duration-500`}>
+          {/* Back Arrow Button */}
+          <button className="absolute top-4 left-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/25 text-plum backdrop-blur-md transition-colors hover:bg-white/40">
+            <span className="text-lg">←</span>
+          </button>
+
+          {/* White Cutout Cart Section */}
+          <div className="absolute top-0 right-0 h-16 w-16 bg-white rounded-bl-3xl flex items-center justify-center">
+            <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#FAF9F5] text-plum transition-all hover:bg-plum/5 cursor-pointer">
+              <svg
+                className="h-4.5 w-4.5 text-plum"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              {/* Dot Badge */}
+              <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-amber-500" />
+            </button>
+          </div>
+
+          {/* Product Image */}
+          <img
+            src={p.img}
+            alt={p.name}
+            loading="lazy"
+            className="h-56 w-auto object-contain transition-transform duration-700 group-hover:scale-105"
+          />
+
+          {/* Color selectors */}
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
+            {p.dots.map((dot) => (
+              <button
+                key={dot.name}
+                onClick={() => setSelectedColor(dot.name)}
+                className="flex flex-col items-center gap-1 group/dot cursor-pointer"
+              >
+                <span
+                  className={`h-4.5 w-4.5 rounded-full border-2 transition-all duration-300 ${
+                    selectedColor === dot.name ? "border-plum scale-110" : "border-transparent scale-90"
+                  }`}
+                  style={{ backgroundColor: dot.color }}
+                />
+                <span className="text-[10px] uppercase tracking-wider font-semibold text-plum/60 opacity-0 group-hover/dot:opacity-100 transition-opacity">
+                  {dot.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Details section */}
+        <div className="px-2 pt-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="font-sans font-bold text-2xl tracking-tight text-plum">
+                {p.name}
+              </h3>
+              <p className="text-xs uppercase tracking-wider text-lavender-deep font-semibold mt-1">
+                {p.category} • {selectedColor}
+              </p>
+            </div>
+            {/* Heart Button */}
+            <button className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-400 text-white shadow-[0_4px_12px_rgba(251,191,36,0.3)] transition-transform hover:scale-110 active:scale-95 cursor-pointer">
+              <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </button>
+          </div>
+
+          <p className="mt-4 text-sm leading-relaxed text-plum/65">
+            {p.desc}
+          </p>
+
+          {/* Specs badges */}
+          <div className="mt-6 flex flex-wrap gap-2">
+            {p.specs.map((spec, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-1.5 rounded-xl bg-plum/5 px-3 py-1.5 text-xs text-plum/85 font-medium"
+              >
+                <span className="text-sm">{spec.icon}</span>
+                <span>{spec.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Price & CTA bar */}
+      <div className="mt-8 px-2 flex items-center justify-between">
+        <span className="text-2xl font-bold text-plum font-sans">
+          {p.price}
+        </span>
+        <button className="rounded-tl-2xl rounded-br-2xl bg-amber-400 px-6 py-3.5 text-xs uppercase tracking-widest font-bold text-plum transition-all hover:bg-plum hover:text-[#FAF9F5] active:scale-[0.98] cursor-pointer">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  );
+}
 
 const services = [
   { n: "01", name: "Bridal Makeup", desc: "Bespoke bridal artistry crafted for your once-in-a-lifetime moment." },
@@ -119,7 +321,7 @@ function Home() {
             <span className="eyebrow text-lavender-deep">Beauty Studio</span>
           </a>
           <div className="hidden items-center gap-10 md:flex">
-            {["Services", "Portfolio", "Studio", "Journal", "Contact"].map((l) => (
+            {["Services", "Portfolio", "Studio", "Boutique", "Contact"].map((l) => (
               <a
                 key={l}
                 href={`#${l.toLowerCase()}`}
@@ -377,31 +579,24 @@ function Home() {
       </section>
 
       {/* JOURNAL / RECENT */}
-      <section id="journal" className="py-28 md:py-40">
+      {/* BOUTIQUE / PRODUCTS */}
+      <section id="boutique" className="py-28 md:py-40 bg-[#FAF9F5]">
         <div className="mx-auto max-w-[1600px] px-6 md:px-12">
-          <div className="mb-16 flex items-end justify-between">
+          <div className="mb-16 flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
             <div>
-              <p className="eyebrow text-lavender-deep">Journal</p>
-              <h2 className="mt-6 font-display text-5xl leading-[1] text-plum md:text-6xl">
-                Notes from<br /><em className="text-lavender-deep">the vanity.</em>
+              <p className="eyebrow text-lavender-deep">Boutique</p>
+              <h2 className="mt-6 font-display text-5xl leading-[1.1] text-plum md:text-6xl">
+                Signature <em className="text-lavender-deep">atelier products.</em>
               </h2>
             </div>
-            <a href="#" className="hidden text-xs uppercase tracking-[0.3em] text-plum/70 underline-offset-8 hover:underline md:inline">All entries →</a>
+            <p className="max-w-sm text-plum/70 md:text-right">
+              Curated cosmetic formulas and tools, designed to preserve the luxury skin finish of the studio.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
-            {[
-              { img: photoshoot, tag: "Editorial", title: "The New Bridal Palette", date: "March 2026" },
-              { img: gele1, tag: "Tradition", title: "Gele as Sculpture", date: "February 2026" },
-              { img: products, tag: "Studio", title: "Inside the Kit", date: "January 2026" },
-            ].map((a) => (
-              <article key={a.title} className="group cursor-pointer">
-                <div className="relative aspect-[4/5] overflow-hidden">
-                  <img src={a.img} alt={a.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-105" />
-                </div>
-                <p className="eyebrow mt-6 text-lavender-deep">{a.tag} · {a.date}</p>
-                <h3 className="mt-3 font-display text-3xl text-plum group-hover:italic">{a.title}</h3>
-              </article>
+            {shopProducts.map((p) => (
+              <ProductCard key={p.id} p={p} />
             ))}
           </div>
         </div>
