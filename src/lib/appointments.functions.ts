@@ -28,10 +28,12 @@ export const submitAppointment = createServerFn({ method: "POST" })
     }
   });
 
+const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE || "seddypluz_secure_admin_2026";
+
 export const getAppointments = createServerFn({ method: "POST" })
   .validator(z.object({ passcode: z.string() }))
   .handler(async ({ data }) => {
-    if (data.passcode !== process.env.ADMIN_PASSCODE) {
+    if (data.passcode !== ADMIN_PASSCODE) {
       throw new Error("Unauthorized: Invalid passcode.");
     }
     try {
@@ -53,7 +55,7 @@ const updateSchema = z.object({
 export const updateAppointmentStatus = createServerFn({ method: "POST" })
   .validator(updateSchema)
   .handler(async ({ data }) => {
-    if (data.passcode !== process.env.ADMIN_PASSCODE) {
+    if (data.passcode !== ADMIN_PASSCODE) {
       throw new Error("Unauthorized: Invalid passcode.");
     }
     try {
@@ -64,3 +66,4 @@ export const updateAppointmentStatus = createServerFn({ method: "POST" })
       throw new Error("Unable to update appointment request.");
     }
   });
+
