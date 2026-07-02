@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import { submitAppointmentToFirestore } from "@/integrations/firebase/appointments";
 
 const appointmentSchema = z.object({
   name: z.string().trim().min(2, "Name is required").max(120, "Name is too long"),
@@ -15,20 +15,11 @@ const appointmentSchema = z.object({
 export const submitAppointment = createServerFn({ method: "POST" })
   .validator(appointmentSchema)
   .handler(async ({ data }) => {
-    const { error } = await supabase.from("appointment_requests").insert({
-      name: data.name,
-      email: data.email,
-      phone: data.phone || null,
-      service: data.service,
-      appointment_date: data.appointmentDate,
-      preferred_time: data.preferredTime,
-      notes: data.notes || null,
-    });
-
-    if (error) {
+    try {
+      await submitAppointmentToFirestore(data);
+      return { ok: true };
+    } catch (error) {
       console.error("Appointment submission failed:", error);
       throw new Error("Unable to submit your request. Please try again shortly.");
     }
-
-    return { ok: true };
   });

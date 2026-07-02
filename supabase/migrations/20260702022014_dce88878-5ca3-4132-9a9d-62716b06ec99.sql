@@ -1,2 +1,0 @@
-DROP POLICY IF EXISTS "Anyone can submit an appointment request" ON public.appointment_requests;
-CREATE POLICY "Anyone can submit a pending appointment request" ON public.appointment_requests FOR INSERT TO anon WITH CHECK (status = 'pending');
