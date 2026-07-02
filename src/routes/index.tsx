@@ -124,14 +124,14 @@ function ProductCard({ p }: { p: Product }) {
     >
       <div>
         {/* Top Image area */}
-        <div className={`relative w-full h-[320px] ${p.bgClass} rounded-3xl rounded-bl-[5rem] overflow-hidden flex items-center justify-center transition-colors duration-500`}>
+        <div className={`relative w-full h-[320px] ${p.bgClass} rounded-3xl rounded-bl-[5rem] overflow-hidden transition-colors duration-500`}>
           {/* Back Arrow Button */}
-          <button className="absolute top-4 left-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/25 text-plum backdrop-blur-md transition-colors hover:bg-white/40">
+          <button className="absolute top-4 left-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/25 text-plum backdrop-blur-md transition-colors hover:bg-white/40 z-10">
             <span className="text-lg">←</span>
           </button>
 
           {/* White Cutout Cart Section */}
-          <div className="absolute top-0 right-0 h-16 w-16 bg-white rounded-bl-3xl flex items-center justify-center">
+          <div className="absolute top-0 right-0 h-16 w-16 bg-white rounded-bl-3xl flex items-center justify-center z-10">
             <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#FAF9F5] text-plum transition-all hover:bg-plum/5 cursor-pointer">
               <svg
                 className="h-4.5 w-4.5 text-plum"
@@ -152,11 +152,11 @@ function ProductCard({ p }: { p: Product }) {
             src={p.img}
             alt={p.name}
             loading="lazy"
-            className="h-56 w-auto object-contain transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
 
           {/* Color selectors */}
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 z-10">
             {p.dots.map((dot) => (
               <button
                 key={dot.name}
