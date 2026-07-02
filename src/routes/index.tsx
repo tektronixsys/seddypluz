@@ -21,9 +21,9 @@ import eventGlam from "@/assets/event-glam.jpg";
 import photoshoot from "@/assets/photoshoot.jpg";
 import training from "@/assets/training.jpg";
 import artist from "@/assets/artist.jpg";
-import lipstickImg from "@/assets/lipstick.png";
-import highlighterImg from "@/assets/highlighter.png";
-import brushImg from "@/assets/brush.png";
+import hairStraightImg from "@/assets/hair_straight.png";
+import hairWaveImg from "@/assets/hair_wave.png";
+import hairCurlImg from "@/assets/hair_curl.png";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -53,63 +53,63 @@ interface Product {
 
 const shopProducts: Product[] = [
   {
-    id: "lipstick",
-    name: "Atelier Lip Oil",
-    category: "Lip Care",
-    desc: "A nourishing glass-shine lip oil infused with organic jojoba and rosehip extract for all-day luminous hydration.",
-    img: lipstickImg,
-    price: "$22.00",
+    id: "hair_straight",
+    name: "Bone Straight Weave",
+    category: "Luxury Extensions",
+    desc: "Premium double-drawn bone straight hair extensions with a mirror-like gloss finish and complete cuticle alignment.",
+    img: hairStraightImg,
+    price: "$280.00",
     bgClass: "bg-[#F7EBE8]",
     dots: [
-      { color: "#E08E88", name: "Rose" },
-      { color: "#E6A17A", name: "Peach" },
-      { color: "#B85D6B", name: "Plum" }
+      { color: "#121212", name: "22 Inch" },
+      { color: "#1C1C1C", name: "24 Inch" },
+      { color: "#2B2B2B", name: "26 Inch" }
     ],
     specs: [
-      { icon: "💄", label: "8 ml" },
-      { icon: "✨", label: "Hydrate" },
-      { icon: "🕒", label: "12h" },
-      { icon: "🌱", label: "Vegan" }
+      { icon: "👩‍🦰", label: "Straight" },
+      { icon: "📏", label: "22-26\"" },
+      { icon: "💎", label: "Remy" },
+      { icon: "⚖️", label: "300g" }
     ]
   },
   {
-    id: "highlighter",
-    name: "Aura Glow Powder",
-    category: "Face Glow",
-    desc: "A micro-milled baked highlighter that catches the light like dewy pearls, creating a seamless candlelit warmth.",
-    img: highlighterImg,
-    price: "$34.00",
+    id: "hair_wave",
+    name: "Water Wave Curls",
+    category: "Luxury Extensions",
+    desc: "Deeply defined water wave curls that hold their shape effortlessly, offering a lush, natural-volume wet look.",
+    img: hairWaveImg,
+    price: "$310.00",
     bgClass: "bg-[#EAE4F8]",
     dots: [
-      { color: "#EED7C5", name: "Champagne" },
-      { color: "#DFB091", name: "Bronze" },
-      { color: "#F6E8F1", name: "Pearl" }
+      { color: "#121212", name: "20 Inch" },
+      { color: "#1C1C1C", name: "22 Inch" },
+      { color: "#2B2B2B", name: "24 Inch" }
     ],
     specs: [
-      { icon: "✨", label: "Baked" },
-      { icon: "⚖️", label: "10g" },
-      { icon: "🌟", label: "Satin" },
-      { icon: "🌿", label: "Clean" }
+      { icon: "👩‍🦱", label: "Wavy" },
+      { icon: "📏", label: "20-24\"" },
+      { icon: "💎", label: "12A Grade" },
+      { icon: "⚖️", label: "300g" }
     ]
   },
   {
-    id: "brush_set",
-    name: "Pro Artistry Brush",
-    category: "Tools",
-    desc: "Crafted with ultra-soft synthetic bristles and a walnut wood handle for seamless cream and powder blending.",
-    img: brushImg,
-    price: "$18.50",
+    id: "hair_curl",
+    name: "Pixie Bouncy Curl",
+    category: "Luxury Extensions",
+    desc: "A bouncy, high-definition pixie curl wig style featuring short, tight ringlets that are full of life and texture.",
+    img: hairCurlImg,
+    price: "$195.00",
     bgClass: "bg-[#FAF7F2]",
     dots: [
-      { color: "#5C4033", name: "Walnut" },
-      { color: "#1A1A1A", name: "Obsidian" },
-      { color: "#D4AF37", name: "Gold" }
+      { color: "#121212", name: "12 Inch" },
+      { color: "#1C1C1C", name: "14 Inch" },
+      { color: "#2B2B2B", name: "16 Inch" }
     ],
     specs: [
-      { icon: "🖌️", label: "Single" },
-      { icon: "🌱", label: "Vegan" },
-      { icon: "✨", label: "Pro" },
-      { icon: "🪵", label: "Wood" }
+      { icon: "👩‍🦱", label: "Curly" },
+      { icon: "📏", label: "12-16\"" },
+      { icon: "💎", label: "Remy Lace" },
+      { icon: "⚖️", label: "250g" }
     ]
   }
 ];
