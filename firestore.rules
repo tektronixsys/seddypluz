@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow clients to submit booking requests (create only)
+    match /appointment_requests/{document} {
+      allow create: if true;
+      allow read, update, delete: if false; // Keep customer requests secure and private
+    }
+  }
+}
