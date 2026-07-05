@@ -1,7 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const required = ["ADMIN_PASSCODE", "ADMIN_SESSION_SECRET"];
+const required = [
+  "ADMIN_PASSCODE",
+  "ADMIN_SESSION_SECRET",
+  "FIREBASE_PROJECT_ID",
+  "FIREBASE_CLIENT_EMAIL",
+  "FIREBASE_PRIVATE_KEY",
+];
 
 function loadEnvFile(fileName) {
   const filePath = path.resolve(process.cwd(), fileName);
@@ -32,7 +38,15 @@ loadEnvFile(".env.local");
 
 const missing = required.filter((name) => {
   const value = process.env[name];
-  return !value || value.trim().length === 0 || value.includes("change-me") || value.includes("use-a-long-random-secret");
+  return (
+    !value ||
+    value.trim().length === 0 ||
+    value.includes("change-me") ||
+    value.includes("use-a-long-random-secret") ||
+    value.includes("your-firebase-project-id") ||
+    value.includes("firebase-adminsdk-xxxxx") ||
+    value.includes("YOUR_KEY")
+  );
 });
 
 if (missing.length > 0) {

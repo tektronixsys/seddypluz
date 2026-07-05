@@ -4,6 +4,9 @@ This project requires these server-side environment variables:
 
 - `ADMIN_PASSCODE`
 - `ADMIN_SESSION_SECRET`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
 
 ## 1) Generate strong values
 
@@ -21,6 +24,12 @@ $sessionSecret = -join ((48..57 + 65..90 + 97..122) | Get-Random -Count 64 | For
 ## 2) Set secrets in your deployment provider
 
 Set both variables in your production environment settings, then redeploy.
+
+For Firebase Admin credentials:
+
+- `FIREBASE_PROJECT_ID`: Firebase project id
+- `FIREBASE_CLIENT_EMAIL`: service account client email
+- `FIREBASE_PRIVATE_KEY`: private key (keep escaped newlines as `\n`)
 
 Common providers:
 

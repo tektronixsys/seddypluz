@@ -1,5 +1,5 @@
-import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy, serverTimestamp } from "firebase/firestore";
-import { db } from "./config";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { adminDb } from "./admin";
 
 export interface AppointmentData {
   name: string;
@@ -26,7 +26,7 @@ export interface AppointmentRequest {
 }
 
 export async function submitAppointmentToFirestore(data: AppointmentData) {
-  const docRef = await addDoc(collection(db, "appointment_requests"), {
+  const docRef = await adminDb.collection("appointment_requests").add({
     name: data.name,
     email: data.email,
     phone: data.phone || null,
@@ -35,21 +35,28 @@ export async function submitAppointmentToFirestore(data: AppointmentData) {
     preferred_time: data.preferredTime,
     notes: data.notes || null,
     status: "pending",
-    created_at: serverTimestamp(),
-    updated_at: serverTimestamp(),
+    created_at: FieldValue.serverTimestamp(),
+    updated_at: FieldValue.serverTimestamp(),
   });
 
   return docRef.id;
 }
 
 export async function getAppointmentRequestsFromFirestore(): Promise<AppointmentRequest[]> {
-  const q = query(collection(db, "appointment_requests"), orderBy("created_at", "desc"));
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await adminDb
+    .collection("appointment_requests")
+    .orderBy("created_at", "desc")
+    .get();
+
   const results: AppointmentRequest[] = [];
-  querySnapshot.forEach((docSnap) => {
-    const data = docSnap.data();
+  querySnapshot.forEach((docSnapshot) => {
+    const data = docSnapshot.data();
+
+    const createdAt = data.created_at;
+    const updatedAt = data.updated_at;
+
     results.push({
-      id: docSnap.id,
+      id: docSnapshot.id,
       name: data.name || "",
       email: data.email || "",
       phone: data.phone || null,
@@ -58,18 +65,18 @@ export async function getAppointmentRequestsFromFirestore(): Promise<Appointment
       preferred_time: data.preferred_time || "",
       notes: data.notes || null,
       status: data.status || "pending",
-      created_at: data.created_at ? (typeof data.created_at.toDate === "function" ? data.created_at.toDate().toISOString() : data.created_at) : null,
-      updated_at: data.updated_at ? (typeof data.updated_at.toDate === "function" ? data.updated_at.toDate().toISOString() : data.updated_at) : null,
+      created_at: createdAt instanceof Timestamp ? createdAt.toDate().toISOString() : null,
+      updated_at: updatedAt instanceof Timestamp ? updatedAt.toDate().toISOString() : null,
     });
   });
+
   return results;
 }
 
 export async function updateAppointmentRequestInFirestore(id: string, status: string, notes: string | null) {
-  const docRef = doc(db, "appointment_requests", id);
-  await updateDoc(docRef, {
+  await adminDb.collection("appointment_requests").doc(id).update({
     status,
     notes: notes || null,
-    updated_at: serverTimestamp(),
+    updated_at: FieldValue.serverTimestamp(),
   });
 }
