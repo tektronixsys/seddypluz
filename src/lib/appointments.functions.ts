@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { clearSession, getRequestIP, getSession, updateSession } from "@tanstack/react-start/server";
 import { z } from "zod";
 import {
   submitAppointmentToFirestore,
@@ -28,14 +29,159 @@ export const submitAppointment = createServerFn({ method: "POST" })
     }
   });
 
-const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE || "seddypluz_secure_admin_2026";
+function getRequiredEnvVar(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Server misconfiguration: ${name} is not set.`);
+  }
+  return value;
+}
 
-export const getAppointments = createServerFn({ method: "POST" })
-  .validator(z.object({ passcode: z.string() }))
+function getAdminSessionConfig() {
+  const maxAgeSeconds = 60 * 60 * 8;
+  return {
+    name: "seddypluz_admin_session",
+    password: getRequiredEnvVar("ADMIN_SESSION_SECRET"),
+    maxAge: maxAgeSeconds,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax" as const,
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: maxAgeSeconds,
+    },
+  };
+}
+
+type LoginAttemptState = {
+  attempts: number;
+  windowStartedAt: number;
+  lockUntil: number;
+  lastSeenAt: number;
+};
+
+const loginAttemptsByIp = new Map<string, LoginAttemptState>();
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_MS = 30 * 60 * 1000;
+const MAX_TRACKED_IPS = 2000;
+
+function getClientIpKey() {
+  return getRequestIP({ xForwardedFor: true }) ?? "unknown";
+}
+
+function pruneRateLimitStore(now: number) {
+  if (loginAttemptsByIp.size <= MAX_TRACKED_IPS) return;
+  for (const [key, state] of loginAttemptsByIp) {
+    const stale = now - state.lastSeenAt > LOCKOUT_MS;
+    if (stale) {
+      loginAttemptsByIp.delete(key);
+    }
+  }
+}
+
+function checkRateLimit(ipKey: string, now: number): { blocked: boolean; retryAfterSeconds: number } {
+  const state = loginAttemptsByIp.get(ipKey);
+  if (!state) {
+    return { blocked: false, retryAfterSeconds: 0 };
+  }
+
+  if (state.lockUntil > now) {
+    return {
+      blocked: true,
+      retryAfterSeconds: Math.max(1, Math.ceil((state.lockUntil - now) / 1000)),
+    };
+  }
+
+  if (now - state.windowStartedAt > LOGIN_WINDOW_MS) {
+    loginAttemptsByIp.delete(ipKey);
+    return { blocked: false, retryAfterSeconds: 0 };
+  }
+
+  return { blocked: false, retryAfterSeconds: 0 };
+}
+
+function recordFailedAttempt(ipKey: string, now: number) {
+  const current = loginAttemptsByIp.get(ipKey);
+
+  if (!current || now - current.windowStartedAt > LOGIN_WINDOW_MS) {
+    loginAttemptsByIp.set(ipKey, {
+      attempts: 1,
+      windowStartedAt: now,
+      lockUntil: 0,
+      lastSeenAt: now,
+    });
+    return;
+  }
+
+  const nextAttempts = current.attempts + 1;
+  const lockUntil = nextAttempts >= MAX_LOGIN_ATTEMPTS ? now + LOCKOUT_MS : 0;
+  loginAttemptsByIp.set(ipKey, {
+    attempts: nextAttempts,
+    windowStartedAt: current.windowStartedAt,
+    lockUntil,
+    lastSeenAt: now,
+  });
+}
+
+function resetAttempts(ipKey: string) {
+  loginAttemptsByIp.delete(ipKey);
+}
+
+async function requireAdminSession() {
+  const session = await getSession<{ isAdmin?: boolean }>(getAdminSessionConfig());
+  if (session.data.isAdmin !== true) {
+    throw new Error("Unauthorized");
+  }
+}
+
+const adminLoginSchema = z.object({
+  passcode: z.string().min(1, "Passcode is required"),
+});
+
+export const adminLogin = createServerFn({ method: "POST" })
+  .validator(adminLoginSchema)
   .handler(async ({ data }) => {
-    if (data.passcode !== ADMIN_PASSCODE) {
+    const now = Date.now();
+    const ipKey = getClientIpKey();
+    pruneRateLimitStore(now);
+
+    const rateLimit = checkRateLimit(ipKey, now);
+    if (rateLimit.blocked) {
+      throw new Error(`Too many login attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.`);
+    }
+
+    const expectedPasscode = getRequiredEnvVar("ADMIN_PASSCODE");
+    if (data.passcode !== expectedPasscode) {
+      recordFailedAttempt(ipKey, now);
       throw new Error("Unauthorized: Invalid passcode.");
     }
+
+    resetAttempts(ipKey);
+
+    await updateSession<{ isAdmin?: boolean; authenticatedAt?: string }>(
+      getAdminSessionConfig(),
+      {
+        isAdmin: true,
+        authenticatedAt: new Date().toISOString(),
+      },
+    );
+
+    return { ok: true };
+  });
+
+export const adminLogout = createServerFn({ method: "POST" }).handler(async () => {
+  await clearSession(getAdminSessionConfig());
+  return { ok: true };
+});
+
+export const getAdminAuthStatus = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await getSession<{ isAdmin?: boolean }>(getAdminSessionConfig());
+  return { authenticated: session.data.isAdmin === true };
+});
+
+export const getAppointments = createServerFn({ method: "GET" }).handler(async () => {
+    await requireAdminSession();
     try {
       const appointments = await getAppointmentRequestsFromFirestore();
       return appointments;
@@ -49,15 +195,12 @@ const updateSchema = z.object({
   id: z.string(),
   status: z.enum(["pending", "confirmed", "declined", "completed"]),
   notes: z.string().max(1000).nullable(),
-  passcode: z.string(),
 });
 
 export const updateAppointmentStatus = createServerFn({ method: "POST" })
   .validator(updateSchema)
   .handler(async ({ data }) => {
-    if (data.passcode !== ADMIN_PASSCODE) {
-      throw new Error("Unauthorized: Invalid passcode.");
-    }
+    await requireAdminSession();
     try {
       await updateAppointmentRequestInFirestore(data.id, data.status, data.notes);
       return { ok: true };

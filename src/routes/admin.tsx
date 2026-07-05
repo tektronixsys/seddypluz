@@ -15,9 +15,14 @@ import {
   User,
   RefreshCw,
   Lock,
-  Unlock,
 } from "lucide-react";
-import { getAppointments, updateAppointmentStatus } from "@/lib/appointments.functions";
+import {
+  adminLogin,
+  adminLogout,
+  getAdminAuthStatus,
+  getAppointments,
+  updateAppointmentStatus,
+} from "@/lib/appointments.functions";
 import type { AppointmentRequest } from "@/integrations/firebase/appointments";
 
 export const Route = createFileRoute("/admin")({
@@ -25,15 +30,12 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminDashboard() {
+  const login = useServerFn(adminLogin);
+  const logout = useServerFn(adminLogout);
+  const getAuthStatus = useServerFn(getAdminAuthStatus);
   const fetchAppointments = useServerFn(getAppointments);
   const updateStatus = useServerFn(updateAppointmentStatus);
 
-  const [passcode, setPasscode] = useState(() => {
-    if (typeof window !== "undefined") {
-      return sessionStorage.getItem("admin_passcode") || "";
-    }
-    return "";
-  });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passcodeInput, setPasscodeInput] = useState("");
   const [authChecking, setAuthChecking] = useState(false);
@@ -48,23 +50,21 @@ function AdminDashboard() {
   const [editNotes, setEditNotes] = useState("");
   const [updating, setUpdating] = useState(false);
 
-  const verifyPasscode = async (codeToVerify: string, suppressToast = false) => {
+  const verifySession = async (suppressToast = true) => {
     setAuthChecking(true);
     try {
-      const data = await fetchAppointments({ data: { passcode: codeToVerify } });
-      setAppointments(data);
-      setIsAuthenticated(true);
-      setPasscode(codeToVerify);
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("admin_passcode", codeToVerify);
+      const status = await getAuthStatus();
+      const authenticated = status.authenticated;
+      setIsAuthenticated(authenticated);
+      if (authenticated) {
+        await loadData();
+      } else if (!suppressToast) {
+        toast.error("Session expired. Please login again.");
       }
-      if (!suppressToast) {
-        toast.success("Atelier Access Granted.");
-      }
-    } catch (err) {
+    } catch {
       setIsAuthenticated(false);
       if (!suppressToast) {
-        toast.error("Invalid passcode. Access denied.");
+        toast.error("Unable to verify session.");
       }
     } finally {
       setAuthChecking(false);
@@ -72,43 +72,56 @@ function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (passcode) {
-      verifyPasscode(passcode, true);
-    }
+    verifySession(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!passcodeInput.trim()) {
       toast.error("Please enter the passcode.");
       return;
     }
-    verifyPasscode(passcodeInput);
+
+    setAuthChecking(true);
+    try {
+      await login({ data: { passcode: passcodeInput.trim() } });
+      setIsAuthenticated(true);
+      setPasscodeInput("");
+      toast.success("Atelier Access Granted.");
+      await loadData();
+    } catch {
+      setIsAuthenticated(false);
+      toast.error("Invalid passcode. Access denied.");
+    } finally {
+      setAuthChecking(false);
+    }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      // Even if remote logout fails, clear local admin state.
+    }
     setIsAuthenticated(false);
-    setPasscode("");
     setPasscodeInput("");
     setAppointments([]);
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("admin_passcode");
-    }
     toast.success("Atelier locked.");
   };
 
   const loadData = async (showRefreshIndicator = false) => {
-    if (!passcode) return;
     if (showRefreshIndicator) setRefreshing(true);
     else setLoading(true);
 
     try {
-      const data = await fetchAppointments({ data: { passcode } });
+      const data = await fetchAppointments();
       setAppointments(data);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load requests.");
       if (err instanceof Error && err.message.includes("Unauthorized")) {
         setIsAuthenticated(false);
+        toast.error("Session expired. Please login again.");
       }
     } finally {
       setLoading(false);
@@ -124,7 +137,6 @@ function AdminDashboard() {
           id,
           status: editStatus,
           notes: editNotes || null,
-          passcode,
         },
       });
       toast.success("Appointment request updated successfully.");
