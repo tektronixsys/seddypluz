@@ -1,5 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import { clearSession, getRequestIP, getSession, updateSession } from "@tanstack/react-start/server";
+import {
+  clearSession,
+  getRequestIP,
+  getSession,
+  updateSession,
+} from "@tanstack/react-start/server";
 import { z } from "zod";
 import {
   submitAppointmentToFirestore,
@@ -80,7 +85,10 @@ function pruneRateLimitStore(now: number) {
   }
 }
 
-function checkRateLimit(ipKey: string, now: number): { blocked: boolean; retryAfterSeconds: number } {
+function checkRateLimit(
+  ipKey: string,
+  now: number,
+): { blocked: boolean; retryAfterSeconds: number } {
   const state = loginAttemptsByIp.get(ipKey);
   if (!state) {
     return { blocked: false, retryAfterSeconds: 0 };
@@ -148,7 +156,9 @@ export const adminLogin = createServerFn({ method: "POST" })
 
     const rateLimit = checkRateLimit(ipKey, now);
     if (rateLimit.blocked) {
-      throw new Error(`Too many login attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.`);
+      throw new Error(
+        `Too many login attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.`,
+      );
     }
 
     const expectedPasscode = getRequiredEnvVar("ADMIN_PASSCODE");
@@ -159,13 +169,10 @@ export const adminLogin = createServerFn({ method: "POST" })
 
     resetAttempts(ipKey);
 
-    await updateSession<{ isAdmin?: boolean; authenticatedAt?: string }>(
-      getAdminSessionConfig(),
-      {
-        isAdmin: true,
-        authenticatedAt: new Date().toISOString(),
-      },
-    );
+    await updateSession<{ isAdmin?: boolean; authenticatedAt?: string }>(getAdminSessionConfig(), {
+      isAdmin: true,
+      authenticatedAt: new Date().toISOString(),
+    });
 
     return { ok: true };
   });
@@ -181,15 +188,15 @@ export const getAdminAuthStatus = createServerFn({ method: "GET" }).handler(asyn
 });
 
 export const getAppointments = createServerFn({ method: "GET" }).handler(async () => {
-    await requireAdminSession();
-    try {
-      const appointments = await getAppointmentRequestsFromFirestore();
-      return appointments;
-    } catch (error) {
-      console.error("Failed to fetch appointments:", error);
-      throw new Error("Unable to fetch appointment requests.");
-    }
-  });
+  await requireAdminSession();
+  try {
+    const appointments = await getAppointmentRequestsFromFirestore();
+    return appointments;
+  } catch (error) {
+    console.error("Failed to fetch appointments:", error);
+    throw new Error("Unable to fetch appointment requests.");
+  }
+});
 
 const updateSchema = z.object({
   id: z.string(),
@@ -209,4 +216,3 @@ export const updateAppointmentStatus = createServerFn({ method: "POST" })
       throw new Error("Unable to update appointment request.");
     }
   });
-

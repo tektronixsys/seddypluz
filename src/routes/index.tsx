@@ -64,14 +64,14 @@ const shopProducts: Product[] = [
     dots: [
       { color: "#121212", name: "22 Inch" },
       { color: "#1C1C1C", name: "24 Inch" },
-      { color: "#2B2B2B", name: "26 Inch" }
+      { color: "#2B2B2B", name: "26 Inch" },
     ],
     specs: [
       { icon: "👩‍🦰", label: "Straight" },
-      { icon: "📏", label: "22-26\"" },
+      { icon: "📏", label: '22-26"' },
       { icon: "💎", label: "Remy" },
-      { icon: "⚖️", label: "300g" }
-    ]
+      { icon: "⚖️", label: "300g" },
+    ],
   },
   {
     id: "hair_wave",
@@ -84,14 +84,14 @@ const shopProducts: Product[] = [
     dots: [
       { color: "#121212", name: "20 Inch" },
       { color: "#1C1C1C", name: "22 Inch" },
-      { color: "#2B2B2B", name: "24 Inch" }
+      { color: "#2B2B2B", name: "24 Inch" },
     ],
     specs: [
       { icon: "👩‍🦱", label: "Wavy" },
-      { icon: "📏", label: "20-24\"" },
+      { icon: "📏", label: '20-24"' },
       { icon: "💎", label: "12A Grade" },
-      { icon: "⚖️", label: "300g" }
-    ]
+      { icon: "⚖️", label: "300g" },
+    ],
   },
   {
     id: "hair_curl",
@@ -104,14 +104,14 @@ const shopProducts: Product[] = [
     dots: [
       { color: "#121212", name: "12 Inch" },
       { color: "#1C1C1C", name: "14 Inch" },
-      { color: "#2B2B2B", name: "16 Inch" }
+      { color: "#2B2B2B", name: "16 Inch" },
     ],
     specs: [
       { icon: "👩‍🦱", label: "Curly" },
-      { icon: "📏", label: "12-16\"" },
+      { icon: "📏", label: '12-16"' },
       { icon: "💎", label: "Remy Lace" },
-      { icon: "⚖️", label: "250g" }
-    ]
+      { icon: "⚖️", label: "250g" },
+    ],
   },
   {
     id: "hair_bob",
@@ -124,15 +124,15 @@ const shopProducts: Product[] = [
     dots: [
       { color: "#EED7A1", name: "Blonde" },
       { color: "#1C1C1C", name: "Black" },
-      { color: "#5C4033", name: "Brunette" }
+      { color: "#5C4033", name: "Brunette" },
     ],
     specs: [
       { icon: "💇‍♀️", label: "Bob Cut" },
-      { icon: "📏", label: "12-14\"" },
+      { icon: "📏", label: '12-14"' },
       { icon: "💎", label: "HD Lace" },
-      { icon: "⚖️", label: "200g" }
-    ]
-  }
+      { icon: "⚖️", label: "200g" },
+    ],
+  },
 ];
 
 function ProductCard({ p }: { p: Product }) {
@@ -145,7 +145,9 @@ function ProductCard({ p }: { p: Product }) {
     >
       <div>
         {/* Top Image area */}
-        <div className={`relative w-full h-[320px] ${p.bgClass} rounded-3xl rounded-bl-[5rem] overflow-hidden transition-colors duration-500`}>
+        <div
+          className={`relative w-full h-[320px] ${p.bgClass} rounded-3xl rounded-bl-[5rem] overflow-hidden transition-colors duration-500`}
+        >
           {/* Back Arrow Button */}
           <button className="absolute top-4 left-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/25 text-plum backdrop-blur-md transition-colors hover:bg-white/40 z-10">
             <span className="text-lg">←</span>
@@ -161,7 +163,11 @@ function ProductCard({ p }: { p: Product }) {
                 strokeWidth="2"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
               </svg>
               {/* Dot Badge */}
               <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-amber-500" />
@@ -186,7 +192,9 @@ function ProductCard({ p }: { p: Product }) {
               >
                 <span
                   className={`h-4.5 w-4.5 rounded-full border-2 transition-all duration-300 ${
-                    selectedColor === dot.name ? "border-plum scale-110" : "border-transparent scale-90"
+                    selectedColor === dot.name
+                      ? "border-plum scale-110"
+                      : "border-transparent scale-90"
                   }`}
                   style={{ backgroundColor: dot.color }}
                 />
@@ -202,9 +210,7 @@ function ProductCard({ p }: { p: Product }) {
         <div className="px-2 pt-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="font-sans font-bold text-2xl tracking-tight text-plum">
-                {p.name}
-              </h3>
+              <h3 className="font-sans font-bold text-2xl tracking-tight text-plum">{p.name}</h3>
               <p className="text-xs uppercase tracking-wider text-lavender-deep font-semibold mt-1">
                 {p.category} • {selectedColor}
               </p>
@@ -217,9 +223,7 @@ function ProductCard({ p }: { p: Product }) {
             </button>
           </div>
 
-          <p className="mt-4 text-sm leading-relaxed text-plum/65">
-            {p.desc}
-          </p>
+          <p className="mt-4 text-sm leading-relaxed text-plum/65">{p.desc}</p>
 
           {/* Specs badges */}
           <div className="mt-6 flex flex-wrap gap-2">
@@ -238,9 +242,7 @@ function ProductCard({ p }: { p: Product }) {
 
       {/* Price & CTA bar */}
       <div className="mt-8 px-2 flex items-center justify-between">
-        <span className="text-2xl font-bold text-plum font-sans">
-          {p.price}
-        </span>
+        <span className="text-2xl font-bold text-plum font-sans">{p.price}</span>
         <button className="rounded-tl-2xl rounded-br-2xl bg-amber-400 px-6 py-3.5 text-xs uppercase tracking-widest font-bold text-plum transition-all hover:bg-plum hover:text-[#FAF9F5] active:scale-[0.98] cursor-pointer">
           Add to Cart
         </button>
@@ -250,14 +252,46 @@ function ProductCard({ p }: { p: Product }) {
 }
 
 const services = [
-  { n: "01", name: "Bridal Makeup", desc: "Bespoke bridal artistry crafted for your once-in-a-lifetime moment." },
-  { n: "02", name: "Gele Styling", desc: "Sculptural headwrap artistry celebrating heritage with couture precision." },
-  { n: "03", name: "Professional Makeup", desc: "Signature glam for the woman who commands every room she enters." },
-  { n: "04", name: "Beauty Transformation", desc: "A studio experience that reveals the face you already carry within." },
-  { n: "05", name: "Beauty Training", desc: "Intimate masterclasses for artists shaping the next chapter of beauty." },
-  { n: "06", name: "Home Service Makeup", desc: "The studio, arrived — private, unhurried, entirely yours." },
-  { n: "07", name: "Photoshoot Makeup", desc: "Camera-luminous finishes tuned for editorial and campaign light." },
-  { n: "08", name: "Event Glam", desc: "Statement looks for galas, soirées, and every night worth remembering." },
+  {
+    n: "01",
+    name: "Bridal Makeup",
+    desc: "Bespoke bridal artistry crafted for your once-in-a-lifetime moment.",
+  },
+  {
+    n: "02",
+    name: "Gele Styling",
+    desc: "Sculptural headwrap artistry celebrating heritage with couture precision.",
+  },
+  {
+    n: "03",
+    name: "Professional Makeup",
+    desc: "Signature glam for the woman who commands every room she enters.",
+  },
+  {
+    n: "04",
+    name: "Beauty Transformation",
+    desc: "A studio experience that reveals the face you already carry within.",
+  },
+  {
+    n: "05",
+    name: "Beauty Training",
+    desc: "Intimate masterclasses for artists shaping the next chapter of beauty.",
+  },
+  {
+    n: "06",
+    name: "Home Service Makeup",
+    desc: "The studio, arrived — private, unhurried, entirely yours.",
+  },
+  {
+    n: "07",
+    name: "Photoshoot Makeup",
+    desc: "Camera-luminous finishes tuned for editorial and campaign light.",
+  },
+  {
+    n: "08",
+    name: "Event Glam",
+    desc: "Statement looks for galas, soirées, and every night worth remembering.",
+  },
 ];
 
 const portfolio = [
@@ -272,9 +306,16 @@ const portfolio = [
 ];
 
 const timeSlots = [
-  "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
-  "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM",
-  "05:00 PM", "06:00 PM",
+  "09:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "01:00 PM",
+  "02:00 PM",
+  "03:00 PM",
+  "04:00 PM",
+  "05:00 PM",
+  "06:00 PM",
 ];
 
 const appointmentFormSchema = z.object({
@@ -334,7 +375,9 @@ function Home() {
       {/* NAV */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          scrolled ? "bg-background/85 backdrop-blur-xl border-b border-border/60" : "bg-transparent"
+          scrolled
+            ? "bg-background/85 backdrop-blur-xl border-b border-border/60"
+            : "bg-transparent"
         }`}
       >
         {/* Announcements Widget */}
@@ -342,11 +385,14 @@ function Home() {
           <div className="bg-plum text-[#FAF9F5] border-b border-plum/10 relative overflow-hidden flex items-center justify-between px-6 py-2.5 md:px-12 z-50">
             {/* Ambient sliding shimmer */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
-            
+
             <div className="flex-1 flex items-center justify-center gap-2 text-[10px] md:text-xs uppercase tracking-widest font-semibold z-10 text-center">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping shrink-0" />
               <span>
-                Get <strong className="text-amber-300 font-bold font-sans">50% off</strong> (up to ₦200,000) your first Luxury wig order and <strong className="text-amber-300 font-bold font-sans">20% off</strong> installation & services.
+                Get <strong className="text-amber-300 font-bold font-sans">50% off</strong> (up to
+                ₦200,000) your first Luxury wig order and{" "}
+                <strong className="text-amber-300 font-bold font-sans">20% off</strong> installation
+                & services.
               </span>
               <span className="hidden sm:inline-block h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" />
             </div>
@@ -356,7 +402,13 @@ function Home() {
               className="text-[#FAF9F5]/50 hover:text-[#FAF9F5]/90 transition-colors p-1 z-10 cursor-pointer"
               title="Close announcement"
             >
-              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <svg
+                className="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -391,19 +443,32 @@ function Home() {
       <section id="top" className="relative min-h-screen overflow-hidden">
         {/* Dynamic ambient background blobs */}
         <div className="absolute inset-0 bg-[#FAF9F5]" />
-        <div className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-mauve/20 blur-3xl opacity-75 animate-pulse" style={{ animationDuration: "8s" }} />
-        <div className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full bg-lavender/25 blur-3xl opacity-75 animate-pulse" style={{ animationDuration: "12s" }} />
-        
+        <div
+          className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-mauve/20 blur-3xl opacity-75 animate-pulse"
+          style={{ animationDuration: "8s" }}
+        />
+        <div
+          className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full bg-lavender/25 blur-3xl opacity-75 animate-pulse"
+          style={{ animationDuration: "12s" }}
+        />
+
         {/* Fine-line grid pattern for luxury feel */}
-        <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "radial-gradient(circle, var(--plum) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+        <div
+          className="absolute inset-0 opacity-[0.02] pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, var(--plum) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
 
         <div className="relative mx-auto grid max-w-[1600px] grid-cols-1 gap-10 px-6 pt-32 pb-16 md:grid-cols-12 md:gap-8 md:px-12 md:pt-40 md:pb-24 z-10">
           <div className="md:col-span-6 md:pt-16">
-            <div className="inline-flex items-center gap-2 animate-float-up" style={{ animationDelay: "0.1s" }}>
+            <div
+              className="inline-flex items-center gap-2 animate-float-up"
+              style={{ animationDelay: "0.1s" }}
+            >
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
-              <p className="eyebrow text-lavender-deep">
-                — Est. Luxury Beauty Atelier
-              </p>
+              <p className="eyebrow text-lavender-deep">— Est. Luxury Beauty Atelier</p>
             </div>
             <h1
               className="mt-8 animate-float-up font-display text-[3.5rem] leading-[0.95] tracking-tight text-plum md:text-[6.5rem]"
@@ -411,7 +476,9 @@ function Home() {
             >
               Where the
               <br />
-              <span className="font-normal italic text-transparent bg-clip-text bg-gradient-to-r from-lavender-deep via-plum to-[#D4AF37] drop-shadow-sm">quiet art</span>
+              <span className="font-normal italic text-transparent bg-clip-text bg-gradient-to-r from-lavender-deep via-plum to-[#D4AF37] drop-shadow-sm">
+                quiet art
+              </span>
               <br />
               of beauty
               <br />
@@ -447,9 +514,7 @@ function Home() {
 
           <div className="relative md:col-span-6 flex items-center justify-center">
             {/* Glassmorphic border container */}
-            <div
-              className="relative aspect-[4/5] w-full max-w-[500px] animate-veil-in overflow-hidden rounded-[2.5rem] p-3 bg-white/30 backdrop-blur-md border border-plum/15 shadow-[0_30px_100px_rgba(82,58,77,0.12)]"
-            >
+            <div className="relative aspect-[4/5] w-full max-w-[500px] animate-veil-in overflow-hidden rounded-[2.5rem] p-3 bg-white/30 backdrop-blur-md border border-plum/15 shadow-[0_30px_100px_rgba(82,58,77,0.12)]">
               <div className="relative h-full w-full overflow-hidden rounded-[1.8rem]">
                 <img
                   src={heroBride}
@@ -468,11 +533,13 @@ function Home() {
                 </div>
               </div>
             </div>
-            
+
             {/* Vol IV circular badge overlay */}
             <div className="absolute -left-6 -top-6 hidden md:block z-10">
               <div className="animate-shimmer flex h-24 w-24 flex-col items-center justify-center rounded-full border border-lavender-deep/30 bg-white/80 backdrop-blur-md text-plum shadow-md">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-lavender-deep">Vol</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-lavender-deep">
+                  Vol
+                </span>
                 <span className="font-display text-xl italic font-semibold mt-0.5">IV</span>
               </div>
             </div>
@@ -487,14 +554,40 @@ function Home() {
               <div className="flex gap-16 w-[200%] animate-marquee shrink-0">
                 {/* Loop 1 */}
                 <div className="flex justify-around shrink-0 gap-16">
-                  {["Vogue Nigeria", "Bella Naija Weddings", "ThisDay Style", "Genevieve", "Bridal Ovation", "Elite Dossier", "Avenue Luxe"].map((n, idx) => (
-                    <span key={`f1-${idx}`} className="font-display text-lg italic text-plum/60 whitespace-nowrap">{n}</span>
+                  {[
+                    "Vogue Nigeria",
+                    "Bella Naija Weddings",
+                    "ThisDay Style",
+                    "Genevieve",
+                    "Bridal Ovation",
+                    "Elite Dossier",
+                    "Avenue Luxe",
+                  ].map((n, idx) => (
+                    <span
+                      key={`f1-${idx}`}
+                      className="font-display text-lg italic text-plum/60 whitespace-nowrap"
+                    >
+                      {n}
+                    </span>
                   ))}
                 </div>
                 {/* Loop 2 (Identical for seamless loops) */}
                 <div className="flex justify-around shrink-0 gap-16">
-                  {["Vogue Nigeria", "Bella Naija Weddings", "ThisDay Style", "Genevieve", "Bridal Ovation", "Elite Dossier", "Avenue Luxe"].map((n, idx) => (
-                    <span key={`f2-${idx}`} className="font-display text-lg italic text-plum/60 whitespace-nowrap">{n}</span>
+                  {[
+                    "Vogue Nigeria",
+                    "Bella Naija Weddings",
+                    "ThisDay Style",
+                    "Genevieve",
+                    "Bridal Ovation",
+                    "Elite Dossier",
+                    "Avenue Luxe",
+                  ].map((n, idx) => (
+                    <span
+                      key={`f2-${idx}`}
+                      className="font-display text-lg italic text-plum/60 whitespace-nowrap"
+                    >
+                      {n}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -510,11 +603,14 @@ function Home() {
             <div className="md:col-span-4">
               <p className="eyebrow text-lavender-deep">The Atelier</p>
               <h2 className="mt-6 font-display text-5xl leading-[1] text-plum md:text-7xl">
-                Services,<br /><em className="text-lavender-deep">rendered</em><br /> with reverence.
+                Services,
+                <br />
+                <em className="text-lavender-deep">rendered</em>
+                <br /> with reverence.
               </h2>
               <p className="mt-8 max-w-sm text-plum/70">
-                Eight signature offerings — each one a slow, considered practice.
-                Booked by consultation only.
+                Eight signature offerings — each one a slow, considered practice. Booked by
+                consultation only.
               </p>
             </div>
 
@@ -552,12 +648,14 @@ function Home() {
             <div>
               <p className="eyebrow text-lavender-deep">The Portfolio</p>
               <h2 className="mt-6 font-display text-5xl leading-[1] text-plum md:text-7xl">
-                A quiet gallery<br /><em className="text-lavender-deep">of moments.</em>
+                A quiet gallery
+                <br />
+                <em className="text-lavender-deep">of moments.</em>
               </h2>
             </div>
             <p className="max-w-sm text-plum/70 md:text-right">
-              Selected work from brides, campaigns, and editorial commissions —
-              curated across seasons.
+              Selected work from brides, campaigns, and editorial commissions — curated across
+              seasons.
             </p>
           </div>
 
@@ -599,7 +697,14 @@ function Home() {
                 className="relative aspect-[4/5] overflow-hidden"
                 style={{ boxShadow: "var(--shadow-bloom)" }}
               >
-                <img src={artist} alt="Seddypluz at work" width={1000} height={1250} loading="lazy" className="h-full w-full object-cover" />
+                <img
+                  src={artist}
+                  alt="Seddypluz at work"
+                  width={1000}
+                  height={1250}
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
               </div>
             </div>
 
@@ -607,18 +712,20 @@ function Home() {
               <p className="eyebrow text-lavender-deep">The Studio</p>
               <h2 className="mt-6 font-display text-5xl leading-[1] text-plum md:text-6xl">
                 <em>Seddypluz</em> — a hand
-                <br />that reads the face
-                <br />like a letter.
+                <br />
+                that reads the face
+                <br />
+                like a letter.
               </h2>
               <div className="mt-10 space-y-6 text-plum/75">
                 <p className="text-base leading-relaxed">
-                  Founded on the belief that beauty is a slow conversation between
-                  skin, light, and story — Seddypluz Beauty Studio has painted
-                  hundreds of brides and campaigns across Lagos, Abuja, and beyond.
+                  Founded on the belief that beauty is a slow conversation between skin, light, and
+                  story — Seddypluz Beauty Studio has painted hundreds of brides and campaigns
+                  across Lagos, Abuja, and beyond.
                 </p>
                 <p className="text-base leading-relaxed">
-                  Every session begins with silence, coffee, and a mirror. What
-                  follows is not a look, but a portrait.
+                  Every session begins with silence, coffee, and a mirror. What follows is not a
+                  look, but a portrait.
                 </p>
               </div>
 
@@ -629,7 +736,9 @@ function Home() {
                   { k: "40+", v: "Editorial" },
                 ].map((s) => (
                   <div key={s.v} className="border-r border-plum/15 py-6 last:border-r-0">
-                    <dt className="font-display text-4xl italic text-lavender-deep md:text-5xl">{s.k}</dt>
+                    <dt className="font-display text-4xl italic text-lavender-deep md:text-5xl">
+                      {s.k}
+                    </dt>
                     <dd className="eyebrow mt-2 text-plum/60">{s.v}</dd>
                   </div>
                 ))}
@@ -640,13 +749,16 @@ function Home() {
       </section>
 
       {/* TESTIMONIAL */}
-      <section className="relative overflow-hidden py-28 md:py-40" style={{ background: "var(--gradient-blush)" }}>
+      <section
+        className="relative overflow-hidden py-28 md:py-40"
+        style={{ background: "var(--gradient-blush)" }}
+      >
         <div className="mx-auto max-w-4xl px-6 text-center md:px-12">
           <p className="eyebrow text-lavender-deep">Words · From Her Brides</p>
           <blockquote className="mt-10 font-display text-3xl leading-[1.15] text-plum md:text-5xl">
             <span className="text-lavender-deep">“</span>
-            She did not paint my face. She discovered it.
-            The mirror showed me a woman I had been carrying quietly for years.
+            She did not paint my face. She discovered it. The mirror showed me a woman I had been
+            carrying quietly for years.
             <span className="text-lavender-deep">”</span>
           </blockquote>
           <p className="mt-10 eyebrow text-plum/60">— Adaeze O., Bride · Ikoyi, Lagos</p>
@@ -665,7 +777,8 @@ function Home() {
               </h2>
             </div>
             <p className="max-w-sm text-plum/70 md:text-right">
-              Curated cosmetic formulas and tools, designed to preserve the luxury skin finish of the studio.
+              Curated cosmetic formulas and tools, designed to preserve the luxury skin finish of
+              the studio.
             </p>
           </div>
 
@@ -691,11 +804,15 @@ function Home() {
           <div className="md:col-span-6">
             <p className="eyebrow text-mauve">Reserve · By Invitation</p>
             <h2 className="mt-6 font-display text-5xl leading-[1] md:text-7xl">
-              Let us hold<br /><em className="text-mauve">the mirror</em><br />for you.
+              Let us hold
+              <br />
+              <em className="text-mauve">the mirror</em>
+              <br />
+              for you.
             </h2>
             <p className="mt-8 max-w-md text-ivory/70">
-              Sessions are booked by consultation. Share a few notes and we'll
-              return with dates, dossier, and a quiet welcome.
+              Sessions are booked by consultation. Share a few notes and we'll return with dates,
+              dossier, and a quiet welcome.
             </p>
 
             <div className="mt-12 space-y-6 text-sm">
@@ -722,10 +839,7 @@ function Home() {
             </div>
           </div>
 
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-7 md:col-span-6 md:pl-8"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7 md:col-span-6 md:pl-8">
             <div>
               <label className="eyebrow text-mauve">Your name</label>
               <input
@@ -769,7 +883,9 @@ function Home() {
                 {...form.register("service")}
                 className="mt-3 w-full border-b border-ivory/25 bg-transparent bg-none pb-3 text-lg text-ivory outline-none transition-colors focus:border-mauve"
               >
-                <option value="" className="bg-plum text-ivory">Select a service</option>
+                <option value="" className="bg-plum text-ivory">
+                  Select a service
+                </option>
                 {services.map((s) => (
                   <option key={s.n} value={s.name} className="bg-plum text-ivory">
                     {s.name}
@@ -790,7 +906,7 @@ function Home() {
                       variant="outline"
                       className={cn(
                         "mt-3 w-full justify-start border-0 border-b border-ivory/25 bg-transparent pb-3 pl-0 text-left text-lg font-normal hover:bg-ivory/5 hover:text-ivory",
-                        !form.watch("appointmentDate") && "text-ivory/35"
+                        !form.watch("appointmentDate") && "text-ivory/35",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4 text-ivory/60" />
@@ -802,9 +918,15 @@ function Home() {
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={form.watch("appointmentDate") ? new Date(form.watch("appointmentDate")) : undefined}
+                      selected={
+                        form.watch("appointmentDate")
+                          ? new Date(form.watch("appointmentDate"))
+                          : undefined
+                      }
                       onSelect={(date) => {
-                        form.setValue("appointmentDate", date ? format(date, "yyyy-MM-dd") : "", { shouldValidate: true });
+                        form.setValue("appointmentDate", date ? format(date, "yyyy-MM-dd") : "", {
+                          shouldValidate: true,
+                        });
                         setCalendarOpen(false);
                       }}
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
@@ -814,7 +936,9 @@ function Home() {
                   </PopoverContent>
                 </Popover>
                 {form.formState.errors.appointmentDate && (
-                  <p className="mt-2 text-xs text-mauve">{form.formState.errors.appointmentDate.message}</p>
+                  <p className="mt-2 text-xs text-mauve">
+                    {form.formState.errors.appointmentDate.message}
+                  </p>
                 )}
               </div>
 
@@ -824,7 +948,9 @@ function Home() {
                   {...form.register("preferredTime")}
                   className="mt-3 w-full border-b border-ivory/25 bg-transparent bg-none pb-3 text-lg text-ivory outline-none transition-colors focus:border-mauve"
                 >
-                  <option value="" className="bg-plum text-ivory">Select a time</option>
+                  <option value="" className="bg-plum text-ivory">
+                    Select a time
+                  </option>
                   {timeSlots.map((t) => (
                     <option key={t} value={t} className="bg-plum text-ivory">
                       {t}
@@ -832,7 +958,9 @@ function Home() {
                   ))}
                 </select>
                 {form.formState.errors.preferredTime && (
-                  <p className="mt-2 text-xs text-mauve">{form.formState.errors.preferredTime.message}</p>
+                  <p className="mt-2 text-xs text-mauve">
+                    {form.formState.errors.preferredTime.message}
+                  </p>
                 )}
               </div>
             </div>

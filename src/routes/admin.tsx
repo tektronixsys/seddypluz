@@ -46,7 +46,9 @@ function AdminDashboard() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editStatus, setEditStatus] = useState<"pending" | "confirmed" | "declined" | "completed">("pending");
+  const [editStatus, setEditStatus] = useState<"pending" | "confirmed" | "declined" | "completed">(
+    "pending",
+  );
   const [editNotes, setEditNotes] = useState("");
   const [updating, setUpdating] = useState(false);
 
@@ -171,7 +173,9 @@ function AdminDashboard() {
       case "completed":
         return <User className="h-3 w-3 shrink-0" />;
       default:
-        return <Clock3 className="h-3 w-3 shrink-0 animate-spin" style={{ animationDuration: "3s" }} />;
+        return (
+          <Clock3 className="h-3 w-3 shrink-0 animate-spin" style={{ animationDuration: "3s" }} />
+        );
     }
   };
 
@@ -228,11 +232,7 @@ function AdminDashboard() {
               disabled={authChecking}
               className="flex h-12 w-full items-center justify-center rounded-xl bg-plum text-xs uppercase tracking-[0.2em] font-bold text-white shadow-md transition-all hover:bg-plum-900 active:scale-[0.98] disabled:opacity-50"
             >
-              {authChecking ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
-              ) : (
-                "Unlock Dashboard"
-              )}
+              {authChecking ? <RefreshCw className="h-4 w-4 animate-spin" /> : "Unlock Dashboard"}
             </button>
           </form>
 
@@ -372,7 +372,9 @@ function AdminDashboard() {
                       </h3>
                       <p className="eyebrow mt-1 text-lavender-deep">{app.service}</p>
                     </div>
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wider ${getStatusBadgeClass(app.status)}`}>
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wider ${getStatusBadgeClass(app.status)}`}
+                    >
                       {getStatusIcon(app.status)}
                       {app.status}
                     </span>
@@ -427,7 +429,7 @@ function AdminDashboard() {
                           value={editStatus}
                           onChange={(e) =>
                             setEditStatus(
-                              e.target.value as "pending" | "confirmed" | "declined" | "completed"
+                              e.target.value as "pending" | "confirmed" | "declined" | "completed",
                             )
                           }
                           className="mt-2 w-full rounded border border-plum/10 bg-white p-2 text-sm text-plum outline-none focus:border-lavender-deep"

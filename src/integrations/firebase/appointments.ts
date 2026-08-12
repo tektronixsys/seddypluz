@@ -73,10 +73,17 @@ export async function getAppointmentRequestsFromFirestore(): Promise<Appointment
   return results;
 }
 
-export async function updateAppointmentRequestInFirestore(id: string, status: string, notes: string | null) {
-  await adminDb.collection("appointment_requests").doc(id).update({
-    status,
-    notes: notes || null,
-    updated_at: FieldValue.serverTimestamp(),
-  });
+export async function updateAppointmentRequestInFirestore(
+  id: string,
+  status: string,
+  notes: string | null,
+) {
+  await adminDb
+    .collection("appointment_requests")
+    .doc(id)
+    .update({
+      status,
+      notes: notes || null,
+      updated_at: FieldValue.serverTimestamp(),
+    });
 }
