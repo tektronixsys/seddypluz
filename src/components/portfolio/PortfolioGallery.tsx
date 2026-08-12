@@ -1,17 +1,5 @@
 import React, { useState, useMemo } from "react";
-import {
-  Sparkles,
-  Maximize2,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Crown,
-  Layers,
-  Camera,
-  Wand2,
-  Calendar,
-  MessageCircle,
-} from "lucide-react";
+import { Sparkles, Maximize2, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import heroBride from "@/assets/hero-bride.jpg";
 import glam1 from "@/assets/glam-1.jpg";
@@ -21,6 +9,10 @@ import photoshoot from "@/assets/photoshoot.jpg";
 import eventGlam from "@/assets/event-glam.jpg";
 import training from "@/assets/training.jpg";
 import bridalAfter from "@/assets/bridal_after.png";
+import bridalBefore from "@/assets/bridal_before.png";
+import transformation from "@/assets/transformation.jpg";
+import artist from "@/assets/artist.jpg";
+import hairWave from "@/assets/hair_wave.png";
 
 export interface PortfolioItem {
   id: string;
@@ -140,6 +132,58 @@ const portfolioData: PortfolioItem[] = [
     spanClass: "md:col-span-1 md:row-span-1",
     aspect: "aspect-[4/5]",
   },
+  {
+    id: "p9",
+    title: "Radiant Skin Metamorphosis",
+    category: "transformations",
+    categoryLabel: "Transformations",
+    tag: "Before & After",
+    technique: "Poreless Velvet Complexion Calibration",
+    description:
+      "Side-by-side demonstration of skin prep, color correction, and luminous bridal highlighting creating a soft-focus bridal aura.",
+    src: transformation,
+    spanClass: "md:col-span-1 md:row-span-1",
+    aspect: "aspect-[4/5]",
+  },
+  {
+    id: "p10",
+    title: "Pure Glow Bridal Foundation Prep",
+    category: "transformations",
+    categoryLabel: "Transformations",
+    tag: "Skin Canvas",
+    technique: "Deep Hydration & Priming Ritual",
+    description:
+      "Natural skin preparation before transformative bridal glam, focusing on skin moisture barrier, tone balance, and radiance.",
+    src: bridalBefore,
+    spanClass: "md:col-span-1 md:row-span-1",
+    aspect: "aspect-[4/5]",
+  },
+  {
+    id: "p11",
+    title: "The Lead Artist At Work",
+    category: "bridal",
+    categoryLabel: "Studio Craft",
+    tag: "Lead Artistry",
+    technique: "Live Precision Brushwork",
+    description:
+      "Behind-the-scenes artistry with lead artist Seddy crafting bespoke bridal beauty with unhurried precision and care.",
+    src: artist,
+    spanClass: "md:col-span-2 md:row-span-1",
+    aspect: "aspect-[16/10] md:aspect-auto md:h-full",
+  },
+  {
+    id: "p12",
+    title: "Raw Silk Waves & Crown Styling",
+    category: "gele",
+    categoryLabel: "Hair & Crown",
+    tag: "Crown Styling",
+    technique: "Lace Melting & Dimensional Waves",
+    description:
+      "Luxury raw Cambodian hair customized with sculpted HD lace melting and hand-curled body waves.",
+    src: hairWave,
+    spanClass: "md:col-span-2 md:row-span-1",
+    aspect: "aspect-[16/10] md:aspect-auto md:h-full",
+  },
 ];
 
 const categoryFilters = [
@@ -241,8 +285,8 @@ export function PortfolioGallery() {
           })}
         </div>
 
-        {/* Dynamic Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[280px]">
+        {/* Dynamic Gallery Grid with Dense Auto-Flow (No Gaps or White Holes) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 grid-flow-dense gap-4 md:gap-6 auto-rows-[280px]">
           {filteredItems.map((item, index) => (
             <figure
               key={item.id}
