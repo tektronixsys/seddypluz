@@ -10,6 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import siteIconUrl from "../assets/logo-icon.png";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "sonner";
 
@@ -95,9 +96,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/site-icon.png", type: "image/png" },
+      { rel: "icon", href: siteIconUrl, type: "image/png" },
+      { rel: "shortcut icon", href: siteIconUrl, type: "image/png" },
+      { rel: "apple-touch-icon", href: siteIconUrl },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "icon", href: "/site-icon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,
