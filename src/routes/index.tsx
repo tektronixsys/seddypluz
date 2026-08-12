@@ -499,7 +499,7 @@ function Home() {
             Seddypluz Beauty Studio
           </a>
           <div className="hidden items-center gap-10 md:flex">
-            {["Services", "Portfolio", "Studio", "Boutique", "Contact"].map((l) => (
+            {["Services", "Portfolio", "Transformations", "Studio", "Boutique", "Contact"].map((l) => (
               <a
                 key={l}
                 href={`#${l.toLowerCase()}`}
