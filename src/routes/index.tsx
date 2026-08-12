@@ -171,9 +171,7 @@ function ProductCard({ p }: { p: Product }) {
   };
 
   return (
-    <div
-      className="group relative flex flex-col justify-between rounded-[2.5rem] bg-white p-5 border border-plum/5 shadow-[0_16px_36px_-12px_rgba(82,58,77,0.08)] transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(82,58,77,0.14)] hover:-translate-y-1"
-    >
+    <div className="group relative flex flex-col justify-between rounded-[2.5rem] bg-white p-5 border border-plum/5 shadow-[0_16px_36px_-12px_rgba(82,58,77,0.08)] transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(82,58,77,0.14)] hover:-translate-y-1">
       <div>
         {/* Top Image area */}
         <div
@@ -248,14 +246,18 @@ function ProductCard({ p }: { p: Product }) {
             {/* Heart / Wishlist Button */}
             <button
               onClick={handleToggleFavorite}
-              aria-label={isFavorite ? `Remove ${p.name} from wishlist` : `Add ${p.name} to wishlist`}
+              aria-label={
+                isFavorite ? `Remove ${p.name} from wishlist` : `Add ${p.name} to wishlist`
+              }
               className={`flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 active:scale-90 cursor-pointer ${
                 isFavorite
                   ? "bg-rose-500 text-white shadow-[0_4px_14px_rgba(244,63,94,0.35)] scale-105"
                   : "bg-amber-400 text-white shadow-[0_4px_12px_rgba(251,191,36,0.3)] hover:scale-110"
               }`}
             >
-              <Heart className={`h-5 w-5 transition-transform ${isFavorite ? "fill-current scale-110" : ""}`} />
+              <Heart
+                className={`h-5 w-5 transition-transform ${isFavorite ? "fill-current scale-110" : ""}`}
+              />
             </button>
           </div>
 
@@ -282,7 +284,9 @@ function ProductCard({ p }: { p: Product }) {
       {/* Price & CTA bar */}
       <div className="mt-8 px-2 flex items-center justify-between gap-3">
         <div>
-          <span className="block text-[10px] uppercase tracking-wider font-semibold text-plum/50">Price</span>
+          <span className="block text-[10px] uppercase tracking-wider font-semibold text-plum/50">
+            Price
+          </span>
           <span className="text-2xl font-bold text-plum font-sans">{p.price}</span>
         </div>
         <button
