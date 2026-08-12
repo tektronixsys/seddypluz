@@ -11,6 +11,9 @@ import {
   Heart,
   ShoppingBag,
   Check,
+  Menu,
+  X,
+  MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
@@ -378,6 +381,7 @@ function Home() {
   const { totalCount, openCart } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [showPromo, setShowPromo] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 40);
@@ -385,13 +389,21 @@ function Home() {
     return () => window.removeEventListener("scroll", on);
   }, []);
 
+  const navLinks = [
+    { name: "Services", href: "#services" },
+    { name: "Portfolio", href: "#portfolio" },
+    { name: "Transformations", href: "#transformations" },
+    { name: "Boutique", href: "#boutique" },
+    { name: "FAQ", href: "#faq" },
+  ];
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* NAV */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? "bg-background/85 backdrop-blur-xl border-b border-border/60"
+          scrolled || mobileMenuOpen
+            ? "bg-background/90 backdrop-blur-xl border-b border-border/60 shadow-xs"
             : "bg-transparent"
         }`}
       >
@@ -429,34 +441,31 @@ function Home() {
             </button>
           </div>
         )}
-        <nav className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-5 md:px-12">
+
+        <nav className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4.5 md:px-12">
           <a
             href="#top"
-            className="font-display text-2xl italic tracking-tight text-plum transition-opacity hover:opacity-90"
+            className="font-display text-2xl italic tracking-tight text-plum transition-opacity hover:opacity-90 flex items-center gap-2"
           >
-            Seddypluz Beauty Studio
+            <span>Seddypluz Beauty Studio</span>
           </a>
-          <div className="hidden items-center gap-10 md:flex">
-            {[
-              "Services",
-              "Portfolio",
-              "Transformations",
-              "Studio",
-              "Reviews",
-              "Boutique",
-              "FAQ",
-              "Contact",
-            ].map((l) => (
+
+          {/* Streamlined Desktop Navigation Links */}
+          <div className="hidden items-center gap-8 lg:gap-10 md:flex">
+            {navLinks.map((item) => (
               <a
-                key={l}
-                href={`#${l.toLowerCase()}`}
-                className="text-xs uppercase tracking-[0.28em] text-plum/80 transition-colors hover:text-lavender-deep"
+                key={item.name}
+                href={item.href}
+                className="text-xs uppercase tracking-[0.28em] font-semibold text-plum/75 transition-colors hover:text-lavender-deep"
               >
-                {l}
+                {item.name}
               </a>
             ))}
           </div>
-          <div className="flex items-center gap-3">
+
+          {/* Action Button Group */}
+          <div className="flex items-center gap-2.5 sm:gap-3.5">
+            {/* Bag Icon Button */}
             <button
               onClick={openCart}
               aria-label={`Open boutique bag, ${totalCount} items`}
@@ -469,14 +478,72 @@ function Home() {
                 </span>
               )}
             </button>
+
+            {/* Book CTA Button */}
             <a
               href="#contact"
-              className="hidden border border-plum/30 px-5 py-2.5 text-xs uppercase tracking-[0.28em] text-plum transition-colors hover:bg-plum hover:text-ivory md:inline-block"
+              className="hidden sm:inline-flex items-center rounded-full border border-plum/30 bg-plum px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.24em] text-[#FAF9F5] shadow-xs transition-all hover:bg-lavender-deep hover:border-lavender-deep"
             >
-              Book
+              Book Session
             </a>
+
+            {/* Mobile Hamburger Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-plum/20 bg-white/70 text-plum backdrop-blur-md transition-all hover:bg-plum hover:text-[#FAF9F5] active:scale-95 cursor-pointer md:hidden shadow-xs"
+            >
+              {mobileMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
+            </button>
           </div>
         </nav>
+
+        {/* Mobile Navigation Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="border-b border-plum/10 bg-[#FAF9F5]/98 backdrop-blur-2xl px-6 py-6 shadow-2xl transition-all md:hidden animate-in slide-in-from-top-3 duration-300">
+            <div className="flex flex-col space-y-3.5">
+              {[
+                { name: "Services Atelier", href: "#services" },
+                { name: "Bridal Portfolio", href: "#portfolio" },
+                { name: "Before & After Transformations", href: "#transformations" },
+                { name: "The Studio Story", href: "#studio" },
+                { name: "Cherished Bride Reviews", href: "#reviews" },
+                { name: "Boutique Wigs & Catalog", href: "#boutique" },
+                { name: "Frequently Asked Questions", href: "#faq" },
+              ].map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between border-b border-plum/8 pb-2.5 text-xs uppercase tracking-wider font-bold text-plum/85 hover:text-lavender-deep transition-colors"
+                >
+                  <span>{link.name}</span>
+                  <span className="text-xs text-plum/40">→</span>
+                </a>
+              ))}
+
+              <div className="pt-3 flex flex-col gap-2.5">
+                <a
+                  href="#contact"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center rounded-full bg-plum py-3.5 text-xs uppercase tracking-[0.24em] font-bold text-[#FAF9F5] shadow-md shadow-plum/20"
+                >
+                  <span>Book Consultation</span>
+                </a>
+                <a
+                  href="https://wa.me/2348162292997?text=Hello%20Seddypluz%20Beauty%20Studio!"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-xs uppercase tracking-wider font-bold text-white shadow-md shadow-[#25D366]/20"
+                >
+                  <MessageCircle className="h-4 w-4 fill-current" />
+                  <span>Chat on WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* HERO */}
