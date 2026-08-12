@@ -842,17 +842,65 @@ function Home() {
       {/* BOUTIQUE / PRODUCTS */}
       <section id="boutique" className="py-28 md:py-40 bg-[#FAF9F5]">
         <div className="mx-auto max-w-[1600px] px-6 md:px-12">
-          <div className="mb-16 flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+          <div className="mb-16 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6">
             <div>
               <p className="eyebrow text-lavender-deep">Boutique</p>
               <h2 className="mt-6 font-display text-5xl leading-[1.1] text-plum md:text-6xl">
                 Signature <em className="text-lavender-deep">atelier products.</em>
               </h2>
             </div>
-            <p className="max-w-sm text-plum/70 md:text-right">
-              Curated cosmetic formulas and tools, designed to preserve the luxury skin finish of
-              the studio.
-            </p>
+            <div className="flex flex-col gap-4 max-w-xl">
+              <p className="text-sm md:text-base leading-relaxed text-plum/70 lg:text-right">
+                Curated cosmetic formulas and tools, designed to preserve the luxury skin finish of
+                the studio.
+              </p>
+              {/* Boutique Social channels */}
+              <div className="flex flex-wrap items-center gap-3 lg:justify-end mt-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-plum/50">
+                  Explore custom wigs &amp; drops:
+                </span>
+                <div className="flex items-center gap-2">
+                  <a
+                    href="https://instagram.com/seddypluz_wigs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Shop wigs on Instagram @seddypluz_wigs"
+                    className="group flex items-center gap-2 rounded-full border border-plum/10 bg-white px-3 py-1.5 text-plum/70 shadow-xs transition-all duration-300 hover:border-lavender-deep/30 hover:bg-lavender-deep/5 hover:text-lavender-deep hover:shadow-sm"
+                  >
+                    <svg
+                      className="h-3.5 w-3.5 transition-transform duration-300 group-hover:scale-110"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="2" y="2" width="20" height="20" rx="5" />
+                      <circle cx="12" cy="12" r="5" />
+                      <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+                    </svg>
+                    <span className="text-[11px] font-bold tracking-wide">@seddypluz_wigs</span>
+                  </a>
+                  <a
+                    href="https://tiktok.com/@seddypluz_wigs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Shop wigs on TikTok @seddypluz_wigs"
+                    className="group flex items-center gap-2 rounded-full border border-plum/10 bg-white px-3 py-1.5 text-plum/70 shadow-xs transition-all duration-300 hover:border-lavender-deep/30 hover:bg-lavender-deep/5 hover:text-lavender-deep hover:shadow-sm"
+                  >
+                    <svg
+                      className="h-3.5 w-3.5 transition-transform duration-300 group-hover:scale-110"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.05a8.3 8.3 0 004.76 1.49V7.09a4.84 4.84 0 01-1-.4z" />
+                    </svg>
+                    <span className="text-[11px] font-bold tracking-wide">@seddypluz_wigs</span>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
