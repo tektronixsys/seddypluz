@@ -781,6 +781,9 @@ function Home() {
         </div>
       </section>
 
+      {/* BEFORE & AFTER TRANSFORMATIONS */}
+      <TransformationSlider />
+
       {/* STUDIO / ABOUT */}
       <section id="studio" className="relative py-28 md:py-40">
         <div className="mx-auto max-w-[1600px] px-6 md:px-12">
