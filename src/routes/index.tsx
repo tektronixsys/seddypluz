@@ -59,7 +59,7 @@ const shopProducts: Product[] = [
     category: "Luxury Extensions",
     desc: "Premium double-drawn bone straight hair extensions with a mirror-like gloss finish and complete cuticle alignment.",
     img: hairStraightImg,
-    price: "$280.00",
+    price: "₦280,000",
     bgClass: "bg-[#F7EBE8]",
     dots: [
       { color: "#121212", name: "22 Inch" },
@@ -79,7 +79,7 @@ const shopProducts: Product[] = [
     category: "Luxury Extensions",
     desc: "Deeply defined water wave curls that hold their shape effortlessly, offering a lush, natural-volume wet look.",
     img: hairWaveImg,
-    price: "$310.00",
+    price: "₦310,000",
     bgClass: "bg-[#EAE4F8]",
     dots: [
       { color: "#121212", name: "20 Inch" },
@@ -99,7 +99,7 @@ const shopProducts: Product[] = [
     category: "Luxury Extensions",
     desc: "A bouncy, high-definition pixie curl wig style featuring short, tight ringlets that are full of life and texture.",
     img: hairCurlImg,
-    price: "$195.00",
+    price: "₦195,000",
     bgClass: "bg-[#FAF7F2]",
     dots: [
       { color: "#121212", name: "12 Inch" },
@@ -119,7 +119,7 @@ const shopProducts: Product[] = [
     category: "Luxury Extensions",
     desc: "A chic, precisely cut blonde bob wig offering a natural hairline, premium thickness, and a sophisticated silhouette.",
     img: hairBobImg,
-    price: "$210.00",
+    price: "₦210,000",
     bgClass: "bg-[#FAF7F2]",
     dots: [
       { color: "#EED7A1", name: "Blonde" },
