@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Star, ChevronLeft, ChevronRight, Quote, CheckCircle2, HeartHandshake, ShieldCheck, Trophy, Sparkles } from "lucide-react";
+import {
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  Quote,
+  CheckCircle2,
+  HeartHandshake,
+  ShieldCheck,
+  Trophy,
+  Sparkles,
+} from "lucide-react";
 import heroBride from "@/assets/hero-bride.jpg";
 import glam1 from "@/assets/glam-1.jpg";
 import gele1 from "@/assets/gele-1.jpg";
@@ -76,13 +86,13 @@ const testimonials: Testimonial[] = [
     id: "t5",
     name: "Temitope Balogun",
     role: "Boutique VIP Client",
-    event: "Custom 26\" Bone Straight Wig & Installation",
+    event: 'Custom 26" Bone Straight Wig & Installation',
     location: "Ikoyi, Lagos",
     date: "January 2026",
     rating: 5,
     avatar: photoshoot,
     quote:
-      "I ordered the 26\" Bone Straight luxury weave from the boutique and had it installed in the studio. The hair is silky, thick from root to tip with zero shedding after washing. The HD lace melting is completely undetectable even up close!",
+      'I ordered the 26" Bone Straight luxury weave from the boutique and had it installed in the studio. The hair is silky, thick from root to tip with zero shedding after washing. The HD lace melting is completely undetectable even up close!',
     highlight: "Undetectable HD Lace Melting",
   },
 ];
@@ -127,7 +137,8 @@ export function TestimonialsCarousel() {
             <em className="text-lavender-deep">Cherished Brides.</em>
           </h2>
           <p className="mt-4 text-sm md:text-base text-plum/70">
-            Discover why hundreds of discerning brides and editorial commissioners trust Seddypluz for their defining celebrations.
+            Discover why hundreds of discerning brides and editorial commissioners trust Seddypluz
+            for their defining celebrations.
           </p>
         </div>
 
@@ -222,10 +233,25 @@ export function TestimonialsCarousel() {
         {/* Studio Trust Metrics Badges */}
         <div className="mt-20 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
           {[
-            { icon: HeartHandshake, number: "500+", label: "Brides Celebrated", sub: "Lagos, Abuja & Abroad" },
+            {
+              icon: HeartHandshake,
+              number: "500+",
+              label: "Brides Celebrated",
+              sub: "Lagos, Abuja & Abroad",
+            },
             { icon: Trophy, number: "10+", label: "Years of Craft", sub: "Masterclass Certified" },
-            { icon: ShieldCheck, number: "100%", label: "On-Time Arrival Record", sub: "Stress-Free Mornings" },
-            { icon: Sparkles, number: "5.0 ★", label: "Client Satisfaction", sub: "Over 200+ Reviews" },
+            {
+              icon: ShieldCheck,
+              number: "100%",
+              label: "On-Time Arrival Record",
+              sub: "Stress-Free Mornings",
+            },
+            {
+              icon: Sparkles,
+              number: "5.0 ★",
+              label: "Client Satisfaction",
+              sub: "Over 200+ Reviews",
+            },
           ].map((stat, i) => (
             <div
               key={i}

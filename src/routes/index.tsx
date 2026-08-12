@@ -26,6 +26,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { submitAppointment } from "@/lib/appointments.functions";
 import { TransformationSlider } from "@/components/showcase/TransformationSlider";
+import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
+import { FaqSection } from "@/components/faq/FaqSection";
 import heroBride from "@/assets/hero-bride.jpg";
 import glam1 from "@/assets/glam-1.jpg";
 import gele1 from "@/assets/gele-1.jpg";
@@ -499,17 +501,24 @@ function Home() {
             Seddypluz Beauty Studio
           </a>
           <div className="hidden items-center gap-10 md:flex">
-            {["Services", "Portfolio", "Transformations", "Studio", "Boutique", "Contact"].map(
-              (l) => (
-                <a
-                  key={l}
-                  href={`#${l.toLowerCase()}`}
-                  className="text-xs uppercase tracking-[0.28em] text-plum/80 transition-colors hover:text-lavender-deep"
-                >
-                  {l}
-                </a>
-              ),
-            )}
+            {[
+              "Services",
+              "Portfolio",
+              "Transformations",
+              "Studio",
+              "Reviews",
+              "Boutique",
+              "FAQ",
+              "Contact",
+            ].map((l) => (
+              <a
+                key={l}
+                href={`#${l.toLowerCase()}`}
+                className="text-xs uppercase tracking-[0.28em] text-plum/80 transition-colors hover:text-lavender-deep"
+              >
+                {l}
+              </a>
+            ))}
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -846,24 +855,9 @@ function Home() {
         </div>
       </section>
 
-      {/* TESTIMONIAL */}
-      <section
-        className="relative overflow-hidden py-28 md:py-40"
-        style={{ background: "var(--gradient-blush)" }}
-      >
-        <div className="mx-auto max-w-4xl px-6 text-center md:px-12">
-          <p className="eyebrow text-lavender-deep">Words · From Her Brides</p>
-          <blockquote className="mt-10 font-display text-3xl leading-[1.15] text-plum md:text-5xl">
-            <span className="text-lavender-deep">“</span>
-            She did not paint my face. She discovered it. The mirror showed me a woman I had been
-            carrying quietly for years.
-            <span className="text-lavender-deep">”</span>
-          </blockquote>
-          <p className="mt-10 eyebrow text-plum/60">— Adaeze O., Bride · Ikoyi, Lagos</p>
-        </div>
-      </section>
+      {/* TESTIMONIALS CAROUSEL */}
+      <TestimonialsCarousel />
 
-      {/* JOURNAL / RECENT */}
       {/* BOUTIQUE / PRODUCTS */}
       <section id="boutique" className="py-28 md:py-40 bg-[#FAF9F5]">
         <div className="mx-auto max-w-[1600px] px-6 md:px-12">
@@ -887,6 +881,9 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* FREQUENTLY ASKED QUESTIONS */}
+      <FaqSection />
 
       {/* CONTACT */}
       <section id="contact" className="relative overflow-hidden bg-plum py-28 text-ivory md:py-40">

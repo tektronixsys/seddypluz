@@ -70,9 +70,7 @@ export function FaqSection() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const filteredFaqs =
-    activeCategory === "all"
-      ? faqList
-      : faqList.filter((item) => item.category === activeCategory);
+    activeCategory === "all" ? faqList : faqList.filter((item) => item.category === activeCategory);
 
   return (
     <section id="faq" className="relative py-28 md:py-40 bg-[#FAF9F5] overflow-hidden">
@@ -92,7 +90,8 @@ export function FaqSection() {
             <em className="text-lavender-deep">To Know.</em>
           </h2>
           <p className="mt-4 text-sm md:text-base text-plum/70">
-            Clear answers regarding our bridal consultation, travel logistics, bespoke wigs, and appointment booking process.
+            Clear answers regarding our bridal consultation, travel logistics, bespoke wigs, and
+            appointment booking process.
           </p>
         </div>
 
@@ -150,7 +149,8 @@ export function FaqSection() {
               Have a custom request or unique event timeline?
             </h3>
             <p className="mt-2 text-xs md:text-sm text-[#FAF9F5]/75 max-w-lg leading-relaxed">
-              Chat directly with Seddypluz on WhatsApp for instant date availability checks and custom bridal quotes.
+              Chat directly with Seddypluz on WhatsApp for instant date availability checks and
+              custom bridal quotes.
             </p>
           </div>
 
