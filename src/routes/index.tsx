@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
-import { cn } from "@/lib/utils";
+import { PortfolioGallery } from "@/components/portfolio/PortfolioGallery";
 import { TransformationSlider } from "@/components/showcase/TransformationSlider";
 import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
 import { FaqSection } from "@/components/faq/FaqSection";
