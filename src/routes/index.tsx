@@ -267,11 +267,10 @@ function ProductCard({ p }: { p: Product }) {
                   className="flex items-center gap-1.5 group/dot cursor-pointer transition-transform"
                 >
                   <span
-                    className={`h-4 w-4 rounded-full border-2 transition-all duration-300 ${
-                      selectedColor === dot.name
+                    className={`h-4 w-4 rounded-full border-2 transition-all duration-300 ${selectedColor === dot.name
                         ? "border-plum scale-110 ring-2 ring-plum/20"
                         : "border-white/80 scale-90 opacity-70 hover:opacity-100"
-                    }`}
+                      }`}
                     style={{ backgroundColor: dot.color }}
                   />
                   {selectedColor === dot.name && (
@@ -300,11 +299,10 @@ function ProductCard({ p }: { p: Product }) {
               aria-label={
                 isFavorite ? `Remove ${p.name} from wishlist` : `Add ${p.name} to wishlist`
               }
-              className={`flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 active:scale-90 cursor-pointer ${
-                isFavorite
+              className={`flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 active:scale-90 cursor-pointer ${isFavorite
                   ? "bg-rose-500 text-white shadow-[0_4px_14px_rgba(244,63,94,0.35)] scale-105"
                   : "bg-amber-400 text-white shadow-[0_4px_12px_rgba(251,191,36,0.3)] hover:scale-110"
-              }`}
+                }`}
             >
               <Heart
                 className={`h-5 w-5 transition-transform ${isFavorite ? "fill-current scale-110" : ""}`}
@@ -342,11 +340,10 @@ function ProductCard({ p }: { p: Product }) {
         </div>
         <button
           onClick={handleAddToCart}
-          className={`flex items-center gap-2 rounded-tl-2xl rounded-br-2xl px-6 py-3.5 text-xs uppercase tracking-widest font-bold transition-all active:scale-[0.98] cursor-pointer shadow-xs ${
-            added
+          className={`flex items-center gap-2 rounded-tl-2xl rounded-br-2xl px-6 py-3.5 text-xs uppercase tracking-widest font-bold transition-all active:scale-[0.98] cursor-pointer shadow-xs ${added
               ? "bg-emerald-600 text-white"
               : "bg-amber-400 text-plum hover:bg-plum hover:text-[#FAF9F5]"
-          }`}
+            }`}
         >
           {added ? (
             <>
@@ -431,11 +428,10 @@ function Home() {
     <div className="min-h-screen bg-background text-foreground">
       {/* NAV */}
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          scrolled || mobileMenuOpen
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scrolled || mobileMenuOpen
             ? "bg-background/90 backdrop-blur-xl border-b border-border/60 shadow-xs"
             : "bg-transparent"
-        }`}
+          }`}
       >
         {/* Announcements Widget */}
         {showPromo && (
