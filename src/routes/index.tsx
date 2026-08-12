@@ -22,15 +22,6 @@ import { TransformationSlider } from "@/components/showcase/TransformationSlider
 import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
 import { FaqSection } from "@/components/faq/FaqSection";
 import { BookingSection } from "@/components/booking/BookingSection";
-import heroBride from "@/assets/hero-bride.jpg";
-import glam1 from "@/assets/glam-1.jpg";
-import gele1 from "@/assets/gele-1.jpg";
-import transformation from "@/assets/transformation.jpg";
-import products from "@/assets/products.jpg";
-import eventGlam from "@/assets/event-glam.jpg";
-import photoshoot from "@/assets/photoshoot.jpg";
-import training from "@/assets/training.jpg";
-import artist from "@/assets/artist.jpg";
 import hairStraightImg from "@/assets/hair_straight.png";
 import hairWaveImg from "@/assets/hair_wave.png";
 import hairCurlImg from "@/assets/hair_curl.png";
@@ -364,17 +355,6 @@ const services = [
     name: "Event Glam",
     desc: "Statement looks for galas, soirées, and every night worth remembering.",
   },
-];
-
-const portfolio = [
-  { src: heroBride, alt: "Bride in gold gele", tag: "Bridal · Editorial", span: "row-span-2" },
-  { src: glam1, alt: "Lavender glam close-up", tag: "Event Glam", span: "" },
-  { src: gele1, alt: "Purple gele styling", tag: "Gele · Traditional", span: "row-span-2" },
-  { src: products, alt: "Makeup flatlay", tag: "Studio", span: "" },
-  { src: photoshoot, alt: "Editorial photoshoot", tag: "Photoshoot", span: "" },
-  { src: transformation, alt: "Before and after", tag: "Transformation", span: "" },
-  { src: eventGlam, alt: "Bridal party glam", tag: "Bridal Party", span: "row-span-2" },
-  { src: training, alt: "Beauty training class", tag: "Training", span: "" },
 ];
 
 function Home() {
@@ -746,52 +726,8 @@ function Home() {
         </div>
       </section>
 
-      {/* PORTFOLIO — MASONRY */}
-      <section id="portfolio" className="relative overflow-hidden bg-blush-soft/50 py-28 md:py-40">
-        <div className="mx-auto max-w-[1600px] px-6 md:px-12">
-          <div className="mb-16 flex flex-col items-end justify-between gap-6 md:flex-row md:items-end">
-            <div>
-              <p className="eyebrow text-lavender-deep">The Portfolio</p>
-              <h2 className="mt-6 font-display text-5xl leading-[1] text-plum md:text-7xl">
-                A quiet gallery
-                <br />
-                <em className="text-lavender-deep">of moments.</em>
-              </h2>
-            </div>
-            <p className="max-w-sm text-plum/70 md:text-right">
-              Selected work from brides, campaigns, and editorial commissions — curated across
-              seasons.
-            </p>
-          </div>
-
-          <div className="grid auto-rows-[220px] grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {portfolio.map((p, i) => (
-              <figure
-                key={i}
-                className={`group relative overflow-hidden ${p.span}`}
-                style={{ boxShadow: "var(--shadow-petal)" }}
-              >
-                <img
-                  src={p.src}
-                  alt={p.alt}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
-                />
-                <div
-                  className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                  style={{ background: "var(--gradient-veil)" }}
-                />
-                <figcaption className="absolute inset-x-4 bottom-4 flex items-end justify-between text-ivory opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                  <span className="eyebrow">{p.tag}</span>
-                  <span className="font-display text-lg italic">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* PORTFOLIO GALLERY */}
+      <PortfolioGallery />
 
       {/* BEFORE & AFTER TRANSFORMATIONS */}
       <TransformationSlider />

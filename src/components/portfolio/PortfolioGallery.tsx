@@ -12,10 +12,7 @@ import {
   Calendar,
   MessageCircle,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import heroBride from "@/assets/hero-bride.jpg";
 import glam1 from "@/assets/glam-1.jpg";
 import gele1 from "@/assets/gele-1.jpg";
@@ -179,9 +176,7 @@ export function PortfolioGallery() {
 
   const handlePrev = () => {
     if (selectedItemIndex === null) return;
-    setSelectedItemIndex(
-      (selectedItemIndex - 1 + filteredItems.length) % filteredItems.length,
-    );
+    setSelectedItemIndex((selectedItemIndex - 1 + filteredItems.length) % filteredItems.length);
   };
 
   return (
@@ -207,8 +202,8 @@ export function PortfolioGallery() {
 
           <div className="max-w-md">
             <p className="text-sm md:text-base leading-relaxed text-plum/70">
-              Selected commissions across high-society Nigerian weddings, royal engagements,
-              runway editorials, and masterclass cohorts.
+              Selected commissions across high-society Nigerian weddings, royal engagements, runway
+              editorials, and masterclass cohorts.
             </p>
           </div>
         </div>
@@ -234,7 +229,9 @@ export function PortfolioGallery() {
                 <span>{tab.label}</span>
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold transition-colors ${
-                    isActive ? "bg-amber-400 text-plum" : "bg-plum/5 text-plum/50 group-hover:bg-plum/10"
+                    isActive
+                      ? "bg-amber-400 text-plum"
+                      : "bg-plum/5 text-plum/50 group-hover:bg-plum/10"
                   }`}
                 >
                   {count}
@@ -296,7 +293,10 @@ export function PortfolioGallery() {
       </div>
 
       {/* Fullscreen Interactive Lightbox Modal */}
-      <Dialog open={selectedItemIndex !== null} onOpenChange={(open) => !open && handleCloseLightbox()}>
+      <Dialog
+        open={selectedItemIndex !== null}
+        onOpenChange={(open) => !open && handleCloseLightbox()}
+      >
         {selectedItem && (
           <DialogContent className="max-w-5xl p-0 overflow-hidden bg-plum border border-white/15 text-ivory rounded-[2.5rem] shadow-2xl">
             <div className="grid grid-cols-1 md:grid-cols-12 min-h-[500px]">
@@ -340,7 +340,8 @@ export function PortfolioGallery() {
                       {selectedItem.tag}
                     </span>
                     <span className="text-xs text-ivory/50">
-                      Look {String(selectedItemIndex! + 1).padStart(2, "0")} of {filteredItems.length}
+                      Look {String(selectedItemIndex! + 1).padStart(2, "0")} of{" "}
+                      {filteredItems.length}
                     </span>
                   </div>
 
@@ -353,7 +354,9 @@ export function PortfolioGallery() {
                       <p className="text-[11px] uppercase tracking-wider font-bold text-amber-300">
                         Technique &amp; Base:
                       </p>
-                      <p className="mt-0.5 text-xs text-ivory/80 font-sans">{selectedItem.technique}</p>
+                      <p className="mt-0.5 text-xs text-ivory/80 font-sans">
+                        {selectedItem.technique}
+                      </p>
                     </div>
 
                     <p className="text-sm leading-relaxed text-ivory/75 font-sans">
