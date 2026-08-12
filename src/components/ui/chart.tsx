@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
@@ -96,24 +97,16 @@ const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
     active?: boolean;
-    payload?: Array<{
-      dataKey?: string | number;
-      name?: string | number;
-      value?: unknown;
-      payload?: unknown;
-      color?: string;
-      type?: string;
-      [key: string]: unknown;
-    }>;
-    label?: React.ReactNode;
-    labelFormatter?: (label: unknown, payload: unknown[]) => React.ReactNode;
+    payload?: any[];
+    label?: any;
+    labelFormatter?: (label: any, payload: any[]) => React.ReactNode;
     labelClassName?: string;
     formatter?: (
-      value: unknown,
-      name: unknown,
-      item: unknown,
+      value: any,
+      name: any,
+      item: any,
       index: number,
-      payload: unknown,
+      payload: any,
     ) => React.ReactNode;
     color?: string;
     hideLabel?: boolean;
@@ -263,13 +256,7 @@ const ChartLegend = RechartsPrimitive.Legend;
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
-    payload?: Array<{
-      value?: unknown;
-      dataKey?: string | number;
-      color?: string;
-      type?: string;
-      [key: string]: unknown;
-    }>;
+    payload?: any[];
     verticalAlign?: "top" | "middle" | "bottom";
     hideIcon?: boolean;
     nameKey?: string;
