@@ -1,12 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { format } from "date-fns";
 import type { LucideIcon } from "lucide-react";
 import {
-  CalendarIcon,
   Sparkles,
   Ruler,
   Gem,
@@ -17,17 +12,13 @@ import {
   ShoppingBag,
   Check,
 } from "lucide-react";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { submitAppointment } from "@/lib/appointments.functions";
 import { TransformationSlider } from "@/components/showcase/TransformationSlider";
 import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
 import { FaqSection } from "@/components/faq/FaqSection";
+import { BookingSection } from "@/components/booking/BookingSection";
 import heroBride from "@/assets/hero-bride.jpg";
 import glam1 from "@/assets/glam-1.jpg";
 import gele1 from "@/assets/gele-1.jpg";
@@ -383,71 +374,16 @@ const portfolio = [
   { src: training, alt: "Beauty training class", tag: "Training", span: "" },
 ];
 
-const timeSlots = [
-  "09:00 AM",
-  "10:00 AM",
-  "11:00 AM",
-  "12:00 PM",
-  "01:00 PM",
-  "02:00 PM",
-  "03:00 PM",
-  "04:00 PM",
-  "05:00 PM",
-  "06:00 PM",
-];
-
-const appointmentFormSchema = z.object({
-  name: z.string().trim().min(2, "Name is required").max(120, "Name is too long"),
-  email: z.string().trim().email("Invalid email address").max(255, "Email is too long"),
-  phone: z.string().max(30, "Phone number is too long").optional().or(z.literal("")),
-  service: z.string().min(1, "Please select a service"),
-  appointmentDate: z.string().min(1, "Please select a date"),
-  preferredTime: z.string().min(1, "Please select a preferred time"),
-  notes: z.string().max(1000, "Note is too long").optional().or(z.literal("")),
-});
-
-type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
-
 function Home() {
   const { totalCount, openCart } = useCart();
   const [scrolled, setScrolled] = useState(false);
+  const [showPromo, setShowPromo] = useState(true);
+
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", on);
     return () => window.removeEventListener("scroll", on);
   }, []);
-
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const [showPromo, setShowPromo] = useState(true);
-
-  const form = useForm<AppointmentFormValues>({
-    resolver: zodResolver(appointmentFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      service: "",
-      appointmentDate: "",
-      preferredTime: "",
-      notes: "",
-    },
-  });
-
-  const submit = useServerFn(submitAppointment);
-  const [submitting, setSubmitting] = useState(false);
-
-  async function onSubmit(values: AppointmentFormValues) {
-    setSubmitting(true);
-    try {
-      await submit({ data: values });
-      toast.success("Your appointment request has been sent.");
-      form.reset();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -885,205 +821,8 @@ function Home() {
       {/* FREQUENTLY ASKED QUESTIONS */}
       <FaqSection />
 
-      {/* CONTACT */}
-      <section id="contact" className="relative overflow-hidden bg-plum py-28 text-ivory md:py-40">
-        <div
-          className="absolute -right-40 -top-40 h-96 w-96 rounded-full opacity-30 blur-3xl"
-          style={{ background: "var(--lavender)" }}
-        />
-        <div
-          className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full opacity-30 blur-3xl"
-          style={{ background: "var(--mauve)" }}
-        />
-        <div className="relative mx-auto grid max-w-[1600px] grid-cols-1 gap-16 px-6 md:grid-cols-12 md:px-12">
-          <div className="md:col-span-6">
-            <p className="eyebrow text-mauve">Reserve · By Invitation</p>
-            <h2 className="mt-6 font-display text-5xl leading-[1] md:text-7xl">
-              Let us hold
-              <br />
-              <em className="text-mauve">the mirror</em>
-              <br />
-              for you.
-            </h2>
-            <p className="mt-8 max-w-md text-ivory/70">
-              Sessions are booked by consultation. Share a few notes and we'll return with dates,
-              dossier, and a quiet welcome.
-            </p>
-
-            <div className="mt-12 space-y-6 text-sm">
-              <div>
-                <p className="eyebrow text-mauve">Studio</p>
-                <p className="mt-2 text-ivory/80">Shop 4/5 Gizo Plaza, Nafdac Area, Kaduna</p>
-              </div>
-              <div>
-                <p className="eyebrow text-mauve">Correspondence</p>
-                <p className="mt-2 text-ivory/80">ask@seddypluz.com.ng</p>
-                <a
-                  href="https://wa.me/2348162292997?text=Hello%20Seddypluz%20Beauty%20Studio,%20I'd%20like%20to%20inquire%20about%20booking%20a%20session."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block mt-1 text-ivory/80 hover:text-mauve transition-colors"
-                >
-                  +234 · 816 · 229 · 2997
-                </a>
-              </div>
-              <div>
-                <p className="eyebrow text-mauve">Elsewhere</p>
-                <p className="mt-2 text-ivory/80">Instagram · TikTok · Pinterest</p>
-              </div>
-            </div>
-          </div>
-
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-7 md:col-span-6 md:pl-8">
-            <div>
-              <label className="eyebrow text-mauve">Your name</label>
-              <input
-                type="text"
-                placeholder="As you'd like to be called"
-                {...form.register("name")}
-                className="mt-3 w-full border-b border-ivory/25 bg-transparent pb-3 text-lg text-ivory placeholder-ivory/35 outline-none transition-colors focus:border-mauve"
-              />
-              {form.formState.errors.name && (
-                <p className="mt-2 text-xs text-mauve">{form.formState.errors.name.message}</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-7 md:grid-cols-2">
-              <div>
-                <label className="eyebrow text-mauve">Email</label>
-                <input
-                  type="email"
-                  placeholder="you@correspondence"
-                  {...form.register("email")}
-                  className="mt-3 w-full border-b border-ivory/25 bg-transparent pb-3 text-lg text-ivory placeholder-ivory/35 outline-none transition-colors focus:border-mauve"
-                />
-                {form.formState.errors.email && (
-                  <p className="mt-2 text-xs text-mauve">{form.formState.errors.email.message}</p>
-                )}
-              </div>
-              <div>
-                <label className="eyebrow text-mauve">Phone</label>
-                <input
-                  type="tel"
-                  placeholder="+234 · 000 · 000 · 0000"
-                  {...form.register("phone")}
-                  className="mt-3 w-full border-b border-ivory/25 bg-transparent pb-3 text-lg text-ivory placeholder-ivory/35 outline-none transition-colors focus:border-mauve"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="eyebrow text-mauve">Service</label>
-              <select
-                {...form.register("service")}
-                className="mt-3 w-full border-b border-ivory/25 bg-transparent bg-none pb-3 text-lg text-ivory outline-none transition-colors focus:border-mauve"
-              >
-                <option value="" className="bg-plum text-ivory">
-                  Select a service
-                </option>
-                {services.map((s) => (
-                  <option key={s.n} value={s.name} className="bg-plum text-ivory">
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-              {form.formState.errors.service && (
-                <p className="mt-2 text-xs text-mauve">{form.formState.errors.service.message}</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-7 md:grid-cols-2">
-              <div>
-                <label className="eyebrow text-mauve">Preferred date</label>
-                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "mt-3 w-full justify-start border-0 border-b border-ivory/25 bg-transparent pb-3 pl-0 text-left text-lg font-normal hover:bg-ivory/5 hover:text-ivory",
-                        !form.watch("appointmentDate") && "text-ivory/35",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4 text-ivory/60" />
-                      {form.watch("appointmentDate")
-                        ? format(new Date(form.watch("appointmentDate")), "PPP")
-                        : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={
-                        form.watch("appointmentDate")
-                          ? new Date(form.watch("appointmentDate"))
-                          : undefined
-                      }
-                      onSelect={(date) => {
-                        form.setValue("appointmentDate", date ? format(date, "yyyy-MM-dd") : "", {
-                          shouldValidate: true,
-                        });
-                        setCalendarOpen(false);
-                      }}
-                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
-                {form.formState.errors.appointmentDate && (
-                  <p className="mt-2 text-xs text-mauve">
-                    {form.formState.errors.appointmentDate.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="eyebrow text-mauve">Preferred time</label>
-                <select
-                  {...form.register("preferredTime")}
-                  className="mt-3 w-full border-b border-ivory/25 bg-transparent bg-none pb-3 text-lg text-ivory outline-none transition-colors focus:border-mauve"
-                >
-                  <option value="" className="bg-plum text-ivory">
-                    Select a time
-                  </option>
-                  {timeSlots.map((t) => (
-                    <option key={t} value={t} className="bg-plum text-ivory">
-                      {t}
-                    </option>
-                  ))}
-                </select>
-                {form.formState.errors.preferredTime && (
-                  <p className="mt-2 text-xs text-mauve">
-                    {form.formState.errors.preferredTime.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="eyebrow text-mauve">A note</label>
-              <textarea
-                rows={4}
-                placeholder="Anything you would like us to hold in mind."
-                {...form.register("notes")}
-                className="mt-3 w-full resize-none border-b border-ivory/25 bg-transparent pb-3 text-lg text-ivory placeholder-ivory/35 outline-none focus:border-mauve"
-              />
-              {form.formState.errors.notes && (
-                <p className="mt-2 text-xs text-mauve">{form.formState.errors.notes.message}</p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="group mt-4 inline-flex items-center gap-3 border border-mauve bg-mauve px-8 py-4 text-xs uppercase tracking-[0.32em] text-plum transition-all hover:bg-ivory hover:border-ivory disabled:opacity-60"
-            >
-              {submitting ? "Sending..." : "Send inquiry"}
-              <span className="transition-transform group-hover:translate-x-1">→</span>
-            </button>
-          </form>
-        </div>
-      </section>
+      {/* BOOKING / CONTACT */}
+      <BookingSection />
 
       {/* FOOTER */}
       <footer className="border-t border-plum/10 bg-background py-10">
