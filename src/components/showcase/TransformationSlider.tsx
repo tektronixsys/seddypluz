@@ -64,8 +64,8 @@ export function TransformationSlider() {
           </div>
           <div className="max-w-md">
             <p className="text-sm md:text-base leading-relaxed text-plum/70">
-              Drag the interactive slider below to reveal the seamless transition from natural skin to
-              radiant, camera-ready bridal opulence.
+              Drag the interactive slider below to reveal the seamless transition from natural skin
+              to radiant, camera-ready bridal opulence.
             </p>
           </div>
         </div>
@@ -124,8 +124,18 @@ export function TransformationSlider() {
               >
                 {/* Center Grip Handle */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white text-plum shadow-[0_8px_24px_rgba(82,58,77,0.3)] ring-4 ring-amber-400 transition-transform group-hover:scale-110 active:scale-95">
-                  <svg className="h-5 w-5 text-plum" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l-4 3 4 3M16 9l4 3-4 3" />
+                  <svg
+                    className="h-5 w-5 text-plum"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8 9l-4 3 4 3M16 9l4 3-4 3"
+                    />
                   </svg>
                 </div>
               </div>
@@ -169,7 +179,8 @@ export function TransformationSlider() {
               </h3>
               <p className="mt-4 text-sm leading-relaxed text-plum/75">
                 Every bridal glam at Seddypluz begins with deep skin prep and custom color theory,
-                formulated to withstand tropical climate, tears of joy, and 16+ hours of wedding celebrations.
+                formulated to withstand tropical climate, tears of joy, and 16+ hours of wedding
+                celebrations.
               </p>
             </div>
 

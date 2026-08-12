@@ -499,15 +499,17 @@ function Home() {
             Seddypluz Beauty Studio
           </a>
           <div className="hidden items-center gap-10 md:flex">
-            {["Services", "Portfolio", "Transformations", "Studio", "Boutique", "Contact"].map((l) => (
-              <a
-                key={l}
-                href={`#${l.toLowerCase()}`}
-                className="text-xs uppercase tracking-[0.28em] text-plum/80 transition-colors hover:text-lavender-deep"
-              >
-                {l}
-              </a>
-            ))}
+            {["Services", "Portfolio", "Transformations", "Studio", "Boutique", "Contact"].map(
+              (l) => (
+                <a
+                  key={l}
+                  href={`#${l.toLowerCase()}`}
+                  className="text-xs uppercase tracking-[0.28em] text-plum/80 transition-colors hover:text-lavender-deep"
+                >
+                  {l}
+                </a>
+              ),
+            )}
           </div>
           <div className="flex items-center gap-3">
             <button
