@@ -28,6 +28,8 @@ import hairStraightImg from "@/assets/hair_straight.png";
 import hairWaveImg from "@/assets/hair_wave.png";
 import hairCurlImg from "@/assets/hair_curl.png";
 import hairBobImg from "@/assets/hair_bob.png";
+import lipstickImg from "@/assets/lipstick.png";
+import highlighterImg from "@/assets/highlighter.png";
 
 export const Route = createFileRoute("/")({
   component: Home,
