@@ -171,10 +171,6 @@
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
   .hairline::after {
     content: "";
     display: block;
