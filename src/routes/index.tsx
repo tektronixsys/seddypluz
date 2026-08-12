@@ -4,7 +4,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  Sparkles,
+  Ruler,
+  Gem,
+  Scale,
+  Scissors,
+  Layers,
+  Heart,
+  ShoppingBag,
+  Check,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -36,7 +48,7 @@ interface ProductDot {
 }
 
 interface ProductSpec {
-  icon: string;
+  icon: LucideIcon;
   label: string;
 }
 
@@ -67,10 +79,10 @@ const shopProducts: Product[] = [
       { color: "#2B2B2B", name: "26 Inch" },
     ],
     specs: [
-      { icon: "👩‍🦰", label: "Straight" },
-      { icon: "📏", label: '22-26"' },
-      { icon: "💎", label: "Remy" },
-      { icon: "⚖️", label: "300g" },
+      { icon: Sparkles, label: "Double Drawn" },
+      { icon: Ruler, label: '22-26"' },
+      { icon: Gem, label: "Virgin Remy" },
+      { icon: Scale, label: "300g Full" },
     ],
   },
   {
@@ -87,10 +99,10 @@ const shopProducts: Product[] = [
       { color: "#2B2B2B", name: "24 Inch" },
     ],
     specs: [
-      { icon: "👩‍🦱", label: "Wavy" },
-      { icon: "📏", label: '20-24"' },
-      { icon: "💎", label: "12A Grade" },
-      { icon: "⚖️", label: "300g" },
+      { icon: Layers, label: "Defined Waves" },
+      { icon: Ruler, label: '20-24"' },
+      { icon: Gem, label: "12A Grade" },
+      { icon: Scale, label: "300g Full" },
     ],
   },
   {
@@ -107,10 +119,10 @@ const shopProducts: Product[] = [
       { color: "#2B2B2B", name: "16 Inch" },
     ],
     specs: [
-      { icon: "👩‍🦱", label: "Curly" },
-      { icon: "📏", label: '12-16"' },
-      { icon: "💎", label: "Remy Lace" },
-      { icon: "⚖️", label: "250g" },
+      { icon: Sparkles, label: "HD Curls" },
+      { icon: Ruler, label: '12-16"' },
+      { icon: Gem, label: "HD Lace" },
+      { icon: Scale, label: "250g Dense" },
     ],
   },
   {
@@ -127,50 +139,63 @@ const shopProducts: Product[] = [
       { color: "#5C4033", name: "Brunette" },
     ],
     specs: [
-      { icon: "💇‍♀️", label: "Bob Cut" },
-      { icon: "📏", label: '12-14"' },
-      { icon: "💎", label: "HD Lace" },
-      { icon: "⚖️", label: "200g" },
+      { icon: Scissors, label: "Bob Cut" },
+      { icon: Ruler, label: '12-14"' },
+      { icon: Gem, label: "Swiss Lace" },
+      { icon: Scale, label: "200g Dense" },
     ],
   },
 ];
 
 function ProductCard({ p }: { p: Product }) {
   const [selectedColor, setSelectedColor] = useState(p.dots[0].name);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    setAdded(true);
+    toast.success(`${p.name} (${selectedColor}) added to bag!`, {
+      description: `Price: ${p.price} · Ready for inquiry & checkout`,
+    });
+    setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleToggleFavorite = () => {
+    const nextState = !isFavorite;
+    setIsFavorite(nextState);
+    if (nextState) {
+      toast.success(`Saved to wishlist: ${p.name}`);
+    } else {
+      toast.info(`Removed from wishlist: ${p.name}`);
+    }
+  };
 
   return (
     <div
-      className="group relative flex flex-col justify-between rounded-[2.5rem] bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-      style={{ boxShadow: "0 20px 40px -15px rgba(82, 58, 77, 0.05)" }}
+      className="group relative flex flex-col justify-between rounded-[2.5rem] bg-white p-5 border border-plum/5 shadow-[0_16px_36px_-12px_rgba(82,58,77,0.08)] transition-all duration-300 hover:shadow-[0_24px_48px_-12px_rgba(82,58,77,0.14)] hover:-translate-y-1"
     >
       <div>
         {/* Top Image area */}
         <div
           className={`relative w-full h-[320px] ${p.bgClass} rounded-3xl rounded-bl-[5rem] overflow-hidden transition-colors duration-500`}
         >
-          {/* Back Arrow Button */}
-          <button className="absolute top-4 left-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/25 text-plum backdrop-blur-md transition-colors hover:bg-white/40 z-10">
-            <span className="text-lg">←</span>
-          </button>
+          {/* Category Tag pill */}
+          <div className="absolute top-4 left-4 z-10">
+            <span className="inline-flex items-center rounded-full bg-white/75 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-plum backdrop-blur-md border border-white/50 shadow-xs">
+              {p.category}
+            </span>
+          </div>
 
-          {/* White Cutout Cart Section */}
+          {/* White Cutout Cart Button */}
           <div className="absolute top-0 right-0 h-16 w-16 bg-white rounded-bl-3xl flex items-center justify-center z-10">
-            <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#FAF9F5] text-plum transition-all hover:bg-plum/5 cursor-pointer">
-              <svg
-                className="h-4.5 w-4.5 text-plum"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              {/* Dot Badge */}
-              <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-amber-500" />
+            <button
+              onClick={handleAddToCart}
+              aria-label={`Add ${p.name} to cart`}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#FAF9F5] text-plum transition-all hover:bg-plum hover:text-[#FAF9F5] active:scale-95 cursor-pointer shadow-xs"
+            >
+              <ShoppingBag className="h-4.5 w-4.5" />
+              {/* Active Dot Badge */}
+              <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white" />
             </button>
           </div>
 
@@ -182,27 +207,32 @@ function ProductCard({ p }: { p: Product }) {
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
 
-          {/* Color selectors */}
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 z-10">
-            {p.dots.map((dot) => (
-              <button
-                key={dot.name}
-                onClick={() => setSelectedColor(dot.name)}
-                className="flex flex-col items-center gap-1 group/dot cursor-pointer"
-              >
-                <span
-                  className={`h-4.5 w-4.5 rounded-full border-2 transition-all duration-300 ${
-                    selectedColor === dot.name
-                      ? "border-plum scale-110"
-                      : "border-transparent scale-90"
-                  }`}
-                  style={{ backgroundColor: dot.color }}
-                />
-                <span className="text-[10px] uppercase tracking-wider font-semibold text-plum/60 opacity-0 group-hover/dot:opacity-100 transition-opacity">
-                  {dot.name}
-                </span>
-              </button>
-            ))}
+          {/* Color / Length selectors */}
+          <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-3 z-10 px-4">
+            <div className="flex items-center gap-2 rounded-full bg-white/80 backdrop-blur-md px-3 py-1.5 border border-white/60 shadow-xs">
+              {p.dots.map((dot) => (
+                <button
+                  key={dot.name}
+                  onClick={() => setSelectedColor(dot.name)}
+                  aria-label={`Select ${dot.name}`}
+                  className="flex items-center gap-1.5 group/dot cursor-pointer transition-transform"
+                >
+                  <span
+                    className={`h-4 w-4 rounded-full border-2 transition-all duration-300 ${
+                      selectedColor === dot.name
+                        ? "border-plum scale-110 ring-2 ring-plum/20"
+                        : "border-white/80 scale-90 opacity-70 hover:opacity-100"
+                    }`}
+                    style={{ backgroundColor: dot.color }}
+                  />
+                  {selectedColor === dot.name && (
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-plum">
+                      {dot.name}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -212,39 +242,68 @@ function ProductCard({ p }: { p: Product }) {
             <div>
               <h3 className="font-sans font-bold text-2xl tracking-tight text-plum">{p.name}</h3>
               <p className="text-xs uppercase tracking-wider text-lavender-deep font-semibold mt-1">
-                {p.category} • {selectedColor}
+                Selected: <span className="text-plum font-bold">{selectedColor}</span>
               </p>
             </div>
-            {/* Heart Button */}
-            <button className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-400 text-white shadow-[0_4px_12px_rgba(251,191,36,0.3)] transition-transform hover:scale-110 active:scale-95 cursor-pointer">
-              <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
+            {/* Heart / Wishlist Button */}
+            <button
+              onClick={handleToggleFavorite}
+              aria-label={isFavorite ? `Remove ${p.name} from wishlist` : `Add ${p.name} to wishlist`}
+              className={`flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 active:scale-90 cursor-pointer ${
+                isFavorite
+                  ? "bg-rose-500 text-white shadow-[0_4px_14px_rgba(244,63,94,0.35)] scale-105"
+                  : "bg-amber-400 text-white shadow-[0_4px_12px_rgba(251,191,36,0.3)] hover:scale-110"
+              }`}
+            >
+              <Heart className={`h-5 w-5 transition-transform ${isFavorite ? "fill-current scale-110" : ""}`} />
             </button>
           </div>
 
           <p className="mt-4 text-sm leading-relaxed text-plum/65">{p.desc}</p>
 
-          {/* Specs badges */}
+          {/* Specs badges with Lucide vector SVGs */}
           <div className="mt-6 flex flex-wrap gap-2">
-            {p.specs.map((spec, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-1.5 rounded-xl bg-plum/5 px-3 py-1.5 text-xs text-plum/85 font-medium"
-              >
-                <span className="text-sm">{spec.icon}</span>
-                <span>{spec.label}</span>
-              </div>
-            ))}
+            {p.specs.map((spec, i) => {
+              const IconComp = spec.icon;
+              return (
+                <div
+                  key={i}
+                  className="flex items-center gap-1.5 rounded-xl bg-plum/[0.04] border border-plum/10 px-3 py-1.5 text-xs text-plum/85 font-medium transition-colors hover:bg-plum/[0.08]"
+                >
+                  <IconComp className="h-3.5 w-3.5 text-lavender-deep shrink-0" />
+                  <span>{spec.label}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
       {/* Price & CTA bar */}
-      <div className="mt-8 px-2 flex items-center justify-between">
-        <span className="text-2xl font-bold text-plum font-sans">{p.price}</span>
-        <button className="rounded-tl-2xl rounded-br-2xl bg-amber-400 px-6 py-3.5 text-xs uppercase tracking-widest font-bold text-plum transition-all hover:bg-plum hover:text-[#FAF9F5] active:scale-[0.98] cursor-pointer">
-          Add to Cart
+      <div className="mt-8 px-2 flex items-center justify-between gap-3">
+        <div>
+          <span className="block text-[10px] uppercase tracking-wider font-semibold text-plum/50">Price</span>
+          <span className="text-2xl font-bold text-plum font-sans">{p.price}</span>
+        </div>
+        <button
+          onClick={handleAddToCart}
+          className={`flex items-center gap-2 rounded-tl-2xl rounded-br-2xl px-6 py-3.5 text-xs uppercase tracking-widest font-bold transition-all active:scale-[0.98] cursor-pointer shadow-xs ${
+            added
+              ? "bg-emerald-600 text-white"
+              : "bg-amber-400 text-plum hover:bg-plum hover:text-[#FAF9F5]"
+          }`}
+        >
+          {added ? (
+            <>
+              <Check className="h-4 w-4" />
+              <span>Added</span>
+            </>
+          ) : (
+            <>
+              <ShoppingBag className="h-4 w-4" />
+              <span>Add to Cart</span>
+            </>
+          )}
         </button>
       </div>
     </div>
