@@ -7,7 +7,15 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { ShoppingBag, Plus, Minus, Trash2, ArrowRight, Sparkles, MessageCircle } from "lucide-react";
+import {
+  ShoppingBag,
+  Plus,
+  Minus,
+  Trash2,
+  ArrowRight,
+  Sparkles,
+  MessageCircle,
+} from "lucide-react";
 
 export function CartDrawer() {
   const {
@@ -25,10 +33,7 @@ export function CartDrawer() {
     if (items.length === 0) return;
 
     const itemsSummary = items
-      .map(
-        (item) =>
-          `• ${item.quantity}x ${item.name} (${item.variant}) — ${item.priceFormatted}`,
-      )
+      .map((item) => `• ${item.quantity}x ${item.name} (${item.variant}) — ${item.priceFormatted}`)
       .join("\n");
 
     const message = `Hello Seddypluz Beauty Studio! ✨\n\nI would like to place an order for the following boutique item(s):\n\n${itemsSummary}\n\n🛍️ *Total Amount:* ${totalPriceFormatted}\n\nPlease confirm availability and provide payment / delivery details. Thank you!`;
@@ -100,7 +105,9 @@ export function CartDrawer() {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <h4 className="font-sans font-bold text-sm text-plum truncate">{item.name}</h4>
+                      <h4 className="font-sans font-bold text-sm text-plum truncate">
+                        {item.name}
+                      </h4>
                       <button
                         onClick={() => removeItem(item.cartId)}
                         aria-label={`Remove ${item.name}`}
@@ -112,7 +119,9 @@ export function CartDrawer() {
                     <span className="inline-block mt-0.5 rounded-md bg-plum/5 px-2 py-0.5 text-[10px] font-semibold text-lavender-deep uppercase tracking-wider">
                       {item.variant}
                     </span>
-                    <p className="mt-1 text-sm font-bold text-plum font-sans">{item.priceFormatted}</p>
+                    <p className="mt-1 text-sm font-bold text-plum font-sans">
+                      {item.priceFormatted}
+                    </p>
 
                     {/* Quantity Stepper */}
                     <div className="mt-3 flex items-center gap-3">
@@ -153,7 +162,9 @@ export function CartDrawer() {
 
             <div className="flex items-center gap-2 rounded-xl bg-plum/5 p-3 text-[11px] text-plum/75 leading-tight">
               <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
-              <span>Free express studio pickup in Lagos · Insured doorstep delivery nationwide.</span>
+              <span>
+                Free express studio pickup in Lagos · Insured doorstep delivery nationwide.
+              </span>
             </div>
 
             <div className="space-y-2">

@@ -83,9 +83,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeItem(cartId);
       return;
     }
-    setItems((prev) =>
-      prev.map((item) => (item.cartId === cartId ? { ...item, quantity } : item)),
-    );
+    setItems((prev) => prev.map((item) => (item.cartId === cartId ? { ...item, quantity } : item)));
   };
 
   const clearCart = () => {

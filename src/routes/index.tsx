@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -151,11 +152,22 @@ function ProductCard({ p }: { p: Product }) {
   const [selectedColor, setSelectedColor] = useState(p.dots[0].name);
   const [isFavorite, setIsFavorite] = useState(false);
   const [added, setAdded] = useState(false);
+  const { addItem } = useCart();
 
   const handleAddToCart = () => {
+    const numericPrice = parseInt(p.price.replace(/[^\d]/g, ""), 10) || 0;
+    addItem({
+      productId: p.id,
+      name: p.name,
+      category: p.category,
+      variant: selectedColor,
+      priceNum: numericPrice,
+      priceFormatted: p.price,
+      img: p.img,
+    });
     setAdded(true);
     toast.success(`${p.name} (${selectedColor}) added to bag!`, {
-      description: `Price: ${p.price} · Ready for inquiry & checkout`,
+      description: `${p.price} · Ready for inquiry & WhatsApp checkout`,
     });
     setTimeout(() => setAdded(false), 2000);
   };
@@ -394,6 +406,7 @@ const appointmentFormSchema = z.object({
 type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 
 function Home() {
+  const { totalCount, openCart } = useCart();
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 40);
@@ -495,12 +508,26 @@ function Home() {
               </a>
             ))}
           </div>
-          <a
-            href="#contact"
-            className="hidden border border-plum/30 px-5 py-2.5 text-xs uppercase tracking-[0.28em] text-plum transition-colors hover:bg-plum hover:text-ivory md:inline-block"
-          >
-            Book
-          </a>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={openCart}
+              aria-label={`Open boutique bag, ${totalCount} items`}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-plum/20 bg-white/70 text-plum backdrop-blur-md transition-all hover:bg-plum hover:text-[#FAF9F5] active:scale-95 cursor-pointer shadow-xs"
+            >
+              <ShoppingBag className="h-4.5 w-4.5" />
+              {totalCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-[10px] font-bold text-plum shadow-xs">
+                  {totalCount}
+                </span>
+              )}
+            </button>
+            <a
+              href="#contact"
+              className="hidden border border-plum/30 px-5 py-2.5 text-xs uppercase tracking-[0.28em] text-plum transition-colors hover:bg-plum hover:text-ivory md:inline-block"
+            >
+              Book
+            </a>
+          </div>
         </nav>
       </header>
 
