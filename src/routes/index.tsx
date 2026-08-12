@@ -1020,7 +1020,7 @@ function Home() {
                 </a>
                 <p className="flex items-center gap-2">
                   <Heart className="h-4 w-4 shrink-0" />
-                  Lagos, Nigeria
+                  Kaduna, Nigeria
                 </p>
               </div>
             </div>
