@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { submitAppointment } from "@/lib/appointments.functions";
+import { TransformationSlider } from "@/components/showcase/TransformationSlider";
 import heroBride from "@/assets/hero-bride.jpg";
 import glam1 from "@/assets/glam-1.jpg";
 import gele1 from "@/assets/gele-1.jpg";
