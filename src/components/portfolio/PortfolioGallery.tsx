@@ -224,14 +224,14 @@ export function PortfolioGallery() {
   };
 
   return (
-    <section id="portfolio" className="relative overflow-hidden bg-[#FAF9F5] py-28 md:py-40">
+    <section id="portfolio" className="relative overflow-hidden bg-[#FAF9F5] py-14 md:py-24">
       {/* Ambient background glows */}
       <div className="absolute top-1/4 -left-40 h-[600px] w-[600px] rounded-full bg-mauve/15 blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-40 h-[500px] w-[500px] rounded-full bg-lavender/20 blur-3xl pointer-events-none" />
 
       <div className="mx-auto max-w-[1600px] px-6 md:px-12 relative z-10">
         {/* Section Header */}
-        <div className="mb-14 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
+        <div className="mb-10 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="h-1.5 w-8 rounded-full bg-lavender-deep" />

@@ -177,7 +177,7 @@ export function BookingSection() {
   };
 
   return (
-    <section id="contact" className="relative overflow-hidden bg-plum py-28 text-ivory md:py-40">
+    <section id="contact" className="relative overflow-hidden bg-plum py-14 text-ivory md:py-24">
       {/* Dynamic ambient blobs */}
       <div
         className="absolute -right-40 -top-40 h-[600px] w-[600px] rounded-full opacity-25 blur-3xl pointer-events-none"
@@ -189,9 +189,9 @@ export function BookingSection() {
       />
 
       <div className="relative mx-auto max-w-[1600px] px-6 md:px-12 z-10">
-        <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-20">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
           {/* Left Column: Studio Address & Info */}
-          <div className="lg:col-span-4 space-y-10">
+          <div className="lg:col-span-4 space-y-6">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-amber-300 mb-4 border border-white/15">
                 <Sparkles className="h-3.5 w-3.5" />

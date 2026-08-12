@@ -120,15 +120,15 @@ export function TestimonialsCarousel() {
   };
 
   return (
-    <section id="reviews" className="relative py-28 md:py-40 bg-white overflow-hidden">
+    <section id="reviews" className="relative py-14 md:py-24 bg-white overflow-hidden">
       {/* Subtle ambient lighting */}
       <div className="absolute top-0 right-1/4 h-[500px] w-[500px] rounded-full bg-blush-soft/80 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 h-[400px] w-[400px] rounded-full bg-mauve/10 blur-3xl pointer-events-none" />
 
       <div className="mx-auto max-w-[1600px] px-6 md:px-12 relative z-10">
         {/* Section Header */}
-        <div className="mb-16 text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 rounded-full bg-plum/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-lavender-deep mb-4 border border-plum/10">
+        <div className="mb-10 text-center max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 rounded-full bg-plum/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-lavender-deep mb-3 border border-plum/10">
             <Sparkles className="h-3.5 w-3.5 text-amber-500" />
             <span>Verified Bride &amp; Client Stories</span>
           </div>

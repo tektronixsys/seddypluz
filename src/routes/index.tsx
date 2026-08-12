@@ -590,8 +590,8 @@ function Home() {
           }}
         />
 
-        <div className="relative mx-auto grid max-w-[1600px] grid-cols-1 gap-10 px-6 pt-32 pb-16 md:grid-cols-12 md:gap-8 md:px-12 md:pt-40 md:pb-24 z-10">
-          <div className="md:col-span-6 md:pt-16">
+        <div className="relative mx-auto grid max-w-[1600px] grid-cols-1 gap-8 px-6 pt-28 pb-10 md:grid-cols-12 md:gap-8 md:px-12 md:pt-36 md:pb-14 z-10">
+          <div className="md:col-span-6 md:pt-8">
             <div
               className="inline-flex items-center gap-2 animate-float-up"
               style={{ animationDelay: "0.1s" }}
@@ -600,7 +600,7 @@ function Home() {
               <p className="eyebrow text-lavender-deep">— Est. Luxury Beauty Atelier</p>
             </div>
             <h1
-              className="mt-8 animate-float-up font-display text-[3.5rem] leading-[0.95] tracking-tight text-plum md:text-[6.5rem]"
+              className="mt-5 animate-float-up font-display text-[3.25rem] leading-[0.95] tracking-tight text-plum md:text-[5.5rem]"
               style={{ animationDelay: "0.25s" }}
             >
               Where the
@@ -614,14 +614,14 @@ function Home() {
               becomes ritual.
             </h1>
             <p
-              className="mt-10 max-w-md animate-float-up text-base leading-relaxed text-plum/70"
+              className="mt-6 max-w-md animate-float-up text-base leading-relaxed text-plum/70"
               style={{ animationDelay: "0.4s" }}
             >
               Seddypluz Beauty Studio composes bespoke bridal, editorial, and transformative
               artistry for the woman who moves through the world with intention.
             </p>
             <div
-              className="mt-10 flex animate-float-up flex-wrap items-center gap-8"
+              className="mt-6 flex animate-float-up flex-wrap items-center gap-6"
               style={{ animationDelay: "0.55s" }}
             >
               <a
@@ -726,18 +726,18 @@ function Home() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="relative py-28 md:py-40">
+      <section id="services" className="relative py-14 md:py-24">
         <div className="mx-auto max-w-[1600px] px-6 md:px-12">
-          <div className="grid grid-cols-1 gap-16 md:grid-cols-12">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-4">
               <p className="eyebrow text-lavender-deep">The Atelier</p>
-              <h2 className="mt-6 font-display text-5xl leading-[1] text-plum md:text-7xl">
+              <h2 className="mt-4 font-display text-4xl leading-[1.05] text-plum md:text-6xl">
                 Services,
                 <br />
                 <em className="text-lavender-deep">rendered</em>
                 <br /> with reverence.
               </h2>
-              <p className="mt-8 max-w-sm text-plum/70">
+              <p className="mt-5 max-w-sm text-plum/70 text-sm md:text-base">
                 Eight signature offerings — each one a slow, considered practice. Booked by
                 consultation only.
               </p>
@@ -748,7 +748,7 @@ function Home() {
                 {services.map((s) => (
                   <li
                     key={s.n}
-                    className="group grid grid-cols-12 items-baseline gap-4 py-8 transition-colors hover:bg-blush-soft/60"
+                    className="group grid grid-cols-12 items-baseline gap-4 py-5 md:py-6 transition-colors hover:bg-blush-soft/60"
                   >
                     <span className="col-span-2 font-display text-2xl italic text-lavender-deep/80 md:col-span-1">
                       {s.n}
@@ -777,9 +777,9 @@ function Home() {
       <TransformationSlider />
 
       {/* STUDIO / ABOUT */}
-      <section id="studio" className="relative py-28 md:py-40">
+      <section id="studio" className="relative py-14 md:py-24">
         <div className="mx-auto max-w-[1600px] px-6 md:px-12">
-          <div className="grid grid-cols-1 items-center gap-16 md:grid-cols-12">
+          <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-6">
               <div
                 className="relative aspect-[4/5] overflow-hidden"
@@ -796,16 +796,16 @@ function Home() {
               </div>
             </div>
 
-            <div className="md:col-span-6 md:pl-12">
+            <div className="md:col-span-6 md:pl-8">
               <p className="eyebrow text-lavender-deep">The Studio</p>
-              <h2 className="mt-6 font-display text-5xl leading-[1] text-plum md:text-6xl">
+              <h2 className="mt-4 font-display text-4xl leading-[1.05] text-plum md:text-5xl">
                 <em>Seddypluz</em> — a hand
                 <br />
                 that reads the face
                 <br />
                 like a letter.
               </h2>
-              <div className="mt-10 space-y-6 text-plum/75">
+              <div className="mt-6 space-y-4 text-plum/75">
                 <p className="text-base leading-relaxed">
                   Founded on the belief that beauty is a slow conversation between skin, light, and
                   story — Seddypluz Beauty Studio has painted hundreds of brides and campaigns
@@ -817,13 +817,13 @@ function Home() {
                 </p>
               </div>
 
-              <dl className="mt-12 grid grid-cols-3 border-t border-plum/15">
+              <dl className="mt-8 grid grid-cols-3 border-t border-plum/15">
                 {[
                   { k: "10+", v: "Years" },
                   { k: "500+", v: "Brides" },
                   { k: "40+", v: "Editorial" },
                 ].map((s) => (
-                  <div key={s.v} className="border-r border-plum/15 py-6 last:border-r-0">
+                  <div key={s.v} className="border-r border-plum/15 py-4 last:border-r-0">
                     <dt className="font-display text-4xl italic text-lavender-deep md:text-5xl">
                       {s.k}
                     </dt>
@@ -840,12 +840,12 @@ function Home() {
       <TestimonialsCarousel />
 
       {/* BOUTIQUE / PRODUCTS */}
-      <section id="boutique" className="py-28 md:py-40 bg-[#FAF9F5]">
+      <section id="boutique" className="py-14 md:py-24 bg-[#FAF9F5]">
         <div className="mx-auto max-w-[1600px] px-6 md:px-12">
-          <div className="mb-16 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6">
+          <div className="mb-10 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6">
             <div>
               <p className="eyebrow text-lavender-deep">Boutique</p>
-              <h2 className="mt-6 font-display text-5xl leading-[1.1] text-plum md:text-6xl">
+              <h2 className="mt-4 font-display text-4xl leading-[1.1] text-plum md:text-6xl">
                 Signature <em className="text-lavender-deep">atelier products.</em>
               </h2>
             </div>
@@ -922,9 +922,9 @@ function Home() {
         {/* Decorative top gradient line */}
         <div className="absolute top-0 right-0 left-0 h-px bg-gradient-to-r from-transparent via-lavender-deep/40 to-transparent" />
 
-        <div className="mx-auto max-w-[1600px] px-6 pt-16 pb-8 md:px-12">
+        <div className="mx-auto max-w-[1600px] px-6 pt-12 pb-6 md:px-12">
           {/* Main Footer Grid */}
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-8">
             {/* Brand Column */}
             <div className="md:col-span-5">
               <p className="font-outfit text-[28px] leading-[36px] font-semibold text-plum">
@@ -1027,7 +1027,7 @@ function Home() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="mt-14">
+          <div className="mt-8">
             <div className="h-px bg-gradient-to-r from-transparent via-plum/10 to-transparent" />
             <div className="flex flex-col items-center justify-between gap-3 pt-6 md:flex-row">
               <p className="text-xs tracking-wider text-plum/40">

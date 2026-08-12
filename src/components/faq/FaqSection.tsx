@@ -73,14 +73,14 @@ export function FaqSection() {
     activeCategory === "all" ? faqList : faqList.filter((item) => item.category === activeCategory);
 
   return (
-    <section id="faq" className="relative py-28 md:py-40 bg-[#FAF9F5] overflow-hidden">
+    <section id="faq" className="relative py-14 md:py-24 bg-[#FAF9F5] overflow-hidden">
       {/* Decorative ambient background */}
       <div className="absolute top-1/3 -right-32 h-[450px] w-[450px] rounded-full bg-mauve/15 blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 -left-32 h-[400px] w-[400px] rounded-full bg-lavender/20 blur-3xl pointer-events-none" />
 
       <div className="mx-auto max-w-[1600px] px-6 md:px-12 relative z-10">
         {/* Section Header */}
-        <div className="mb-16 text-center max-w-3xl mx-auto">
+        <div className="mb-10 text-center max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 rounded-full bg-plum/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-lavender-deep mb-4 border border-plum/10">
             <HelpCircle className="h-3.5 w-3.5 text-lavender-deep" />
             <span>Frequently Asked Questions</span>
