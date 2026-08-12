@@ -138,6 +138,46 @@ const shopProducts: Product[] = [
       { icon: Scale, label: "200g Dense" },
     ],
   },
+  {
+    id: "atelier_lip_elixir",
+    name: "Atelier Velvet Lip Elixir",
+    category: "Signature Cosmetics",
+    desc: "Weightless 16-hour matte liquid velvet lip pigments formulated for high-definition bridal longevity and non-drying hydration.",
+    img: lipstickImg,
+    price: "₦38,000",
+    bgClass: "bg-[#FBECEB]",
+    dots: [
+      { color: "#800020", name: "Royal Plum" },
+      { color: "#C04000", name: "Spiced Terracotta" },
+      { color: "#C27B7F", name: "Bridal Rose" },
+    ],
+    specs: [
+      { icon: Sparkles, label: "16h Longwear" },
+      { icon: Heart, label: "Hydrating" },
+      { icon: Gem, label: "Smudge Proof" },
+      { icon: Layers, label: "Matte Velvet" },
+    ],
+  },
+  {
+    id: "diamond_glow_highlighter",
+    name: "Diamond Glow Illuminator",
+    category: "Signature Cosmetics",
+    desc: "Ultra-fine baked mineral highlighter infused with pearl micro-pigments for an ethereal, sunlit bridal radiance that glows in any lighting.",
+    img: highlighterImg,
+    price: "₦55,000",
+    bgClass: "bg-[#FFF8E7]",
+    dots: [
+      { color: "#EED7A1", name: "Champagne" },
+      { color: "#D4AF37", name: "Royal Bronze" },
+      { color: "#E8C39E", name: "Rose Gold" },
+    ],
+    specs: [
+      { icon: Sparkles, label: "Micro-Pearls" },
+      { icon: Gem, label: "Baked Mineral" },
+      { icon: Layers, label: "Silky Velvet" },
+      { icon: Scale, label: "All Skin Tones" },
+    ],
+  },
 ];
 
 function ProductCard({ p }: { p: Product }) {
