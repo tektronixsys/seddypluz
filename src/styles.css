@@ -1,5 +1,4 @@
-@import "tailwindcss" source(none);
-@source "../src";
+@import "tailwindcss";
 @import "tw-animate-css";
 @import "@fontsource/cormorant-garamond/400.css";
 @import "@fontsource/cormorant-garamond/500.css";
@@ -130,29 +129,6 @@
   }
 }
 
-@utility text-balance {
-  text-wrap: balance;
-}
-
-@utility hairline {
-  &::after {
-    content: "";
-    display: block;
-    width: 3rem;
-    height: 1px;
-    background: currentColor;
-    opacity: 0.4;
-    margin-top: 0.75rem;
-  }
-}
-
-@utility eyebrow {
-  font-size: 0.7rem;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  font-weight: 500;
-}
-
 @keyframes float-up {
   0% {
     opacity: 0;
@@ -163,6 +139,7 @@
     transform: translateY(0);
   }
 }
+
 @keyframes veil-in {
   0% {
     opacity: 0;
@@ -173,6 +150,7 @@
     transform: scale(1);
   }
 }
+
 @keyframes shimmer {
   0%,
   100% {
@@ -181,15 +159,6 @@
   50% {
     opacity: 1;
   }
-}
-@utility animate-float-up {
-  animation: float-up 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-@utility animate-veil-in {
-  animation: veil-in 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-@utility animate-shimmer {
-  animation: shimmer 3s ease-in-out infinite;
 }
 
 @keyframes marquee {
@@ -200,6 +169,42 @@
     transform: translateX(-50%);
   }
 }
-@utility animate-marquee {
-  animation: marquee 35s linear infinite;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .hairline::after {
+    content: "";
+    display: block;
+    width: 3rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.4;
+    margin-top: 0.75rem;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .animate-float-up {
+    animation: float-up 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .animate-veil-in {
+    animation: veil-in 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  .animate-marquee {
+    animation: marquee 35s linear infinite;
+  }
 }
