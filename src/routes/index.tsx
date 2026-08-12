@@ -22,6 +22,8 @@ import { TransformationSlider } from "@/components/showcase/TransformationSlider
 import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCarousel";
 import { FaqSection } from "@/components/faq/FaqSection";
 import { BookingSection } from "@/components/booking/BookingSection";
+import heroBride from "@/assets/hero-bride.jpg";
+import artist from "@/assets/artist.jpg";
 import hairStraightImg from "@/assets/hair_straight.png";
 import hairWaveImg from "@/assets/hair_wave.png";
 import hairCurlImg from "@/assets/hair_curl.png";
