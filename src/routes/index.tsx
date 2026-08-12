@@ -14,6 +14,10 @@ import {
   Menu,
   X,
   MessageCircle,
+  Star,
+  ArrowRight,
+  ShieldCheck,
+  Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
@@ -24,6 +28,9 @@ import { FaqSection } from "@/components/faq/FaqSection";
 import { BookingSection } from "@/components/booking/BookingSection";
 import heroBride from "@/assets/hero-bride.jpg";
 import artist from "@/assets/artist.jpg";
+import glam1 from "@/assets/glam-1.jpg";
+import gele1 from "@/assets/gele-1.jpg";
+import bridalAfter from "@/assets/bridal_after.png";
 import hairStraightImg from "@/assets/hair_straight.png";
 import hairWaveImg from "@/assets/hair_wave.png";
 import hairCurlImg from "@/assets/hair_curl.png";
@@ -569,43 +576,56 @@ function Home() {
       </header>
 
       {/* HERO */}
-      <section id="top" className="relative min-h-screen overflow-hidden">
+      <section id="top" className="relative overflow-hidden">
         {/* Dynamic ambient background blobs */}
         <div className="absolute inset-0 bg-[#FAF9F5]" />
         <div
-          className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-mauve/20 blur-3xl opacity-75 animate-pulse"
+          className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-mauve/20 blur-3xl opacity-75 animate-pulse pointer-events-none"
           style={{ animationDuration: "8s" }}
         />
         <div
-          className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full bg-lavender/25 blur-3xl opacity-75 animate-pulse"
+          className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full bg-lavender/25 blur-3xl opacity-75 animate-pulse pointer-events-none"
           style={{ animationDuration: "12s" }}
         />
 
         {/* Fine-line grid pattern for luxury feel */}
         <div
-          className="absolute inset-0 opacity-[0.02] pointer-events-none"
+          className="absolute inset-0 opacity-[0.025] pointer-events-none"
           style={{
             backgroundImage: "radial-gradient(circle, var(--plum) 1px, transparent 1px)",
             backgroundSize: "24px 24px",
           }}
         />
 
-        <div className="relative mx-auto grid max-w-[1600px] grid-cols-1 gap-8 px-6 pt-28 pb-10 md:grid-cols-12 md:gap-8 md:px-12 md:pt-36 md:pb-14 z-10">
-          <div className="md:col-span-6 md:pt-8">
+        <div className="relative mx-auto grid max-w-[1600px] grid-cols-1 gap-10 px-6 pt-28 pb-10 md:grid-cols-12 md:gap-8 md:px-12 md:pt-36 md:pb-14 z-10 items-center">
+          {/* Left Column: Headline, Trust & Conversion */}
+          <div className="md:col-span-6 md:pt-4">
+            {/* Live Availability & Studio Status Pill */}
             <div
-              className="inline-flex items-center gap-2 animate-float-up"
+              className="inline-flex flex-wrap items-center gap-2.5 rounded-full border border-plum/15 bg-white/80 backdrop-blur-md px-4 py-1.5 shadow-xs animate-float-up"
               style={{ animationDelay: "0.1s" }}
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
-              <p className="eyebrow text-lavender-deep">— Est. Luxury Beauty Atelier</p>
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-plum">
+                2026/2027 Bridal Calendar Open
+              </span>
+              <span className="hidden sm:inline text-plum/30">·</span>
+              <span className="hidden sm:inline text-[11px] font-medium tracking-wide text-lavender-deep">
+                Luxury Beauty Atelier
+              </span>
             </div>
+
+            {/* Editorial Title */}
             <h1
-              className="mt-5 animate-float-up font-display text-[3.25rem] leading-[0.95] tracking-tight text-plum md:text-[5.5rem]"
-              style={{ animationDelay: "0.25s" }}
+              className="mt-4 animate-float-up font-display text-[3.25rem] leading-[0.94] tracking-tight text-plum sm:text-[4.5rem] md:text-[5.25rem] lg:text-[5.75rem]"
+              style={{ animationDelay: "0.2s" }}
             >
               Where the
               <br />
-              <span className="font-normal italic text-transparent bg-clip-text bg-gradient-to-r from-lavender-deep via-plum to-[#D4AF37] drop-shadow-sm">
+              <span className="font-normal italic text-transparent bg-clip-text bg-gradient-to-r from-lavender-deep via-plum to-[#D4AF37] drop-shadow-xs">
                 quiet art
               </span>
               <br />
@@ -613,73 +633,204 @@ function Home() {
               <br />
               becomes ritual.
             </h1>
+
+            {/* Subtitle */}
             <p
-              className="mt-6 max-w-md animate-float-up text-base leading-relaxed text-plum/70"
-              style={{ animationDelay: "0.4s" }}
+              className="mt-5 max-w-xl animate-float-up text-base md:text-lg leading-relaxed text-plum/75"
+              style={{ animationDelay: "0.35s" }}
             >
-              Seddypluz Beauty Studio composes bespoke bridal, editorial, and transformative
-              artistry for the woman who moves through the world with intention.
+              Seddypluz Beauty Studio composes bespoke bridal artistry, sculptural gele mastery,
+              and camera-calibrated glam for the woman who moves through the world with
+              unforgettable presence.
             </p>
+
+            {/* Micro Social Proof / Trust Strip */}
             <div
-              className="mt-6 flex animate-float-up flex-wrap items-center gap-6"
+              className="mt-6 flex flex-wrap items-center gap-4 border-y border-plum/10 py-3.5 animate-float-up"
+              style={{ animationDelay: "0.45s" }}
+            >
+              {/* Stacked Bride Avatars */}
+              <div className="flex -space-x-2.5 overflow-hidden">
+                <img
+                  className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                  src={glam1}
+                  alt="Seddypluz Bride"
+                />
+                <img
+                  className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                  src={bridalAfter}
+                  alt="Seddypluz Bride"
+                />
+                <img
+                  className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                  src={gele1}
+                  alt="Seddypluz Bride"
+                />
+              </div>
+
+              {/* Star Rating & Text */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                <div className="flex items-center gap-0.5 text-amber-500">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-3.5 w-3.5 fill-current" />
+                  ))}
+                </div>
+                <span className="text-xs font-bold text-plum">
+                  5.0 Rated{" "}
+                  <span className="font-normal text-plum/60">
+                    (500+ Brides Styled Across Nigeria &amp; Diaspora)
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            {/* Action CTA Group */}
+            <div
+              className="mt-6 flex animate-float-up flex-wrap items-center gap-4 sm:gap-5"
               style={{ animationDelay: "0.55s" }}
             >
               <a
                 href="#contact"
-                className="group relative inline-flex items-center gap-3 overflow-hidden border border-plum bg-plum px-8 py-4 text-xs uppercase tracking-[0.32em] text-ivory transition-all hover:bg-transparent hover:text-plum hover:shadow-[0_10px_30px_rgba(82,58,77,0.1)] active:scale-[0.98] duration-300"
+                className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-plum bg-plum px-8 py-4 text-xs font-bold uppercase tracking-[0.24em] text-[#FAF9F5] shadow-lg shadow-plum/20 transition-all duration-300 hover:bg-lavender-deep hover:border-lavender-deep hover:shadow-xl hover:shadow-lavender-deep/20 active:scale-[0.98] cursor-pointer"
               >
-                Reserve a session
-                <span className="transition-transform group-hover:translate-x-1">→</span>
+                <span>Reserve a session</span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </a>
+
               <a
                 href="#portfolio"
-                className="group text-xs uppercase tracking-[0.32em] text-plum/70 flex flex-col items-start gap-1 transition-colors hover:text-plum"
+                className="group inline-flex items-center gap-2 rounded-full border border-plum/20 bg-white/70 backdrop-blur-sm px-6 py-4 text-xs font-bold uppercase tracking-[0.24em] text-plum shadow-xs transition-all duration-300 hover:bg-plum hover:text-[#FAF9F5] hover:border-plum active:scale-[0.98] cursor-pointer"
               >
-                View the portfolio
-                <span className="h-[1px] w-8 bg-plum/40 transition-all duration-300 group-hover:w-full group-hover:bg-plum" />
+                <span>View Portfolio</span>
+                <span className="text-sm font-light">→</span>
               </a>
+
+              <a
+                href="https://wa.me/2348162292997?text=Hello%20Seddypluz%20Beauty%20Studio,%20I'd%20like%20to%20inquire%20about%20booking%20a%20bridal%20session."
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Direct WhatsApp Consultation"
+                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-700 hover:text-emerald-800 transition-colors p-2 cursor-pointer"
+              >
+                <MessageCircle className="h-4 w-4 fill-current text-[#25D366]" />
+                <span>WhatsApp Chat</span>
+              </a>
+            </div>
+
+            {/* Key Atelier Metrics Bar */}
+            <div
+              className="mt-8 grid grid-cols-3 gap-3 border-t border-plum/10 pt-5 animate-float-up max-w-lg"
+              style={{ animationDelay: "0.65s" }}
+            >
+              <div>
+                <span className="font-display text-2xl md:text-3xl font-bold text-plum">500+</span>
+                <p className="text-[10px] md:text-xs font-semibold uppercase tracking-wider text-plum/60 mt-0.5">
+                  Brides Styled
+                </p>
+              </div>
+              <div className="border-l border-plum/10 pl-3">
+                <span className="font-display text-2xl md:text-3xl font-bold text-plum">10+</span>
+                <p className="text-[10px] md:text-xs font-semibold uppercase tracking-wider text-plum/60 mt-0.5">
+                  Years Mastery
+                </p>
+              </div>
+              <div className="border-l border-plum/10 pl-3">
+                <span className="font-display text-2xl md:text-3xl font-bold text-plum">18H</span>
+                <p className="text-[10px] md:text-xs font-semibold uppercase tracking-wider text-plum/60 mt-0.5">
+                  HD Base Wear
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="relative md:col-span-6 flex items-center justify-center">
-            {/* Glassmorphic border container */}
-            <div className="relative aspect-[4/5] w-full max-w-[500px] animate-veil-in overflow-hidden rounded-[2.5rem] p-3 bg-white/30 backdrop-blur-md border border-plum/15 shadow-[0_30px_100px_rgba(82,58,77,0.12)]">
-              <div className="relative h-full w-full overflow-hidden rounded-[1.8rem]">
+          {/* Right Column: Editorial Visual Showcase & Interactive Floating Cards */}
+          <div className="relative md:col-span-6 flex items-center justify-center pt-4 lg:pt-0">
+            {/* Ambient lighting backdrop */}
+            <div className="absolute -inset-4 rounded-[3rem] bg-gradient-to-tr from-lavender-deep/15 via-amber-200/20 to-mauve/20 blur-2xl -z-10" />
+
+            {/* Main Glassmorphic border container */}
+            <div className="relative aspect-[4/5] w-full max-w-[500px] animate-veil-in overflow-hidden rounded-[2.5rem] p-3 bg-white/40 backdrop-blur-xl border border-plum/15 shadow-[0_30px_100px_rgba(82,58,77,0.14)]">
+              <div className="relative h-full w-full overflow-hidden rounded-[1.8rem] group">
                 <img
                   src={heroBride}
-                  alt="Seddypluz Beauty Studio bridal editorial"
+                  alt="Seddypluz Beauty Studio bridal editorial masterpiece"
                   width={1280}
                   height={1600}
-                  className="h-full w-full object-cover transition-transform duration-[4000ms] hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-[3000ms] group-hover:scale-105"
                 />
                 <div className="absolute inset-0" style={{ background: "var(--gradient-veil)" }} />
+
+                {/* Bottom Image Overlay Card */}
                 <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-ivory">
                   <div>
-                    <p className="eyebrow opacity-80">Featured · Vol. IV</p>
-                    <p className="mt-2 font-display text-2xl italic">Her Royal Moment</p>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-[10px] uppercase tracking-widest font-semibold text-ivory border border-white/20 mb-2">
+                      <Sparkles className="h-3 w-3 text-amber-300" />
+                      <span>Signature Editorial</span>
+                    </span>
+                    <p className="font-display text-2xl md:text-3xl italic">Her Royal Moment</p>
                   </div>
-                  <span className="font-display text-4xl italic">01</span>
+                  <span className="font-display text-4xl italic text-amber-300/90">01</span>
                 </div>
               </div>
             </div>
 
-            {/* Vol IV circular badge overlay */}
-            <div className="absolute -left-6 -top-6 hidden md:block z-10">
-              <div className="animate-shimmer flex h-24 w-24 flex-col items-center justify-center rounded-full border border-lavender-deep/30 bg-white/80 backdrop-blur-md text-plum shadow-md">
+            {/* Top-Left: Vol IV Medallion Badge */}
+            <div
+              className="absolute -left-4 sm:-left-6 top-8 hidden sm:block z-20 animate-float-up"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <div className="flex h-20 w-20 md:h-24 md:w-24 flex-col items-center justify-center rounded-full border border-lavender-deep/30 bg-white/90 backdrop-blur-xl text-plum shadow-xl transition-transform hover:scale-105 duration-300">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-lavender-deep">
                   Vol
                 </span>
-                <span className="font-display text-xl italic font-semibold mt-0.5">IV</span>
+                <span className="font-display text-xl italic font-semibold mt-0.5 text-plum">IV</span>
+              </div>
+            </div>
+
+            {/* Top-Right: Verified Luxury Badge */}
+            <div
+              className="absolute -right-2 sm:-right-4 top-16 hidden sm:flex items-center gap-2.5 rounded-2xl border border-plum/10 bg-white/90 backdrop-blur-xl px-4 py-2.5 shadow-xl animate-float-up z-20 transition-transform hover:scale-105 duration-300"
+              style={{ animationDelay: "0.5s" }}
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400/20 text-amber-600">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-500" />
+              </div>
+              <div>
+                <span className="block text-[10px] uppercase tracking-wider font-bold text-plum/50">
+                  Editorial Grade
+                </span>
+                <span className="text-xs font-bold text-plum">100% Bridal Perfection</span>
+              </div>
+            </div>
+
+            {/* Bottom-Left: Gele & HD Base Floating Feature Pill */}
+            <div
+              className="absolute -left-4 sm:-left-6 bottom-10 hidden sm:flex items-center gap-3 rounded-2xl border border-plum/10 bg-white/95 backdrop-blur-xl p-2.5 pr-5 shadow-xl animate-float-up z-20 transition-transform hover:scale-105 duration-300"
+              style={{ animationDelay: "0.7s" }}
+            >
+              <img
+                src={gele1}
+                alt="Bespoke Gele Artistry"
+                className="h-11 w-11 rounded-xl object-cover ring-1 ring-plum/10"
+              />
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-plum">Bespoke Gele &amp; HD Base</span>
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                </div>
+                <span className="block text-[10px] text-plum/60 font-medium">
+                  18H Tear-Resistant Finish
+                </span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Endless scrolling marquee for Featured In */}
-        <div className="relative border-t border-plum/10 bg-white/40 backdrop-blur-sm py-6 overflow-hidden z-10">
+        <div className="relative border-t border-plum/10 bg-white/50 backdrop-blur-md py-5 overflow-hidden z-10">
           <div className="mx-auto max-w-[1600px] px-6 md:px-12 flex items-center gap-8">
             <span className="eyebrow text-plum/50 shrink-0 select-none mr-4">Featured In</span>
-            <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]">
+            <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_15%,white_85%,transparent)]">
               <div className="flex gap-16 w-[200%] animate-marquee shrink-0">
                 {/* Loop 1 */}
                 <div className="flex justify-around shrink-0 gap-16">
