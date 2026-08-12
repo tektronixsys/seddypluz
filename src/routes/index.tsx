@@ -883,9 +883,8 @@ function Home() {
                 Seddypluz Beauty Studio
               </p>
               <p className="mt-4 max-w-sm text-sm leading-relaxed text-plum/60">
-                Where artistry meets elegance — crafting bespoke beauty
-                experiences for brides, campaigns, and editorial moments that
-                live forever.
+                Where artistry meets elegance — crafting bespoke beauty experiences for brides,
+                campaigns, and editorial moments that live forever.
               </p>
 
               {/* Social Media */}
@@ -911,9 +910,7 @@ function Home() {
                     <circle cx="12" cy="12" r="5" />
                     <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
                   </svg>
-                  <span className="text-xs font-medium tracking-wide">
-                    @seddypluz_wigs
-                  </span>
+                  <span className="text-xs font-medium tracking-wide">@seddypluz_wigs</span>
                 </a>
 
                 {/* TikTok */}
@@ -931,9 +928,7 @@ function Home() {
                   >
                     <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.05a8.3 8.3 0 004.76 1.49V7.09a4.84 4.84 0 01-1-.4z" />
                   </svg>
-                  <span className="text-xs font-medium tracking-wide">
-                    @seddypluz_wigs
-                  </span>
+                  <span className="text-xs font-medium tracking-wide">@seddypluz_wigs</span>
                 </a>
               </div>
             </div>
@@ -988,12 +983,10 @@ function Home() {
             <div className="h-px bg-gradient-to-r from-transparent via-plum/10 to-transparent" />
             <div className="flex flex-col items-center justify-between gap-3 pt-6 md:flex-row">
               <p className="text-xs tracking-wider text-plum/40">
-                © {new Date().getFullYear()} Seddypluz Beauty Studio · All
-                artistry reserved
+                © {new Date().getFullYear()} Seddypluz Beauty Studio · All artistry reserved
               </p>
               <p className="text-xs text-plum/30">
-                Crafted with <span className="text-lavender-deep/60">♥</span>{" "}
-                for beauty
+                Crafted with <span className="text-lavender-deep/60">♥</span> for beauty
               </p>
             </div>
           </div>
