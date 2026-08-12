@@ -445,7 +445,7 @@ function Home() {
         <nav className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4.5 md:px-12">
           <a
             href="#top"
-            className="font-display text-2xl italic tracking-tight text-plum transition-opacity hover:opacity-90 flex items-center gap-2"
+            className="font-outfit text-[24px] leading-[32px] font-semibold not-italic tracking-tight text-plum transition-opacity hover:opacity-90 flex items-center gap-2"
           >
             <span>Seddypluz Beauty Studio</span>
           </a>
@@ -894,7 +894,9 @@ function Home() {
       {/* FOOTER */}
       <footer className="border-t border-plum/10 bg-background py-10">
         <div className="mx-auto flex max-w-[1600px] flex-col items-center justify-between gap-4 px-6 text-xs text-plum/60 md:flex-row md:px-12">
-          <p className="font-display italic text-lg text-plum">Seddypluz Beauty Studio</p>
+          <p className="font-outfit text-[24px] leading-[32px] font-semibold not-italic text-plum">
+            Seddypluz Beauty Studio
+          </p>
           <p className="eyebrow">© 2026 · All artistry reserved</p>
         </div>
       </footer>
