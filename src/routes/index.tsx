@@ -870,12 +870,133 @@ function Home() {
       <BookingSection />
 
       {/* FOOTER */}
-      <footer className="border-t border-plum/10 bg-background py-10">
-        <div className="mx-auto flex max-w-[1600px] flex-col items-center justify-between gap-4 px-6 text-xs text-plum/60 md:flex-row md:px-12">
-          <p className="font-outfit text-[24px] leading-[32px] font-semibold not-italic text-plum">
-            Seddypluz Beauty Studio
-          </p>
-          <p className="eyebrow">© 2026 · All artistry reserved</p>
+      <footer className="relative overflow-hidden border-t border-plum/10 bg-gradient-to-b from-background to-blush-soft/30">
+        {/* Decorative top gradient line */}
+        <div className="absolute top-0 right-0 left-0 h-px bg-gradient-to-r from-transparent via-lavender-deep/40 to-transparent" />
+
+        <div className="mx-auto max-w-[1600px] px-6 pt-16 pb-8 md:px-12">
+          {/* Main Footer Grid */}
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-12 md:gap-8">
+            {/* Brand Column */}
+            <div className="md:col-span-5">
+              <p className="font-outfit text-[28px] leading-[36px] font-semibold text-plum">
+                Seddypluz Beauty Studio
+              </p>
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-plum/60">
+                Where artistry meets elegance — crafting bespoke beauty
+                experiences for brides, campaigns, and editorial moments that
+                live forever.
+              </p>
+
+              {/* Social Media */}
+              <div className="mt-8 flex items-center gap-4">
+                {/* Instagram */}
+                <a
+                  href="https://instagram.com/seddypluz_wigs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram @seddypluz_wigs"
+                  className="group flex items-center gap-2.5 rounded-full border border-plum/10 bg-white/60 px-4 py-2.5 text-plum/70 transition-all duration-300 hover:border-lavender-deep/30 hover:bg-lavender-deep/5 hover:text-lavender-deep hover:shadow-md"
+                >
+                  <svg
+                    className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="2" y="2" width="20" height="20" rx="5" />
+                    <circle cx="12" cy="12" r="5" />
+                    <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+                  </svg>
+                  <span className="text-xs font-medium tracking-wide">
+                    @seddypluz_wigs
+                  </span>
+                </a>
+
+                {/* TikTok */}
+                <a
+                  href="https://tiktok.com/@seddypluz_wigs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on TikTok @seddypluz_wigs"
+                  className="group flex items-center gap-2.5 rounded-full border border-plum/10 bg-white/60 px-4 py-2.5 text-plum/70 transition-all duration-300 hover:border-lavender-deep/30 hover:bg-lavender-deep/5 hover:text-lavender-deep hover:shadow-md"
+                >
+                  <svg
+                    className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.05a8.3 8.3 0 004.76 1.49V7.09a4.84 4.84 0 01-1-.4z" />
+                  </svg>
+                  <span className="text-xs font-medium tracking-wide">
+                    @seddypluz_wigs
+                  </span>
+                </a>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div className="md:col-span-3 md:col-start-7">
+              <p className="eyebrow mb-5 text-lavender-deep">Quick Links</p>
+              <ul className="space-y-3">
+                {[
+                  { label: "Services", href: "#services" },
+                  { label: "Portfolio", href: "#portfolio" },
+                  { label: "Transformations", href: "#transformations" },
+                  { label: "Boutique", href: "#boutique" },
+                  { label: "Book a Session", href: "#booking" },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      className="group flex items-center gap-2 text-sm text-plum/60 transition-colors duration-200 hover:text-plum"
+                    >
+                      <span className="inline-block h-px w-3 bg-plum/20 transition-all duration-300 group-hover:w-5 group-hover:bg-lavender-deep" />
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div className="md:col-span-3">
+              <p className="eyebrow mb-5 text-lavender-deep">Get in Touch</p>
+              <div className="space-y-3 text-sm text-plum/60">
+                <a
+                  href="https://wa.me/2348162292997"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 transition-colors duration-200 hover:text-plum"
+                >
+                  <MessageCircle className="h-4 w-4 shrink-0" />
+                  WhatsApp Us
+                </a>
+                <p className="flex items-center gap-2">
+                  <Heart className="h-4 w-4 shrink-0" />
+                  Lagos, Nigeria
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="mt-14">
+            <div className="h-px bg-gradient-to-r from-transparent via-plum/10 to-transparent" />
+            <div className="flex flex-col items-center justify-between gap-3 pt-6 md:flex-row">
+              <p className="text-xs tracking-wider text-plum/40">
+                © {new Date().getFullYear()} Seddypluz Beauty Studio · All
+                artistry reserved
+              </p>
+              <p className="text-xs text-plum/30">
+                Crafted with <span className="text-lavender-deep/60">♥</span>{" "}
+                for beauty
+              </p>
+            </div>
+          </div>
         </div>
       </footer>
 
