@@ -365,7 +365,7 @@ function Home() {
         <nav className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-5 md:px-12">
           <a href="#top" className="flex items-baseline gap-2">
             <span className="font-display text-2xl italic tracking-tight text-plum">Seddypluz</span>
-            <span className="eyebrow text-lavender-deep">Beauty Studio</span>
+            <span className="font-display eyebrow text-lavender-deep">Beauty Studio</span>
           </a>
           <div className="hidden items-center gap-10 md:flex">
             {["Services", "Portfolio", "Studio", "Boutique", "Contact"].map((l) => (

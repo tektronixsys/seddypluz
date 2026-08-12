@@ -254,7 +254,7 @@ function AdminDashboard() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <div className="flex items-baseline gap-2">
             <span className="font-display text-2xl italic tracking-tight text-plum">Seddypluz</span>
-            <span className="eyebrow text-lavender-deep">Dashboard</span>
+            <span className="font-display eyebrow text-lavender-deep">Dashboard</span>
           </div>
           <div className="flex items-center gap-4">
             <button
