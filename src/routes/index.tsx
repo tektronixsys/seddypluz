@@ -394,7 +394,6 @@ function Home() {
     { name: "Portfolio", href: "#portfolio" },
     { name: "Transformations", href: "#transformations" },
     { name: "Boutique", href: "#boutique" },
-    { name: "FAQ", href: "#faq" },
   ];
 
   return (
@@ -509,7 +508,6 @@ function Home() {
                 { name: "The Studio Story", href: "#studio" },
                 { name: "Cherished Bride Reviews", href: "#reviews" },
                 { name: "Boutique Wigs & Catalog", href: "#boutique" },
-                { name: "Frequently Asked Questions", href: "#faq" },
               ].map((link) => (
                 <a
                   key={link.name}
