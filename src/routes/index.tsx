@@ -442,10 +442,8 @@ function Home() {
             <div className="flex-1 flex items-center justify-center gap-2 text-[10px] md:text-xs uppercase tracking-widest font-semibold z-10 text-center">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping shrink-0" />
               <span>
-                Get <strong className="text-amber-300 font-bold font-sans">50% off</strong> (up to
-                ₦200,000) your first Luxury wig order and{" "}
-                <strong className="text-amber-300 font-bold font-sans">20% off</strong> installation
-                & services.
+                Enjoy <strong className="text-amber-300 font-bold font-sans">20% OFF</strong> your
+                first wig order + ALL beauty services
               </span>
               <span className="hidden sm:inline-block h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" />
             </div>
