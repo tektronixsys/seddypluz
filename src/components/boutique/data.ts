@@ -1,4 +1,14 @@
-import { Sparkles, Ruler, Gem, Scale, Scissors, Layers, Heart, Droplets, ShieldCheck } from "lucide-react";
+import {
+  Sparkles,
+  Ruler,
+  Gem,
+  Scale,
+  Scissors,
+  Layers,
+  Heart,
+  Droplets,
+  ShieldCheck,
+} from "lucide-react";
 import type { Product } from "./types";
 import hairStraightImg from "@/assets/hair_straight.png";
 import hairWaveImg from "@/assets/hair_wave.png";
@@ -181,7 +191,12 @@ export const boutiqueProducts: Product[] = [
     isBestseller: true,
     dots: [
       { color: "#800020", name: "Royal Plum", priceFormatted: "₦38,000", numericPrice: 38000 },
-      { color: "#C04000", name: "Spiced Terracotta", priceFormatted: "₦38,000", numericPrice: 38000 },
+      {
+        color: "#C04000",
+        name: "Spiced Terracotta",
+        priceFormatted: "₦38,000",
+        numericPrice: 38000,
+      },
       { color: "#C27B7F", name: "Bridal Rose", priceFormatted: "₦38,000", numericPrice: 38000 },
     ],
     specs: [
@@ -218,8 +233,18 @@ export const boutiqueProducts: Product[] = [
     isBestseller: true,
     dots: [
       { color: "#EED7A1", name: "Champagne Glow", priceFormatted: "₦55,000", numericPrice: 55000 },
-      { color: "#D4AF37", name: "Royal 24K Bronze", priceFormatted: "₦55,000", numericPrice: 55000 },
-      { color: "#E8C39E", name: "Rose Gold Mirage", priceFormatted: "₦55,000", numericPrice: 55000 },
+      {
+        color: "#D4AF37",
+        name: "Royal 24K Bronze",
+        priceFormatted: "₦55,000",
+        numericPrice: 55000,
+      },
+      {
+        color: "#E8C39E",
+        name: "Rose Gold Mirage",
+        priceFormatted: "₦55,000",
+        numericPrice: 55000,
+      },
     ],
     specs: [
       { icon: Sparkles, label: "Micro-Pearls" },
@@ -269,8 +294,7 @@ export const boutiqueProducts: Product[] = [
       laceOrFinish: "Laser-cut Micro-fiber Synthetic Filaments",
       originOrFormulation: "Hand-assembled with FSC-certified Birchwood",
       longevity: "5+ years of daily professional bridal studio usage",
-      careTips:
-        "Wash weekly with antibacterial brush cleanser and dry flat on a clean towel.",
+      careTips: "Wash weekly with antibacterial brush cleanser and dry flat on a clean towel.",
     },
   },
 ];

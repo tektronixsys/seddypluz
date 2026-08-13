@@ -24,7 +24,9 @@ import { toast } from "sonner";
 
 export function BoutiqueSection() {
   const { addItem } = useCart();
-  const [activeCategory, setActiveCategory] = useState<"all" | "wigs" | "cosmetics" | "bestseller">("all");
+  const [activeCategory, setActiveCategory] = useState<"all" | "wigs" | "cosmetics" | "bestseller">(
+    "all",
+  );
   const [wishlistedIds, setWishlistedIds] = useState<Set<string>>(new Set());
   const [selectedQuickViewProduct, setSelectedQuickViewProduct] = useState<Product | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -237,7 +239,9 @@ export function BoutiqueSection() {
               ) : (
                 <>
                   <Copy className="h-4 w-4 text-lavender-deep" />
-                  <span>Copy Code: <strong>SEDDY20</strong></span>
+                  <span>
+                    Copy Code: <strong>SEDDY20</strong>
+                  </span>
                 </>
               )}
             </button>
@@ -316,7 +320,11 @@ export function BoutiqueSection() {
                     {/* Wishlist Heart Button */}
                     <button
                       onClick={() => handleToggleWishlist(p.id)}
-                      aria-label={isWishlisted ? `Remove ${p.name} from wishlist` : `Add ${p.name} to wishlist`}
+                      aria-label={
+                        isWishlisted
+                          ? `Remove ${p.name} from wishlist`
+                          : `Add ${p.name} to wishlist`
+                      }
                       className={`absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 active:scale-90 cursor-pointer ${
                         isWishlisted
                           ? "bg-rose-500 text-white shadow-md shadow-rose-500/35 scale-105"
@@ -486,7 +494,8 @@ export function BoutiqueSection() {
               <div>
                 <h4 className="font-sans text-sm font-bold text-plum">100% Raw Virgin Hair</h4>
                 <p className="mt-1 text-xs text-plum/65 leading-relaxed">
-                  Single-donor, cuticle-aligned strands that can be bleached to 613 with zero shedding.
+                  Single-donor, cuticle-aligned strands that can be bleached to 613 with zero
+                  shedding.
                 </p>
               </div>
             </div>
@@ -520,7 +529,9 @@ export function BoutiqueSection() {
                 <ShieldCheck className="h-5 w-5 text-lavender-deep" />
               </div>
               <div>
-                <h4 className="font-sans text-sm font-bold text-plum">Studio Concierge &amp; Fitting</h4>
+                <h4 className="font-sans text-sm font-bold text-plum">
+                  Studio Concierge &amp; Fitting
+                </h4>
                 <p className="mt-1 text-xs text-plum/65 leading-relaxed">
                   Bundle your wig order with professional studio lace customization and bridal glam.
                 </p>
@@ -536,7 +547,8 @@ export function BoutiqueSection() {
               Need a custom wig unit or bespoke color formulation?
             </h4>
             <p className="mt-1 text-xs text-plum/65">
-              Our master stylists construct custom cap sizes, custom highlighted tones, and bridal units.
+              Our master stylists construct custom cap sizes, custom highlighted tones, and bridal
+              units.
             </p>
           </div>
           <div className="mt-4 sm:mt-0 shrink-0">
@@ -559,7 +571,9 @@ export function BoutiqueSection() {
         isOpen={!!selectedQuickViewProduct}
         onClose={() => setSelectedQuickViewProduct(null)}
         onWishlistToggle={handleToggleWishlist}
-        isWishlisted={selectedQuickViewProduct ? wishlistedIds.has(selectedQuickViewProduct.id) : false}
+        isWishlisted={
+          selectedQuickViewProduct ? wishlistedIds.has(selectedQuickViewProduct.id) : false
+        }
       />
     </section>
   );
