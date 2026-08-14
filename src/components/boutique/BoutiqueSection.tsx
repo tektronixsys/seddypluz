@@ -65,7 +65,7 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
   const handleToggleWishlist = (productId: string) => {
     setWishlistedIds((prev) => {
       const next = new Set(prev);
-      const product = boutiqueProducts.find((p) => p.id === productId);
+      const product = products.find((p) => p.id === productId);
       if (next.has(productId)) {
         next.delete(productId);
         toast.info(`Removed ${product?.name || "item"} from wishlist`);
@@ -287,7 +287,7 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
               to="/shop"
               className="text-xs uppercase tracking-wider font-bold text-lavender-deep hover:text-plum transition-colors flex items-center gap-1"
             >
-              <span>See All ({boutiqueProducts.length})</span>
+              <span>See All ({products.length})</span>
               <span className="text-sm">→</span>
             </Link>
           </div>
@@ -336,7 +336,7 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
             to="/shop"
             className="shrink-0 inline-flex items-center gap-3 rounded-full bg-plum px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-[#FAF9F5] shadow-lg shadow-plum/20 transition-all hover:bg-lavender-deep hover:shadow-xl active:scale-[0.98]"
           >
-            <span>Explore Full Shop ({boutiqueProducts.length} Items)</span>
+            <span>Explore Full Shop ({products.length} Items)</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
