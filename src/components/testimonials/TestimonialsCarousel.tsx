@@ -100,6 +100,7 @@ const testimonials: Testimonial[] = [
 export function TestimonialsCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const touchStartXRef = React.useRef<number | null>(null);
 
   useEffect(() => {
     if (isPaused) return;
@@ -117,6 +118,23 @@ export function TestimonialsCarousel() {
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsPaused(true);
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const diff = touchStartXRef.current - e.changedTouches[0].clientX;
+    if (diff > 45) {
+      handleNext();
+    } else if (diff < -45) {
+      handlePrev();
+    }
+    touchStartXRef.current = null;
+    setTimeout(() => setIsPaused(false), 3000);
   };
 
   return (
@@ -146,7 +164,9 @@ export function TestimonialsCarousel() {
         <div
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
-          className="relative max-w-4xl mx-auto rounded-[3rem] bg-[#FAF9F5] p-8 sm:p-12 md:p-16 border border-plum/10 shadow-[0_20px_50px_-15px_rgba(82,58,77,0.08)] transition-all"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="relative max-w-4xl mx-auto rounded-[2rem] sm:rounded-[3rem] bg-[#FAF9F5] p-6 sm:p-12 md:p-16 border border-plum/10 shadow-[0_20px_50px_-15px_rgba(82,58,77,0.08)] transition-all select-none"
         >
           {/* Top Row: Quote mark & Rating */}
           <div className="flex items-center justify-between gap-4 mb-8">
