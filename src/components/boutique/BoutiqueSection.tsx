@@ -243,15 +243,15 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
         </div>
 
         {/* Filter Navigation Tabs */}
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-b border-plum/10 pb-5">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-plum/10 pb-5">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 max-w-full">
             {categories.map((cat) => {
               const isActive = activeCategory === cat.id;
               return (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  className={`flex items-center gap-2 shrink-0 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                     isActive
                       ? "bg-plum text-[#FAF9F5] shadow-md shadow-plum/20 scale-102"
                       : "bg-white/70 text-plum/70 hover:bg-white hover:text-plum border border-plum/10"

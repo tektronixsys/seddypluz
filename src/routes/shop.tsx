@@ -324,8 +324,8 @@ function ShopPage() {
           </div>
 
           {/* Search, Filter & Sort Controls Bar */}
-          <div className="mt-10 space-y-4">
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+          <div className="mt-8 sm:mt-10 space-y-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
               {/* Search Box */}
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-plum/40" />
@@ -347,11 +347,11 @@ function ShopPage() {
               </div>
 
               {/* Sort Selector Dropdown */}
-              <div className="flex items-center gap-2.5 self-end lg:self-auto">
-                <SlidersHorizontal className="h-4 w-4 text-plum/50" />
-                <span className="text-xs font-bold uppercase tracking-wider text-plum/60">
-                  Sort:
-                </span>
+              <div className="flex items-center justify-between sm:justify-start gap-2.5">
+                <div className="flex items-center gap-1.5 text-plum/60">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  <span className="text-xs font-bold uppercase tracking-wider">Sort:</span>
+                </div>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -366,15 +366,15 @@ function ShopPage() {
             </div>
 
             {/* Category Filter Pills */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-plum/10 pb-4">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-plum/10 pb-4">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 max-w-full">
                 {categories.map((cat) => {
                   const isActive = activeCategory === cat.id;
                   return (
                     <button
                       key={cat.id}
                       onClick={() => setActiveCategory(cat.id)}
-                      className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                      className={`flex items-center gap-2 shrink-0 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                         isActive
                           ? "bg-plum text-[#FAF9F5] shadow-md shadow-plum/20 scale-102"
                           : "bg-white/80 text-plum/70 hover:bg-white hover:text-plum border border-plum/10"
@@ -393,7 +393,7 @@ function ShopPage() {
                 })}
               </div>
 
-              <span className="text-xs font-semibold text-plum/60">
+              <span className="text-xs font-semibold text-plum/60 shrink-0">
                 Showing {filteredProducts.length} of {boutiqueProducts.length} items
               </span>
             </div>

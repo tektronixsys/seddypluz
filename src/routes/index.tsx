@@ -298,7 +298,7 @@ function Home() {
 
             {/* Editorial Title */}
             <h1
-              className="mt-4 animate-float-up font-display text-[3.25rem] leading-[0.94] tracking-tight text-plum sm:text-[4.5rem] md:text-[5.25rem] lg:text-[5.75rem]"
+              className="mt-4 animate-float-up font-display text-[2.65rem] xs:text-[3.25rem] leading-[0.94] tracking-tight text-plum sm:text-[4.5rem] md:text-[5.25rem] lg:text-[5.75rem]"
               style={{ animationDelay: "0.2s" }}
             >
               Where the
