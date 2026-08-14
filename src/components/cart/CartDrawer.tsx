@@ -129,9 +129,9 @@ export function CartDrawer() {
                         <button
                           onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
                           aria-label="Decrease quantity"
-                          className="flex h-6 w-6 items-center justify-center rounded text-plum/70 hover:bg-plum/10 hover:text-plum transition-colors cursor-pointer"
+                          className="flex h-7 w-7 items-center justify-center rounded text-plum/70 hover:bg-plum/10 hover:text-plum transition-colors cursor-pointer"
                         >
-                          <Minus className="h-3 w-3" />
+                          <Minus className="h-3.5 w-3.5" />
                         </button>
                         <span className="w-8 text-center text-xs font-bold text-plum font-sans">
                           {item.quantity}
@@ -139,9 +139,9 @@ export function CartDrawer() {
                         <button
                           onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
                           aria-label="Increase quantity"
-                          className="flex h-6 w-6 items-center justify-center rounded text-plum/70 hover:bg-plum/10 hover:text-plum transition-colors cursor-pointer"
+                          className="flex h-7 w-7 items-center justify-center rounded text-plum/70 hover:bg-plum/10 hover:text-plum transition-colors cursor-pointer"
                         >
-                          <Plus className="h-3 w-3" />
+                          <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </div>
@@ -154,7 +154,7 @@ export function CartDrawer() {
 
         {/* Footer / Checkout */}
         {items.length > 0 && (
-          <div className="p-6 border-t border-plum/10 bg-[#FAF9F5] space-y-4">
+          <div className="p-5 sm:p-6 border-t border-plum/10 bg-[#FAF9F5] space-y-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
             <div className="flex items-center justify-between text-sm">
               <span className="text-plum/70 font-medium">Estimated Subtotal</span>
               <span className="text-2xl font-bold text-plum font-sans">{totalPriceFormatted}</span>
@@ -163,7 +163,7 @@ export function CartDrawer() {
             <div className="flex items-center gap-2 rounded-xl bg-plum/5 p-3 text-[11px] text-plum/75 leading-tight">
               <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
               <span>
-                Free express studio pickup in Lagos · Insured doorstep delivery nationwide.
+                Express studio pickup · Tracked DHL insured doorstep delivery nationwide &amp; worldwide.
               </span>
             </div>
 
