@@ -163,7 +163,8 @@ export function CartDrawer() {
             <div className="flex items-center gap-2 rounded-xl bg-plum/5 p-3 text-[11px] text-plum/75 leading-tight">
               <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
               <span>
-                Express studio pickup · Tracked DHL insured doorstep delivery nationwide &amp; worldwide.
+                Express studio pickup · Tracked DHL insured doorstep delivery nationwide &amp;
+                worldwide.
               </span>
             </div>
 
