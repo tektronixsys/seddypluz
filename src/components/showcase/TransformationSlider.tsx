@@ -78,8 +78,13 @@ export function TransformationSlider() {
               ref={containerRef}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
+              onTouchStart={(e) => {
+                setIsDragging(true);
+                if (e.touches.length > 0) handleMove(e.touches[0].clientX);
+              }}
               onTouchMove={handleTouchMove}
-              className="group relative h-[460px] sm:h-[560px] w-full select-none overflow-hidden rounded-[2.5rem] bg-white border border-plum/10 shadow-[0_24px_50px_-12px_rgba(82,58,77,0.12)] cursor-ew-resize"
+              onTouchEnd={handleMouseUp}
+              className="group relative h-[400px] xs:h-[460px] sm:h-[560px] w-full select-none overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] bg-white border border-plum/10 shadow-[0_24px_50px_-12px_rgba(82,58,77,0.12)] cursor-ew-resize touch-none"
             >
               {/* After Image (Background full layer) */}
               <img
