@@ -18,6 +18,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Calendar,
+  Phone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
@@ -704,6 +705,15 @@ function Home() {
                   <Heart className="h-4 w-4 shrink-0" />
                   Kaduna, Nigeria
                 </p>
+                <a
+                  href="https://wa.me/2348162292997"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-emerald-700 font-semibold hover:text-emerald-800 transition-colors"
+                >
+                  <Phone className="h-4 w-4 shrink-0" />
+                  +234 816 229 2997
+                </a>
               </div>
             </div>
           </div>
