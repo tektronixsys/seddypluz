@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useCart } from "@/context/CartContext";
-import { boutiqueProducts } from "./data";
+import { getStoredBoutiqueProducts } from "./data";
 import type { Product } from "./types";
 import { ProductCard } from "./ProductCard";
 import { ProductQuickViewModal } from "./ProductQuickViewModal";
@@ -25,6 +25,7 @@ interface BoutiqueSectionProps {
 
 export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueSectionProps) {
   const { addItem } = useCart();
+  const [products, setProducts] = useState<Product[]>(() => getStoredBoutiqueProducts());
   const [activeCategory, setActiveCategory] = useState<"all" | "wigs" | "cosmetics" | "bestseller">(
     "all",
   );
@@ -33,10 +34,18 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
   const [copiedCode, setCopiedCode] = useState(false);
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
 
+  useEffect(() => {
+    const handleUpdate = () => {
+      setProducts(getStoredBoutiqueProducts());
+    };
+    window.addEventListener("seddypluz_inventory_updated", handleUpdate);
+    return () => window.removeEventListener("seddypluz_inventory_updated", handleUpdate);
+  }, []);
+
   // Per-product selected variant state
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
-    boutiqueProducts.forEach((p) => {
+    products.forEach((p) => {
       if (p.dots.length > 0) {
         initial[p.id] = p.dots[0].name;
       }
@@ -102,7 +111,7 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
   };
 
   // Filter products
-  const filteredProducts = boutiqueProducts.filter((p) => {
+  const filteredProducts = products.filter((p) => {
     if (activeCategory === "all") return true;
     if (activeCategory === "wigs") return p.category === "wigs";
     if (activeCategory === "cosmetics") return p.category === "cosmetics";
@@ -114,21 +123,21 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
   const displayedProducts = isFullShopPage ? filteredProducts : filteredProducts.slice(0, limit);
 
   const categories = [
-    { id: "all", label: "All Featured", count: boutiqueProducts.length },
+    { id: "all", label: "All Featured", count: products.length },
     {
       id: "wigs",
       label: "Luxury Wigs & Extensions",
-      count: boutiqueProducts.filter((p) => p.category === "wigs").length,
+      count: products.filter((p) => p.category === "wigs").length,
     },
     {
       id: "cosmetics",
       label: "Signature Cosmetics",
-      count: boutiqueProducts.filter((p) => p.category === "cosmetics").length,
+      count: products.filter((p) => p.category === "cosmetics").length,
     },
     {
       id: "bestseller",
       label: "Studio Bestsellers",
-      count: boutiqueProducts.filter((p) => p.isBestseller).length,
+      count: products.filter((p) => p.isBestseller).length,
     },
   ] as const;
 

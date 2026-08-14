@@ -46,6 +46,12 @@ import {
   Plus,
   Scissors,
   Wand2,
+  Pencil,
+  Trash2,
+  CopyPlus,
+  PlusCircle,
+  X,
+  Package,
 } from "lucide-react";
 import {
   adminLogin,
@@ -55,8 +61,14 @@ import {
   updateAppointmentStatus,
 } from "@/lib/appointments.functions";
 import type { AppointmentRequest } from "@/integrations/firebase/appointments";
-import { boutiqueProducts as initialBoutiqueProducts } from "@/components/boutique/data";
-import type { Product } from "@/components/boutique/types";
+import {
+  boutiqueProducts as initialBoutiqueProducts,
+  getStoredBoutiqueProducts,
+  saveStoredBoutiqueProducts,
+  resetStoredBoutiqueProducts,
+  PRODUCT_IMAGE_PRESETS,
+} from "@/components/boutique/data";
+import type { Product, ProductDot } from "@/components/boutique/types";
 import heroBride from "@/assets/hero-bride.jpg";
 import gele1 from "@/assets/gele-1.jpg";
 import bridalAfter from "@/assets/bridal_after.png";
@@ -169,8 +181,40 @@ function AdminDashboard() {
   const [announcementActive, setAnnouncementActive] = useState(true);
   const [bannerSaved, setBannerSaved] = useState(false);
 
-  // Boutique Inventory Controller State
-  const [managedProducts, setManagedProducts] = useState<Product[]>(initialBoutiqueProducts);
+  // Boutique Inventory Controller State (CRUD)
+  const [managedProducts, setManagedProducts] = useState<Product[]>(() =>
+    getStoredBoutiqueProducts(),
+  );
+  const [inventorySearchQuery, setInventorySearchQuery] = useState("");
+  const [inventoryCategoryFilter, setInventoryCategoryFilter] = useState<
+    "all" | "wigs" | "cosmetics" | "pinned"
+  >("all");
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [deleteConfirmProduct, setDeleteConfirmProduct] = useState<Product | null>(null);
+
+  // Form State for Add / Edit
+  const [formName, setFormName] = useState("");
+  const [formCategory, setFormCategory] = useState<"wigs" | "cosmetics">("wigs");
+  const [formPrice, setFormPrice] = useState("₦280,000");
+  const [formOriginalPrice, setFormOriginalPrice] = useState("₦350,000");
+  const [formNumericPrice, setFormNumericPrice] = useState(280000);
+  const [formDesc, setFormDesc] = useState("");
+  const [formFullDesc, setFormFullDesc] = useState("");
+  const [formImg, setFormImg] = useState(PRODUCT_IMAGE_PRESETS[0].value);
+  const [formCustomImg, setFormCustomImg] = useState("");
+  const [formBadge, setFormBadge] = useState<Product["badge"] | "">("Bestseller");
+  const [formDiscountBadge, setFormDiscountBadge] = useState("20% OFF");
+  const [formDensityOrSize, setFormDensityOrSize] = useState("300g Super Double Drawn");
+  const [formLaceOrFinish, setFormLaceOrFinish] = useState("13x4 HD Invisible Swiss Lace");
+  const [formOrigin, setFormOrigin] = useState("100% Raw Single-Donor Virgin Hair");
+  const [formLongevity, setFormLongevity] = useState("3 to 5+ years with studio care");
+  const [formCareTips, setFormCareTips] = useState("Store in silk packaging, flat iron max 230°C.");
+  const [formDots, setFormDots] = useState<ProductDot[]>([
+    { color: "#121212", name: "22 Inch", priceFormatted: "₦280,000", numericPrice: 280000 },
+    { color: "#1C1C1C", name: "24 Inch", priceFormatted: "₦310,000", numericPrice: 310000 },
+  ]);
+
   const [pinnedProductIds, setPinnedProductIds] = useState<string[]>([
     "hair_straight",
     "hair_wave",
@@ -405,6 +449,181 @@ function AdminDashboard() {
     toast.success("Front-end announcement banner updated!");
     setTimeout(() => setBannerSaved(false), 3000);
   };
+
+  // Open Add Product Modal
+  const handleOpenAddProduct = () => {
+    setEditingProductId(null);
+    setFormName("");
+    setFormCategory("wigs");
+    setFormPrice("₦280,000");
+    setFormOriginalPrice("₦350,000");
+    setFormNumericPrice(280000);
+    setFormDesc("");
+    setFormFullDesc("");
+    setFormImg(PRODUCT_IMAGE_PRESETS[0].value);
+    setFormCustomImg("");
+    setFormBadge("New Drop");
+    setFormDiscountBadge("20% OFF");
+    setFormDensityOrSize("300g Super Double Drawn (Full to the tips)");
+    setFormLaceOrFinish("Pre-plucked 13x4 HD Invisible Swiss Lace with bleached knots");
+    setFormOrigin("100% Single-Donor Raw Vietnamese Virgin Hair");
+    setFormLongevity("3 to 5+ years with regular studio maintenance");
+    setFormCareTips("Store in silk packaging, wash with sulfate-free hair cleanser.");
+    setFormDots([
+      { color: "#121212", name: "20 Inch", priceFormatted: "₦250,000", numericPrice: 250000 },
+      { color: "#1C1C1C", name: "22 Inch", priceFormatted: "₦280,000", numericPrice: 280000 },
+      { color: "#2B2B2B", name: "24 Inch", priceFormatted: "₦310,000", numericPrice: 310000 },
+    ]);
+    setIsProductModalOpen(true);
+  };
+
+  // Open Edit Product Modal
+  const handleOpenEditProduct = (product: Product) => {
+    setEditingProductId(product.id);
+    setFormName(product.name);
+    setFormCategory(product.category);
+    setFormPrice(product.price);
+    setFormOriginalPrice(product.originalPrice || "");
+    setFormNumericPrice(product.numericPrice);
+    setFormDesc(product.desc);
+    setFormFullDesc(product.fullDesc);
+    setFormImg(product.img);
+    setFormCustomImg(
+      product.img.startsWith("http") || product.img.startsWith("data:") ? product.img : "",
+    );
+    setFormBadge(product.badge || "");
+    setFormDiscountBadge(product.discountBadge || "");
+    setFormDensityOrSize(product.details.densityOrSize);
+    setFormLaceOrFinish(product.details.laceOrFinish);
+    setFormOrigin(product.details.originOrFormulation);
+    setFormLongevity(product.details.longevity);
+    setFormCareTips(product.details.careTips);
+    setFormDots(product.dots && product.dots.length > 0 ? [...product.dots] : []);
+    setIsProductModalOpen(true);
+  };
+
+  // Save Product (Add or Edit)
+  const handleSaveProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formName.trim()) {
+      toast.error("Please enter a product name.");
+      return;
+    }
+
+    const resolvedImg = formCustomImg.trim() || formImg;
+    const cleanPrice = formPrice.trim().startsWith("₦") ? formPrice.trim() : `₦${formPrice.trim()}`;
+    const cleanOrigPrice = formOriginalPrice.trim()
+      ? formOriginalPrice.trim().startsWith("₦")
+        ? formOriginalPrice.trim()
+        : `₦${formOriginalPrice.trim()}`
+      : undefined;
+
+    const categoryLabel =
+      formCategory === "wigs" ? "Luxury Wigs & Extensions" : "Signature Cosmetics & Tools";
+
+    const updatedProduct: Product = {
+      id: editingProductId || `prod_${Date.now()}`,
+      name: formName.trim(),
+      category: formCategory,
+      categoryLabel,
+      desc: formDesc.trim() || formName.trim(),
+      fullDesc: formFullDesc.trim() || formDesc.trim() || formName.trim(),
+      img: resolvedImg,
+      price: cleanPrice,
+      originalPrice: cleanOrigPrice,
+      numericPrice: Number(formNumericPrice) || 0,
+      bgClass: formCategory === "wigs" ? "bg-[#F7EBE8]" : "bg-[#EAE4F8]",
+      rating: 5.0,
+      reviewCount: 24,
+      badge: (formBadge as Product["badge"]) || undefined,
+      discountBadge: formDiscountBadge.trim() || undefined,
+      isBestseller: formBadge === "Bestseller",
+      dots: formDots,
+      specs:
+        formCategory === "wigs"
+          ? [
+              { icon: Sparkles, label: "Virgin Hair" },
+              { icon: Layers, label: "HD Lace" },
+              { icon: ShieldCheck, label: "Tangle Free" },
+            ]
+          : [
+              { icon: Sparkles, label: "Long Wear" },
+              { icon: ShieldCheck, label: "Cruelty Free" },
+              { icon: Star, label: "Studio Grade" },
+            ],
+      details: {
+        densityOrSize: formDensityOrSize.trim() || "Studio Grade",
+        laceOrFinish: formLaceOrFinish.trim() || "HD Finish",
+        originOrFormulation: formOrigin.trim() || "100% Authentic Quality",
+        longevity: formLongevity.trim() || "Long-lasting with care",
+        careTips: formCareTips.trim() || "Follow standard maintenance instructions.",
+      },
+    };
+
+    let nextProducts: Product[];
+    if (editingProductId) {
+      nextProducts = managedProducts.map((p) => (p.id === editingProductId ? updatedProduct : p));
+      toast.success(`Updated "${updatedProduct.name}" in boutique catalog.`);
+    } else {
+      nextProducts = [updatedProduct, ...managedProducts];
+      toast.success(`Added "${updatedProduct.name}" to boutique catalog!`);
+    }
+
+    setManagedProducts(nextProducts);
+    saveStoredBoutiqueProducts(nextProducts);
+    setIsProductModalOpen(false);
+  };
+
+  // Delete Product
+  const handleDeleteProduct = (product: Product) => {
+    const nextProducts = managedProducts.filter((p) => p.id !== product.id);
+    setManagedProducts(nextProducts);
+    setPinnedProductIds((prev) => prev.filter((id) => id !== product.id));
+    saveStoredBoutiqueProducts(nextProducts);
+    setDeleteConfirmProduct(null);
+    toast.info(`Deleted "${product.name}" from inventory.`);
+  };
+
+  // Duplicate Product
+  const handleDuplicateProduct = (product: Product) => {
+    const clonedId = `${product.id}_copy_${Date.now()}`;
+    const clonedProduct: Product = {
+      ...product,
+      id: clonedId,
+      name: `${product.name} (Copy)`,
+    };
+    const nextProducts = [clonedProduct, ...managedProducts];
+    setManagedProducts(nextProducts);
+    saveStoredBoutiqueProducts(nextProducts);
+    toast.success(`Duplicated "${product.name}"!`);
+  };
+
+  // Reset to Studio Default Catalog
+  const handleResetCatalog = () => {
+    setManagedProducts(initialBoutiqueProducts);
+    resetStoredBoutiqueProducts();
+    setPinnedProductIds(["hair_straight", "hair_wave", "lipstick_plum"]);
+    toast.info("Reset inventory to 7 studio defaults.");
+  };
+
+  // Filtered Boutique Products
+  const filteredInventoryProducts = useMemo(() => {
+    return managedProducts.filter((p) => {
+      if (inventoryCategoryFilter === "wigs" && p.category !== "wigs") return false;
+      if (inventoryCategoryFilter === "cosmetics" && p.category !== "cosmetics") return false;
+      if (inventoryCategoryFilter === "pinned" && !pinnedProductIds.includes(p.id)) return false;
+
+      if (inventorySearchQuery.trim()) {
+        const q = inventorySearchQuery.toLowerCase();
+        const matchName = p.name.toLowerCase().includes(q);
+        const matchDesc = p.desc.toLowerCase().includes(q);
+        const matchCat = p.categoryLabel.toLowerCase().includes(q);
+        const matchBadge = (p.badge || "").toLowerCase().includes(q);
+        return matchName || matchDesc || matchCat || matchBadge;
+      }
+      return true;
+    });
+  }, [managedProducts, inventoryCategoryFilter, inventorySearchQuery, pinnedProductIds]);
 
   // Toggle Homepage Pinned Product
   const togglePinProduct = (productId: string) => {
@@ -1274,92 +1493,667 @@ function AdminDashboard() {
         {/* ==================================================== */}
         {activeTab === "boutique" && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Header & Main Actions */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h3 className="font-display text-2xl sm:text-3xl text-white">
-                  Boutique Catalog &amp; Homepage Pinning
+                <h3 className="font-display text-2xl sm:text-3xl text-white flex items-center gap-2.5">
+                  <Package className="h-7 w-7 text-amber-300" />
+                  <span>Boutique Catalog &amp; Inventory Controller</span>
                 </h3>
                 <p className="text-xs text-white/60 mt-1">
-                  Manage inventory stock levels and select which items appear on the homepage
-                  preview.
+                  Add, edit, duplicate, and delete luxury wigs, hair bundles, and cosmetic items
+                  displayed on the `/shop` and homepage.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 rounded-xl bg-amber-400/10 border border-amber-400/30 px-3.5 py-2 text-xs font-bold text-amber-300">
-                <Crown className="h-4 w-4" />
-                <span>{pinnedProductIds.length} Products Pinned on Homepage</span>
+              <div className="flex items-center flex-wrap gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleResetCatalog}
+                  className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+                  title="Reset to default 7 products"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span>Reset Defaults</span>
+                </button>
+
+                <div className="flex items-center gap-2 rounded-xl bg-amber-400/10 border border-amber-400/30 px-3.5 py-2 text-xs font-bold text-amber-300">
+                  <Crown className="h-4 w-4" />
+                  <span>{pinnedProductIds.length} Pinned on Home</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleOpenAddProduct}
+                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-300 text-plum px-5 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-400/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  <span>+ Add New Product</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Search & Category Filter Strip */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3">
+              {/* Category Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+                {(
+                  [
+                    { id: "all", label: `All Items (${managedProducts.length})` },
+                    {
+                      id: "wigs",
+                      label: `Luxury Wigs (${managedProducts.filter((p) => p.category === "wigs").length})`,
+                    },
+                    {
+                      id: "cosmetics",
+                      label: `Cosmetics (${managedProducts.filter((p) => p.category === "cosmetics").length})`,
+                    },
+                    {
+                      id: "pinned",
+                      label: `Pinned on Home (${pinnedProductIds.length})`,
+                    },
+                  ] as const
+                ).map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setInventoryCategoryFilter(cat.id)}
+                    className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      inventoryCategoryFilter === cat.id
+                        ? "bg-amber-400 text-plum font-bold shadow-xs"
+                        : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Live Search Box */}
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+                <input
+                  type="text"
+                  value={inventorySearchQuery}
+                  onChange={(e) => setInventorySearchQuery(e.target.value)}
+                  placeholder="Search catalog..."
+                  className="h-9 w-full rounded-xl border border-white/15 bg-white/10 pl-9 pr-8 text-xs text-white placeholder:text-white/40 focus:border-amber-300 focus:outline-none"
+                />
+                {inventorySearchQuery && (
+                  <button
+                    onClick={() => setInventorySearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Products Inventory Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {managedProducts.map((product) => {
-                const isPinned = pinnedProductIds.includes(product.id);
+            {filteredInventoryProducts.length === 0 ? (
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur-md">
+                <Package className="mx-auto h-12 w-12 text-white/30 mb-3" />
+                <h4 className="font-display text-lg text-white">No matching products found</h4>
+                <p className="text-xs text-white/60 mt-1 max-w-sm mx-auto">
+                  Try adjusting your search query or category filter, or click "+ Add New Product"
+                  above.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredInventoryProducts.map((product) => {
+                  const isPinned = pinnedProductIds.includes(product.id);
 
-                return (
-                  <div
-                    key={product.id}
-                    className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md flex flex-col justify-between space-y-4 hover:border-amber-400/30 transition-all"
-                  >
-                    <div className="flex items-start gap-3.5">
-                      <img
-                        src={product.img}
-                        alt={product.name}
-                        className="h-20 w-20 rounded-xl object-cover bg-[#F7EBE8] border border-white/10 shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] uppercase tracking-wider font-bold text-amber-300 truncate">
-                            {product.categoryLabel}
-                          </span>
+                  return (
+                    <div
+                      key={product.id}
+                      className="group relative rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md flex flex-col justify-between space-y-4 hover:border-amber-400/40 hover:bg-white/[0.07] transition-all shadow-lg shadow-black/20"
+                    >
+                      <div>
+                        {/* Top Image + Badges */}
+                        <div className="flex items-start gap-3.5">
+                          <div className="relative shrink-0">
+                            <img
+                              src={product.img}
+                              alt={product.name}
+                              className="h-22 w-22 rounded-xl object-cover bg-[#F7EBE8] border border-white/15"
+                            />
+                            {product.discountBadge && (
+                              <span className="absolute -top-1.5 -left-1.5 rounded-full bg-red-500/90 px-2 py-0.5 text-[9px] font-bold text-white shadow-xs">
+                                {product.discountBadge}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-300 truncate">
+                                {product.categoryLabel}
+                              </span>
+                              {product.badge && (
+                                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-bold text-white/80 border border-white/15">
+                                  {product.badge}
+                                </span>
+                              )}
+                            </div>
+
+                            <h4 className="font-sans font-bold text-base text-white truncate mt-1">
+                              {product.name}
+                            </h4>
+
+                            <div className="flex items-center gap-2 mt-1.5">
+                              <span className="text-base font-bold text-amber-300">
+                                {product.price}
+                              </span>
+                              {product.originalPrice && (
+                                <span className="text-xs text-white/40 line-through">
+                                  {product.originalPrice}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Variants count */}
+                            {product.dots && product.dots.length > 0 && (
+                              <div className="flex items-center gap-1 mt-2 text-[10px] text-white/50">
+                                <span>{product.dots.length} lengths/variants:</span>
+                                <span className="text-white/80 font-semibold truncate">
+                                  {product.dots.map((d) => d.name).join(", ")}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <h4 className="font-sans font-bold text-sm text-white truncate mt-0.5">
-                          {product.name}
-                        </h4>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm font-bold text-amber-300">{product.price}</span>
-                          <span className="text-xs text-white/40 line-through">
-                            {product.originalPrice}
-                          </span>
+
+                        {/* Description */}
+                        <p className="text-xs text-white/70 line-clamp-2 leading-relaxed font-sans mt-3">
+                          {product.desc}
+                        </p>
+                      </div>
+
+                      {/* Controls Strip */}
+                      <div className="pt-3 border-t border-white/10 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          {/* Pin to Home Toggle */}
+                          <button
+                            type="button"
+                            onClick={() => togglePinProduct(product.id)}
+                            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                              isPinned
+                                ? "bg-amber-400 text-plum shadow-sm"
+                                : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white border border-white/15"
+                            }`}
+                          >
+                            <Crown className="h-3 w-3" />
+                            <span>{isPinned ? "Pinned" : "Pin Home"}</span>
+                          </button>
+
+                          {/* Action Buttons: Edit, Duplicate, Delete, WhatsApp */}
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditProduct(product)}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-amber-300 hover:bg-amber-400/20 transition-colors cursor-pointer"
+                              title="Edit product details"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDuplicateProduct(product)}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-indigo-300 hover:bg-indigo-400/20 transition-colors cursor-pointer"
+                              title="Duplicate as new product"
+                            >
+                              <CopyPlus className="h-3.5 w-3.5" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setDeleteConfirmProduct(product)}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"
+                              title="Delete product"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+
+                            <a
+                              href={`https://wa.me/${studioPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                                `Hello Seddypluz Studio, checking availability for "${product.name}" (${product.price}).`,
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+                              title="Test client WhatsApp inquiry"
+                            >
+                              <MessageCircle className="h-3.5 w-3.5" />
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>
+                  );
+                })}
+              </div>
+            )}
 
-                    <p className="text-xs text-white/70 line-clamp-2 leading-relaxed font-sans">
-                      {product.desc}
-                    </p>
+            {/* ==================================================== */}
+            {/* ADD / EDIT PRODUCT MODAL */}
+            {/* ==================================================== */}
+            {isProductModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
+                <div className="relative w-full max-w-2xl rounded-3xl border border-white/15 bg-[#170E15] p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto space-y-6">
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div>
+                      <h3 className="font-display text-2xl text-white">
+                        {editingProductId ? "Edit Boutique Product" : "Add New Boutique Product"}
+                      </h3>
+                      <p className="text-xs text-white/60 mt-0.5">
+                        Configure pricing, variants, descriptions, and visual presentation.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsProductModalOpen(false)}
+                      className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-white/60 hover:bg-white/15 hover:text-white cursor-pointer"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
 
-                    {/* Controls Strip */}
-                    <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                  {/* Product Form */}
+                  <form onSubmit={handleSaveProduct} className="space-y-5">
+                    {/* Basic Info */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Product Name / Title *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formName}
+                          onChange={(e) => setFormName(e.target.value)}
+                          placeholder="e.g. Bone Straight 30 Inch Virgin Unit"
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Category *
+                        </label>
+                        <select
+                          value={formCategory}
+                          onChange={(e) =>
+                            setFormCategory(e.target.value as "wigs" | "cosmetics")
+                          }
+                          className="w-full rounded-xl border border-white/15 bg-[#251522] px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        >
+                          <option value="wigs">Luxury Wigs &amp; Extensions</option>
+                          <option value="cosmetics">Signature Cosmetics &amp; Tools</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Pricing */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Selling Price (₦) *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formPrice}
+                          onChange={(e) => {
+                            setFormPrice(e.target.value);
+                            const num = parseInt(e.target.value.replace(/\D/g, ""), 10);
+                            if (!isNaN(num)) setFormNumericPrice(num);
+                          }}
+                          placeholder="₦280,000"
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-amber-300 font-bold focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Original / Strikethrough Price
+                        </label>
+                        <input
+                          type="text"
+                          value={formOriginalPrice}
+                          onChange={(e) => setFormOriginalPrice(e.target.value)}
+                          placeholder="₦350,000"
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white/70 focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Numeric Value (for sort)
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          value={formNumericPrice}
+                          onChange={(e) => setFormNumericPrice(Number(e.target.value))}
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Badges & Promo Tag */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Featured Badge
+                        </label>
+                        <select
+                          value={formBadge}
+                          onChange={(e) =>
+                            setFormBadge(e.target.value as Product["badge"] | "")
+                          }
+                          className="w-full rounded-xl border border-white/15 bg-[#251522] px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        >
+                          <option value="">None</option>
+                          <option value="Bestseller">Bestseller</option>
+                          <option value="New Drop">New Drop</option>
+                          <option value="HD Melt">HD Melt</option>
+                          <option value="Limited Batch">Limited Batch</option>
+                          <option value="Studio Favorite">Studio Favorite</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Discount Tag Badge
+                        </label>
+                        <input
+                          type="text"
+                          value={formDiscountBadge}
+                          onChange={(e) => setFormDiscountBadge(e.target.value)}
+                          placeholder="e.g. 20% OFF or 15% OFF"
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Image Selection */}
+                    <div className="space-y-2">
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block">
+                        Select Product Visual Preset:
+                      </label>
+                      <div className="grid grid-cols-4 sm:grid-cols-7 gap-2.5">
+                        {PRODUCT_IMAGE_PRESETS.map((preset) => {
+                          const isSelected = formImg === preset.value && !formCustomImg;
+                          return (
+                            <button
+                              key={preset.id}
+                              type="button"
+                              onClick={() => {
+                                setFormImg(preset.value);
+                                setFormCustomImg("");
+                              }}
+                              className={`relative rounded-xl border overflow-hidden p-1 transition-all cursor-pointer ${
+                                isSelected
+                                  ? "border-amber-400 ring-2 ring-amber-400/30 bg-amber-400/10"
+                                  : "border-white/15 hover:border-white/40 bg-white/5"
+                              }`}
+                            >
+                              <img
+                                src={preset.value}
+                                alt={preset.label}
+                                className="h-14 w-full object-cover rounded-lg"
+                              />
+                              <span className="block text-[9px] text-white/70 truncate mt-1 text-center font-medium">
+                                {preset.label.split(" ")[0]}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="pt-2">
+                        <label className="text-[10px] text-white/60 block mb-1">
+                          Or enter custom image URL:
+                        </label>
+                        <input
+                          type="url"
+                          value={formCustomImg}
+                          onChange={(e) => setFormCustomImg(e.target.value)}
+                          placeholder="https://example.com/custom-wig-photo.jpg"
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Descriptions */}
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Short Card Description *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formDesc}
+                          onChange={(e) => setFormDesc(e.target.value)}
+                          placeholder="Summary shown on product cards..."
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Full In-Depth Description
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={formFullDesc}
+                          onChange={(e) => setFormFullDesc(e.target.value)}
+                          placeholder="Detailed product craft, single-donor specs, and hair texture notes shown in quick view..."
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Specifications Details */}
+                    <div className="border-t border-white/10 pt-4 space-y-3">
+                      <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300">
+                        Detailed Specifications:
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <label className="text-white/60 block mb-1">Density / Weight:</label>
+                          <input
+                            type="text"
+                            value={formDensityOrSize}
+                            onChange={(e) => setFormDensityOrSize(e.target.value)}
+                            className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-white/60 block mb-1">Lace / Finish:</label>
+                          <input
+                            type="text"
+                            value={formLaceOrFinish}
+                            onChange={(e) => setFormLaceOrFinish(e.target.value)}
+                            className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-white/60 block mb-1">Origin / Formulation:</label>
+                          <input
+                            type="text"
+                            value={formOrigin}
+                            onChange={(e) => setFormOrigin(e.target.value)}
+                            className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-white/60 block mb-1">Longevity:</label>
+                          <input
+                            type="text"
+                            value={formLongevity}
+                            onChange={(e) => setFormLongevity(e.target.value)}
+                            className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-white/60 block mb-1 text-xs">Studio Care Tips:</label>
+                        <input
+                          type="text"
+                          value={formCareTips}
+                          onChange={(e) => setFormCareTips(e.target.value)}
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Variant Lengths / Shades */}
+                    <div className="border-t border-white/10 pt-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300">
+                          Length / Color Variants ({formDots.length}):
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormDots([
+                              ...formDots,
+                              {
+                                color: "#1C1C1C",
+                                name: `Variant ${formDots.length + 1}`,
+                                priceFormatted: formPrice,
+                                numericPrice: formNumericPrice,
+                              },
+                            ]);
+                          }}
+                          className="text-[11px] font-bold text-amber-300 hover:text-white flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="h-3 w-3" />
+                          <span>Add Variant</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {formDots.map((dot, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 rounded-xl bg-white/5 p-2 border border-white/10"
+                          >
+                            <input
+                              type="text"
+                              value={dot.name}
+                              onChange={(e) => {
+                                const next = [...formDots];
+                                next[index].name = e.target.value;
+                                setFormDots(next);
+                              }}
+                              placeholder="e.g. 26 Inch"
+                              className="flex-1 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                            />
+                            <input
+                              type="text"
+                              value={dot.priceFormatted || ""}
+                              onChange={(e) => {
+                                const next = [...formDots];
+                                next[index].priceFormatted = e.target.value;
+                                const num = parseInt(e.target.value.replace(/\D/g, ""), 10);
+                                if (!isNaN(num)) next[index].numericPrice = num;
+                                setFormDots(next);
+                              }}
+                              placeholder="₦340,000"
+                              className="w-28 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs text-amber-300 font-bold focus:outline-none"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (formDots.length <= 1) {
+                                  toast.error("At least 1 variant is required.");
+                                  return;
+                                }
+                                setFormDots(formDots.filter((_, i) => i !== index));
+                              }}
+                              className="text-red-400 hover:text-red-300 p-1.5 cursor-pointer"
+                              title="Remove variant"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="border-t border-white/10 pt-4 flex items-center justify-end gap-3">
                       <button
                         type="button"
-                        onClick={() => togglePinProduct(product.id)}
-                        className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                          isPinned
-                            ? "bg-amber-400 text-plum shadow-sm"
-                            : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white border border-white/15"
-                        }`}
+                        onClick={() => setIsProductModalOpen(false)}
+                        className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 hover:text-white cursor-pointer"
                       >
-                        <Crown className="h-3 w-3" />
-                        <span>{isPinned ? "Pinned on Home" : "Pin to Home"}</span>
+                        Cancel
                       </button>
-
-                      <a
-                        href={`https://wa.me/${studioPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                          `Hello Seddypluz Studio, checking availability for "${product.name}" (${product.price}).`,
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-semibold"
+                      <button
+                        type="submit"
+                        className="flex items-center gap-2 rounded-xl bg-amber-400 text-plum px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-400/20 hover:bg-amber-300 active:scale-95 transition-all cursor-pointer"
                       >
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        <span>Inquire</span>
-                      </a>
+                        <Save className="h-4 w-4" />
+                        <span>Save &amp; Publish Product</span>
+                      </button>
                     </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* ==================================================== */}
+            {/* DELETE CONFIRMATION MODAL */}
+            {/* ==================================================== */}
+            {deleteConfirmProduct && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+                <div className="relative w-full max-w-md rounded-3xl border border-red-500/30 bg-[#170E15] p-6 shadow-2xl text-center space-y-4">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/15 text-red-400 border border-red-500/30">
+                    <Trash2 className="h-6 w-6" />
                   </div>
-                );
-              })}
-            </div>
+                  <div>
+                    <h4 className="font-display text-xl text-white">Delete Product Item?</h4>
+                    <p className="text-xs text-white/70 mt-1.5 leading-relaxed">
+                      Are you sure you want to remove{" "}
+                      <span className="font-bold text-amber-300">
+                        "{deleteConfirmProduct.name}"
+                      </span>{" "}
+                      from the boutique inventory? This item will no longer appear on the `/shop` or
+                      homepage.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setDeleteConfirmProduct(null)}
+                      className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 hover:text-white cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteProduct(deleteConfirmProduct)}
+                      className="rounded-xl bg-red-500 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-red-600 active:scale-95 transition-all cursor-pointer shadow-lg shadow-red-500/20"
+                    >
+                      Yes, Delete Product
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

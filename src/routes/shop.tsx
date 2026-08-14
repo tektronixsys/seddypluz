@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCart } from "@/context/CartContext";
-import { boutiqueProducts } from "@/components/boutique/data";
+import { getStoredBoutiqueProducts } from "@/components/boutique/data";
 import type { Product } from "@/components/boutique/types";
 import { ProductCard } from "@/components/boutique/ProductCard";
 import { ProductQuickViewModal } from "@/components/boutique/ProductQuickViewModal";
@@ -30,6 +30,7 @@ type SortOption = "featured" | "price-asc" | "price-desc" | "rating";
 
 function ShopPage() {
   const { totalCount, openCart, addItem } = useCart();
+  const [products, setProducts] = useState<Product[]>(() => getStoredBoutiqueProducts());
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<"all" | "wigs" | "cosmetics" | "bestseller">(
@@ -41,10 +42,18 @@ function ShopPage() {
   const [copiedCode, setCopiedCode] = useState(false);
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
 
+  useEffect(() => {
+    const handleUpdate = () => {
+      setProducts(getStoredBoutiqueProducts());
+    };
+    window.addEventListener("seddypluz_inventory_updated", handleUpdate);
+    return () => window.removeEventListener("seddypluz_inventory_updated", handleUpdate);
+  }, []);
+
   // Per-product selected variant state
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
-    boutiqueProducts.forEach((p) => {
+    products.forEach((p) => {
       if (p.dots.length > 0) {
         initial[p.id] = p.dots[0].name;
       }
@@ -117,7 +126,7 @@ function ShopPage() {
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let result = boutiqueProducts.filter((p) => {
+    let result = products.filter((p) => {
       // Category filter
       if (activeCategory === "wigs" && p.category !== "wigs") return false;
       if (activeCategory === "cosmetics" && p.category !== "cosmetics") return false;
@@ -144,24 +153,24 @@ function ShopPage() {
     });
 
     return result;
-  }, [activeCategory, searchQuery, sortBy]);
+  }, [products, activeCategory, searchQuery, sortBy]);
 
   const categories = [
-    { id: "all", label: "All Items", count: boutiqueProducts.length },
+    { id: "all", label: "All Items", count: products.length },
     {
       id: "wigs",
       label: "Luxury Wigs & Extensions",
-      count: boutiqueProducts.filter((p) => p.category === "wigs").length,
+      count: products.filter((p) => p.category === "wigs").length,
     },
     {
       id: "cosmetics",
       label: "Signature Cosmetics & Tools",
-      count: boutiqueProducts.filter((p) => p.category === "cosmetics").length,
+      count: products.filter((p) => p.category === "cosmetics").length,
     },
     {
       id: "bestseller",
       label: "Studio Bestsellers",
-      count: boutiqueProducts.filter((p) => p.isBestseller).length,
+      count: products.filter((p) => p.isBestseller).length,
     },
   ] as const;
 

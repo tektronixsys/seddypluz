@@ -298,3 +298,51 @@ export const boutiqueProducts: Product[] = [
     },
   },
 ];
+
+export const PRODUCT_IMAGE_PRESETS: {
+  id: string;
+  label: string;
+  value: string;
+  category: "wigs" | "cosmetics";
+}[] = [
+  { id: "straight", label: "Bone Straight Weave", value: hairStraightImg, category: "wigs" },
+  { id: "wave", label: "Water Wave Curls", value: hairWaveImg, category: "wigs" },
+  { id: "curl", label: "Pixie Bouncy Curl", value: hairCurlImg, category: "wigs" },
+  { id: "bob", label: "Blunt Cut Silk Bob", value: hairBobImg, category: "wigs" },
+  { id: "lipstick", label: "Velvet Matte Lipstick", value: lipstickImg, category: "cosmetics" },
+  { id: "highlighter", label: "Radiance Highlighter", value: highlighterImg, category: "cosmetics" },
+  { id: "brush", label: "Artistry Buffing Brush", value: brushImg, category: "cosmetics" },
+];
+
+export function getStoredBoutiqueProducts(): Product[] {
+  if (typeof window === "undefined") return boutiqueProducts;
+  try {
+    const raw = localStorage.getItem("seddypluz_boutique_products");
+    if (!raw) return boutiqueProducts;
+    const parsed = JSON.parse(raw) as Product[];
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : boutiqueProducts;
+  } catch {
+    return boutiqueProducts;
+  }
+}
+
+export function saveStoredBoutiqueProducts(products: Product[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem("seddypluz_boutique_products", JSON.stringify(products));
+    window.dispatchEvent(new CustomEvent("seddypluz_inventory_updated", { detail: products }));
+  } catch (err) {
+    console.error("Failed to save boutique products to local storage:", err);
+  }
+}
+
+export function resetStoredBoutiqueProducts(): Product[] {
+  if (typeof window === "undefined") return boutiqueProducts;
+  try {
+    localStorage.removeItem("seddypluz_boutique_products");
+    window.dispatchEvent(
+      new CustomEvent("seddypluz_inventory_updated", { detail: boutiqueProducts }),
+    );
+  } catch {}
+  return boutiqueProducts;
+}
