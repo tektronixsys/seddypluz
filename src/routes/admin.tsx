@@ -173,8 +173,7 @@ function AdminDashboard() {
   ]);
 
   // Lookbook Carousel Manager State
-  const [lookbookSlides, setLookbookSlides] =
-    useState<LookbookSlideItem[]>(initialLookbookSlides);
+  const [lookbookSlides, setLookbookSlides] = useState<LookbookSlideItem[]>(initialLookbookSlides);
 
   // Studio Concierge Settings State
   const [studioPhone, setStudioPhone] = useState("+234 816 229 2997");
@@ -367,11 +366,16 @@ function AdminDashboard() {
       `"${a.created_at || ""}"`,
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `seddypluz_appointments_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute(
+      "download",
+      `seddypluz_appointments_${new Date().toISOString().slice(0, 10)}.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -450,7 +454,8 @@ function AdminDashboard() {
               Command Suite
             </h2>
             <p className="mt-2 text-xs sm:text-sm leading-relaxed text-white/70">
-              Enter your studio authorization passcode to manage bridal appointments, inventory, and front-end displays.
+              Enter your studio authorization passcode to manage bridal appointments, inventory, and
+              front-end displays.
             </p>
           </div>
 
@@ -573,9 +578,19 @@ function AdminDashboard() {
         <div className="mx-auto max-w-[1600px] px-4 sm:px-8 border-t border-white/5">
           <nav className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-2">
             {[
-              { id: "appointments", label: "Appointments CRM", icon: Calendar, badge: stats.pending > 0 ? stats.pending : undefined },
+              {
+                id: "appointments",
+                label: "Appointments CRM",
+                icon: Calendar,
+                badge: stats.pending > 0 ? stats.pending : undefined,
+              },
               { id: "promos", label: "Promo & Banner", icon: Megaphone },
-              { id: "boutique", label: "Wigs & Inventory", icon: ShoppingBag, badge: `${managedProducts.length}` },
+              {
+                id: "boutique",
+                label: "Wigs & Inventory",
+                icon: ShoppingBag,
+                badge: `${managedProducts.length}`,
+              },
               { id: "lookbook", label: "Lookbook Curator", icon: ImageIcon },
               { id: "concierge", label: "Studio Contacts", icon: Sliders },
               { id: "analytics", label: "Performance & Stats", icon: BarChart3 },
@@ -626,7 +641,9 @@ function AdminDashboard() {
                 <span className="font-display text-3xl sm:text-4xl text-white font-bold mt-1 block">
                   {stats.total}
                 </span>
-                <span className="text-[10px] text-amber-300/80 mt-1 block">All registered brides</span>
+                <span className="text-[10px] text-amber-300/80 mt-1 block">
+                  All registered brides
+                </span>
               </div>
 
               <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 sm:p-5 backdrop-blur-md">
@@ -649,7 +666,9 @@ function AdminDashboard() {
                 <span className="font-display text-3xl sm:text-4xl text-emerald-400 font-bold mt-1 block">
                   {stats.confirmed}
                 </span>
-                <span className="text-[10px] text-emerald-300/80 mt-1 block">Locked on studio calendar</span>
+                <span className="text-[10px] text-emerald-300/80 mt-1 block">
+                  Locked on studio calendar
+                </span>
               </div>
 
               <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-4 sm:p-5 backdrop-blur-md">
@@ -659,7 +678,9 @@ function AdminDashboard() {
                 <span className="font-display text-3xl sm:text-4xl text-indigo-300 font-bold mt-1 block">
                   {stats.completed}
                 </span>
-                <span className="text-[10px] text-indigo-200/80 mt-1 block">Delivered sessions</span>
+                <span className="text-[10px] text-indigo-200/80 mt-1 block">
+                  Delivered sessions
+                </span>
               </div>
 
               <div className="col-span-2 sm:col-span-4 lg:col-span-1 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 backdrop-blur-md">
@@ -704,7 +725,9 @@ function AdminDashboard() {
                     <button
                       onClick={() => setViewMode("list")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                        viewMode === "list" ? "bg-amber-400 text-plum shadow-xs" : "text-white/60 hover:text-white"
+                        viewMode === "list"
+                          ? "bg-amber-400 text-plum shadow-xs"
+                          : "text-white/60 hover:text-white"
                       }`}
                     >
                       List
@@ -712,7 +735,9 @@ function AdminDashboard() {
                     <button
                       onClick={() => setViewMode("kanban")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                        viewMode === "kanban" ? "bg-amber-400 text-plum shadow-xs" : "text-white/60 hover:text-white"
+                        viewMode === "kanban"
+                          ? "bg-amber-400 text-plum shadow-xs"
+                          : "text-white/60 hover:text-white"
                       }`}
                     >
                       Pipeline
@@ -771,7 +796,9 @@ function AdminDashboard() {
             {loading ? (
               <div className="flex h-72 flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-white/50">
                 <RefreshCw className="h-8 w-8 animate-spin text-amber-300" />
-                <p className="text-xs uppercase tracking-widest font-semibold">Loading Client Records...</p>
+                <p className="text-xs uppercase tracking-widest font-semibold">
+                  Loading Client Records...
+                </p>
               </div>
             ) : filteredAppointments.length === 0 ? (
               <div className="flex h-72 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
@@ -918,7 +945,10 @@ function AdminDashboard() {
                               <select
                                 value={editStatus}
                                 onChange={(e) =>
-                                  setEditStatus(e.target.value as "pending" | "confirmed" | "declined" | "completed")
+                                  setEditStatus(
+                                    e.target.value as
+                                      "pending" | "confirmed" | "declined" | "completed",
+                                  )
                                 }
                                 className="w-full rounded-lg border border-white/20 bg-[#1A1017] p-2 text-xs text-white outline-none focus:border-amber-300 cursor-pointer"
                               >
@@ -955,7 +985,11 @@ function AdminDashboard() {
                               disabled={updating}
                               className="flex items-center gap-1.5 rounded-lg bg-amber-400 text-plum px-4 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-amber-300 transition-all cursor-pointer disabled:opacity-50"
                             >
-                              {updating ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                              {updating ? (
+                                <RefreshCw className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Save className="h-3 w-3" />
+                              )}
                               <span>Save Changes</span>
                             </button>
                           </div>
@@ -1019,7 +1053,9 @@ function AdminDashboard() {
                                 </div>
                                 <p className="text-[11px] text-white/70 truncate">{app.service}</p>
                                 <div className="flex items-center justify-between pt-1 border-t border-white/5">
-                                  <span className="text-[10px] text-white/50">{app.preferred_time}</span>
+                                  <span className="text-[10px] text-white/50">
+                                    {app.preferred_time}
+                                  </span>
                                   <a
                                     href={generateClientWhatsAppUrl(app)}
                                     target="_blank"
@@ -1079,13 +1115,18 @@ function AdminDashboard() {
             >
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
-                  <h3 className="font-display text-2xl text-white">Announcement &amp; Voucher Editor</h3>
+                  <h3 className="font-display text-2xl text-white">
+                    Announcement &amp; Voucher Editor
+                  </h3>
                   <p className="text-xs text-white/60 mt-0.5">
-                    Modify the promotional marquee displayed across the top of both the homepage and shop page.
+                    Modify the promotional marquee displayed across the top of both the homepage and
+                    shop page.
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-white/70">Status:</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-white/70">
+                    Status:
+                  </label>
                   <button
                     type="button"
                     onClick={() => setAnnouncementActive(!announcementActive)}
@@ -1181,7 +1222,8 @@ function AdminDashboard() {
                   Boutique Catalog &amp; Homepage Pinning
                 </h3>
                 <p className="text-xs text-white/60 mt-1">
-                  Manage inventory stock levels and select which items appear on the homepage preview.
+                  Manage inventory stock levels and select which items appear on the homepage
+                  preview.
                 </p>
               </div>
 
@@ -1273,7 +1315,8 @@ function AdminDashboard() {
                 Hero Accordion Carousel Curator
               </h3>
               <p className="text-xs text-white/60 mt-1">
-                Reorder and curate the 4 signature bridal looks that expand and contract on the homepage hero section.
+                Reorder and curate the 4 signature bridal looks that expand and contract on the
+                homepage hero section.
               </p>
             </div>
 
@@ -1284,11 +1327,7 @@ function AdminDashboard() {
                   className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-col justify-between space-y-3 backdrop-blur-md hover:border-amber-400/40 transition-all"
                 >
                   <div className="relative h-56 rounded-xl overflow-hidden border border-white/10">
-                    <img
-                      src={slide.img}
-                      alt={slide.title}
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={slide.img} alt={slide.title} className="h-full w-full object-cover" />
                     <div className="absolute top-2 left-2 flex items-center gap-1 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-bold text-amber-300 backdrop-blur-md">
                       <span>{slide.vol}</span>
                     </div>
@@ -1344,9 +1383,12 @@ function AdminDashboard() {
           <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8 backdrop-blur-md space-y-6">
               <div>
-                <h3 className="font-display text-2xl text-white">Studio Concierge &amp; Contact Synced Settings</h3>
+                <h3 className="font-display text-2xl text-white">
+                  Studio Concierge &amp; Contact Synced Settings
+                </h3>
                 <p className="text-xs text-white/60 mt-1">
-                  These hotline numbers and addresses are synchronized across the landing page footer, booking confirmation screen, and shop concierge.
+                  These hotline numbers and addresses are synchronized across the landing page
+                  footer, booking confirmation screen, and shop concierge.
                 </p>
               </div>
 
@@ -1441,7 +1483,8 @@ function AdminDashboard() {
                 Studio Performance &amp; Demand Insights
               </h3>
               <p className="text-xs text-white/60 mt-1">
-                Real-time booking distribution, pipeline valuation, and popular bridal artistry breakdown.
+                Real-time booking distribution, pipeline valuation, and popular bridal artistry
+                breakdown.
               </p>
             </div>
 
@@ -1459,10 +1502,15 @@ function AdminDashboard() {
                     <div key={srv.name} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-semibold text-white/80">{srv.name}</span>
-                        <span className="text-amber-300 font-bold">{srv.pct}% ({srv.count} sessions)</span>
+                        <span className="text-amber-300 font-bold">
+                          {srv.pct}% ({srv.count} sessions)
+                        </span>
                       </div>
                       <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                        <div className={`h-full rounded-full ${srv.color}`} style={{ width: `${srv.pct}%` }} />
+                        <div
+                          className={`h-full rounded-full ${srv.color}`}
+                          style={{ width: `${srv.pct}%` }}
+                        />
                       </div>
                     </div>
                   ))}
