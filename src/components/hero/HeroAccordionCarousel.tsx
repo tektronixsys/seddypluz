@@ -5,7 +5,7 @@ import gele1 from "@/assets/gele-1.jpg";
 import bridalAfter from "@/assets/bridal_after.png";
 import glam1 from "@/assets/glam-1.jpg";
 
-export interface HeroSlide {
+interface HeroSlide {
   id: string;
   num: string;
   tag: string;
@@ -17,7 +17,7 @@ export interface HeroSlide {
   vol: string;
 }
 
-export const heroSlides: HeroSlide[] = [
+const heroSlides: HeroSlide[] = [
   {
     id: "royal-bridal",
     num: "01",
