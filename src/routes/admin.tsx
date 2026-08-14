@@ -30,6 +30,8 @@ import {
   Copy,
   Download,
   Eye,
+  EyeOff,
+  KeyRound,
   ExternalLink,
   ChevronRight,
   ChevronLeft,
@@ -134,7 +136,10 @@ function AdminDashboard() {
 
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passcodeInput, setPasscodeInput] = useState("");
+  const [usernameInput, setUsernameInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [currentAdminUser, setCurrentAdminUser] = useState<string>("Admin");
   const [authChecking, setAuthChecking] = useState(false);
 
   // Navigation State
@@ -213,21 +218,31 @@ function AdminDashboard() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!passcodeInput.trim()) {
-      toast.error("Please enter the studio passcode.");
+    if (!usernameInput.trim()) {
+      toast.error("Please enter your administrator username.");
+      return;
+    }
+    if (!passwordInput.trim()) {
+      toast.error("Please enter your security password.");
       return;
     }
 
     setAuthChecking(true);
     try {
-      await login({ data: { passcode: passcodeInput.trim() } });
+      const res = await login({
+        data: {
+          username: usernameInput.trim(),
+          password: passwordInput.trim(),
+        },
+      });
       setIsAuthenticated(true);
-      setPasscodeInput("");
-      toast.success("Atelier Command Access Granted.");
+      setCurrentAdminUser(res.username || usernameInput.trim());
+      setPasswordInput("");
+      toast.success(`Welcome to Atelier HQ, ${res.username || usernameInput.trim()}!`);
       await loadData();
     } catch {
       setIsAuthenticated(false);
-      toast.error("Invalid passcode. Access denied.");
+      toast.error("Access Denied: Invalid username or password.");
     } finally {
       setAuthChecking(false);
     }
@@ -240,7 +255,8 @@ function AdminDashboard() {
       // clear local state regardless
     }
     setIsAuthenticated(false);
-    setPasscodeInput("");
+    setUsernameInput("");
+    setPasswordInput("");
     setAppointments([]);
     toast.success("Atelier Command Locked.");
   };
@@ -459,32 +475,68 @@ function AdminDashboard() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="mt-8 space-y-5">
-            <div className="relative">
-              <input
-                type="password"
-                required
-                value={passcodeInput}
-                onChange={(e) => setPasscodeInput(e.target.value)}
-                placeholder="••••••••"
-                className="h-14 w-full rounded-2xl border border-white/20 bg-white/10 px-4 text-center text-2xl tracking-[0.3em] text-amber-300 placeholder:tracking-normal placeholder:text-sm placeholder:text-white/30 outline-none transition-all focus:border-amber-300 focus:bg-white/15 focus:ring-2 focus:ring-amber-300/20"
-              />
+          <form onSubmit={handleLogin} className="mt-8 space-y-4">
+            {/* Username Field */}
+            <div className="space-y-1.5 text-left">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5 pl-1">
+                <User className="h-3.5 w-3.5" />
+                <span>Username / Administrator ID</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  autoComplete="username"
+                  value={usernameInput}
+                  onChange={(e) => setUsernameInput(e.target.value)}
+                  placeholder="e.g. admin or seddypluz"
+                  className="h-12 w-full rounded-2xl border border-white/20 bg-white/10 px-4 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:border-amber-300 focus:bg-white/15 focus:ring-2 focus:ring-amber-300/20"
+                />
+              </div>
             </div>
 
+            {/* Password Field */}
+            <div className="space-y-1.5 text-left">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5 pl-1">
+                <Lock className="h-3.5 w-3.5" />
+                <span>Security Password</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  autoComplete="current-password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Enter studio password"
+                  className="h-12 w-full rounded-2xl border border-white/20 bg-white/10 pl-4 pr-11 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:border-amber-300 focus:bg-white/15 focus:ring-2 focus:ring-amber-300/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-lg text-white/50 hover:text-amber-300 transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={authChecking}
-              className="flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 text-plum text-xs uppercase tracking-[0.24em] font-bold shadow-xl shadow-amber-400/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50"
+              className="mt-2 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 text-plum text-xs uppercase tracking-[0.24em] font-bold shadow-xl shadow-amber-400/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50"
             >
               {authChecking ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  <span>Verifying Key...</span>
+                  <span>Verifying Credentials...</span>
                 </>
               ) : (
                 <>
-                  <Lock className="h-4 w-4" />
-                  <span>Authorize Atelier Suite</span>
+                  <KeyRound className="h-4 w-4" />
+                  <span>Authorize &amp; Sign In</span>
                 </>
               )}
             </button>
@@ -541,6 +593,12 @@ function AdminDashboard() {
 
           {/* Quick Action Hub */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Authenticated Admin Pill */}
+            <div className="hidden md:flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80">
+              <User className="h-3.5 w-3.5 text-amber-300" />
+              <span className="font-semibold text-white">{currentAdminUser}</span>
+            </div>
+
             {/* Refresh Appointments Button */}
             <button
               onClick={() => loadData(true)}
