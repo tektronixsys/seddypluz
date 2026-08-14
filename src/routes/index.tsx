@@ -102,7 +102,7 @@ function Home() {
     { name: "Services", href: "#services" },
     { name: "Portfolio", href: "#portfolio" },
     { name: "Transformations", href: "#transformations" },
-    { name: "Boutique", href: "#boutique" },
+    { name: "Wigs & Shop", href: "/shop" },
   ];
 
   return (
@@ -214,7 +214,7 @@ function Home() {
                 { name: "Before & After Transformations", href: "#transformations" },
                 { name: "The Studio Story", href: "#studio" },
                 { name: "Cherished Bride Reviews", href: "#reviews" },
-                { name: "Boutique Wigs & Catalog", href: "#boutique" },
+                { name: "Shop Wigs & Hair Products", href: "/shop" },
               ].map((link) => (
                 <a
                   key={link.name}
@@ -669,7 +669,7 @@ function Home() {
       <TestimonialsCarousel />
 
       {/* BOUTIQUE / PRODUCTS */}
-      <BoutiqueSection />
+      <BoutiqueSection limit={3} />
 
       {/* FREQUENTLY ASKED QUESTIONS */}
       <FaqSection />
@@ -749,7 +749,7 @@ function Home() {
                   { label: "Services", href: "#services" },
                   { label: "Portfolio", href: "#portfolio" },
                   { label: "Transformations", href: "#transformations" },
-                  { label: "Boutique", href: "#boutique" },
+                  { label: "Shop Wigs & Hair Products", href: "/shop" },
                   { label: "Book a Session", href: "#booking" },
                 ].map((link) => (
                   <li key={link.label}>
