@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -8,6 +8,7 @@ import {
   Scale,
   Scissors,
   Layers,
+  Heart,
   ShoppingBag,
   Check,
   Menu,
@@ -17,7 +18,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Calendar,
-  Sparkle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
@@ -600,8 +600,12 @@ function Home() {
       <BookingSection />
 
       {/* FOOTER */}
-      <footer className="relative overflow-hidden border-t border-plum/10 bg-gradient-to-b from-[#FAF9F5] to-blush-soft/30">
+      <footer className="relative overflow-hidden border-t border-plum/10 bg-gradient-to-b from-background to-blush-soft/30">
+        {/* Decorative top gradient line */}
+        <div className="absolute top-0 right-0 left-0 h-px bg-gradient-to-r from-transparent via-lavender-deep/40 to-transparent" />
+
         <div className="mx-auto max-w-[1600px] px-6 pt-12 pb-6 md:px-12">
+          {/* Main Footer Grid */}
           <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-8">
             {/* Brand Column */}
             <div className="md:col-span-5">
@@ -612,89 +616,109 @@ function Home() {
                 Where artistry meets elegance — crafting bespoke beauty experiences for brides,
                 campaigns, and editorial moments that live forever.
               </p>
+
+              {/* Social Media */}
+              <div className="mt-8 flex items-center gap-4">
+                {/* Instagram */}
+                <a
+                  href="https://instagram.com/seddypluz_wigs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram @seddypluz_wigs"
+                  className="group flex items-center gap-2.5 rounded-full border border-plum/10 bg-white/60 px-4 py-2.5 text-plum/70 transition-all duration-300 hover:border-lavender-deep/30 hover:bg-lavender-deep/5 hover:text-lavender-deep hover:shadow-md"
+                >
+                  <svg
+                    className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="2" y="2" width="20" height="20" rx="5" />
+                    <circle cx="12" cy="12" r="5" />
+                    <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+                  </svg>
+                  <span className="text-xs font-medium tracking-wide">@seddypluz_wigs</span>
+                </a>
+
+                {/* TikTok */}
+                <a
+                  href="https://tiktok.com/@seddypluz_wigs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on TikTok @seddypluz_wigs"
+                  className="group flex items-center gap-2.5 rounded-full border border-plum/10 bg-white/60 px-4 py-2.5 text-plum/70 transition-all duration-300 hover:border-lavender-deep/30 hover:bg-lavender-deep/5 hover:text-lavender-deep hover:shadow-md"
+                >
+                  <svg
+                    className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.05a8.3 8.3 0 004.76 1.49V7.09a4.84 4.84 0 01-1-.4z" />
+                  </svg>
+                  <span className="text-xs font-medium tracking-wide">@seddypluz_wigs</span>
+                </a>
+              </div>
             </div>
 
             {/* Quick Links */}
             <div className="md:col-span-3 md:col-start-7">
-              <p className="eyebrow mb-5 text-lavender-deep">Navigation</p>
+              <p className="eyebrow mb-5 text-lavender-deep">Quick Links</p>
               <ul className="space-y-3">
-                <li>
-                  <a href="#top" className="text-sm text-plum/60 transition-colors hover:text-plum">
-                    Studio Home
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#services"
-                    className="text-sm text-plum/60 transition-colors hover:text-plum"
-                  >
-                    Services Atelier
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#portfolio"
-                    className="text-sm text-plum/60 transition-colors hover:text-plum"
-                  >
-                    Bridal Portfolio
-                  </a>
-                </li>
-                <li>
-                  <Link
-                    to="/shop"
-                    className="text-sm font-bold text-plum transition-colors hover:text-lavender-deep"
-                  >
-                    Shop Wigs &amp; Hair Products
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href="#contact"
-                    className="text-sm text-plum/60 transition-colors hover:text-plum"
-                  >
-                    Book a Consultation
-                  </a>
-                </li>
+                {[
+                  { label: "Services", href: "#services" },
+                  { label: "Portfolio", href: "#portfolio" },
+                  { label: "Transformations", href: "#transformations" },
+                  { label: "Shop Wigs & Hair Products", href: "/shop" },
+                  { label: "Book a Session", href: "#booking" },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      className="group flex items-center gap-2 text-sm text-plum/60 transition-colors duration-200 hover:text-plum"
+                    >
+                      <span className="inline-block h-px w-3 bg-plum/20 transition-all duration-300 group-hover:w-5 group-hover:bg-lavender-deep" />
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            {/* Social & Contact */}
+            {/* Contact */}
             <div className="md:col-span-3">
-              <p className="eyebrow mb-5 text-lavender-deep">Concierge</p>
-              <ul className="space-y-3 text-sm text-plum/60">
-                <li>Lagos &amp; Abuja Studio Sessions</li>
-                <li>Worldwide DHL Express Shipping</li>
-                <li>
-                  <a
-                    href="https://instagram.com/seddypluz_wigs"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-lavender-deep transition-colors"
-                  >
-                    @seddypluz_wigs
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://wa.me/2348162292997"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-emerald-700 font-semibold hover:text-emerald-800 transition-colors"
-                  >
-                    +234 816 229 2997
-                  </a>
-                </li>
-              </ul>
+              <p className="eyebrow mb-5 text-lavender-deep">Get in Touch</p>
+              <div className="space-y-3 text-sm text-plum/60">
+                <a
+                  href="https://wa.me/2348162292997"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 transition-colors duration-200 hover:text-plum"
+                >
+                  <MessageCircle className="h-4 w-4 shrink-0" />
+                  WhatsApp Us
+                </a>
+                <p className="flex items-center gap-2">
+                  <Heart className="h-4 w-4 shrink-0" />
+                  Kaduna, Nigeria
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-plum/10 pt-6 text-xs text-plum/50 md:flex-row">
-            <p>© {new Date().getFullYear()} Seddypluz Beauty Studio. All rights reserved.</p>
-            <p className="flex items-center gap-1">
-              <span>Crafted with</span>
-              <Sparkle className="h-3 w-3 text-lavender-deep" />
-              <span>for the modern bride</span>
-            </p>
+          {/* Bottom Bar */}
+          <div className="mt-8">
+            <div className="h-px bg-gradient-to-r from-transparent via-plum/10 to-transparent" />
+            <div className="flex flex-col items-center justify-between gap-3 pt-6 md:flex-row">
+              <p className="text-xs tracking-wider text-plum/40">
+                © {new Date().getFullYear()} Seddypluz Beauty Studio · All artistry reserved
+              </p>
+              <p className="text-xs text-plum/30">
+                Crafted with <span className="text-lavender-deep/60">♥</span> for beauty
+              </p>
+            </div>
           </div>
         </div>
       </footer>
