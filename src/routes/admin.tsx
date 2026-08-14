@@ -1786,9 +1786,7 @@ function AdminDashboard() {
                         </label>
                         <select
                           value={formCategory}
-                          onChange={(e) =>
-                            setFormCategory(e.target.value as "wigs" | "cosmetics")
-                          }
+                          onChange={(e) => setFormCategory(e.target.value as "wigs" | "cosmetics")}
                           className="w-full rounded-xl border border-white/15 bg-[#251522] px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
                         >
                           <option value="wigs">Luxury Wigs &amp; Extensions</option>
@@ -1852,9 +1850,7 @@ function AdminDashboard() {
                         </label>
                         <select
                           value={formBadge}
-                          onChange={(e) =>
-                            setFormBadge(e.target.value as Product["badge"] | "")
-                          }
+                          onChange={(e) => setFormBadge(e.target.value as Product["badge"] | "")}
                           className="w-full rounded-xl border border-white/15 bg-[#251522] px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
                         >
                           <option value="">None</option>
@@ -2007,7 +2003,9 @@ function AdminDashboard() {
                       </div>
 
                       <div>
-                        <label className="text-white/60 block mb-1 text-xs">Studio Care Tips:</label>
+                        <label className="text-white/60 block mb-1 text-xs">
+                          Studio Care Tips:
+                        </label>
                         <input
                           type="text"
                           value={formCareTips}
