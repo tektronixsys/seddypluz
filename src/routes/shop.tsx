@@ -587,7 +587,7 @@ function ShopPage() {
             <div className="md:col-span-3">
               <p className="eyebrow mb-5 text-lavender-deep">Concierge</p>
               <ul className="space-y-3 text-sm text-plum/60">
-                <li>Lagos &amp; Abuja Studio Sessions</li>
+                <li>Kaduna Studio Sessions</li>
                 <li>Worldwide DHL Express Shipping</li>
                 <li>
                   <a
