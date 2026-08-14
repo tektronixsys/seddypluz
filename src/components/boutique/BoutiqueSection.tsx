@@ -258,9 +258,7 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
                     {activeAnnouncement.discountPercent} Value
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs sm:text-sm font-medium">
-                  {activeAnnouncement.text}
-                </p>
+                <p className="mt-0.5 text-xs sm:text-sm font-medium">{activeAnnouncement.text}</p>
               </div>
             </div>
 

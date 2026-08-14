@@ -60,6 +60,10 @@ import {
   Database,
   Volume2,
   VolumeX,
+  Zap,
+  Radio,
+  Activity,
+  Percent,
 } from "lucide-react";
 import {
   adminLogin,
@@ -75,6 +79,10 @@ import {
   saveStoredBoutiqueProducts,
   resetStoredBoutiqueProducts,
   PRODUCT_IMAGE_PRESETS,
+  getStoredAnnouncements,
+  saveStoredAnnouncements,
+  resetStoredAnnouncements,
+  type AnnouncementItem,
 } from "@/components/boutique/data";
 import type { Product, ProductDot } from "@/components/boutique/types";
 import heroBride from "@/assets/hero-bride.jpg";
@@ -212,14 +220,29 @@ function AdminDashboard() {
   const [updating, setUpdating] = useState(false);
   const [selectedClientModal, setSelectedClientModal] = useState<AppointmentRequest | null>(null);
 
-  // Front-End Announcement Manager State
-  const [announcementText, setAnnouncementText] = useState(
-    "Enjoy 20% OFF your first wig order + ALL beauty services",
+  // Front-End Announcement Manager State (CRUD & Pulse)
+  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(() =>
+    getStoredAnnouncements(),
   );
-  const [voucherCode, setVoucherCode] = useState("SEDDY20");
-  const [discountPercent, setDiscountPercent] = useState("20%");
-  const [announcementActive, setAnnouncementActive] = useState(true);
-  const [bannerSaved, setBannerSaved] = useState(false);
+  const [announcementFilter, setAnnouncementFilter] = useState<"all" | "active" | "pulsing">("all");
+  const [announcementSearch, setAnnouncementSearch] = useState("");
+  const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
+  const [editingAnnouncementId, setEditingAnnouncementId] = useState<string | null>(null);
+  const [deleteConfirmAnnouncement, setDeleteConfirmAnnouncement] =
+    useState<AnnouncementItem | null>(null);
+
+  // Form State for Create / Edit Announcement
+  const [annFormTitle, setAnnFormTitle] = useState("");
+  const [annFormText, setAnnFormText] = useState("");
+  const [annFormVoucher, setAnnFormVoucher] = useState("SEDDY20");
+  const [annFormDiscount, setAnnFormDiscount] = useState("20% OFF");
+  const [annFormBadge, setAnnFormBadge] = useState("Exclusive Promo");
+  const [annFormPulse, setAnnFormPulse] = useState(true);
+  const [annFormTheme, setAnnFormTheme] = useState<"plum" | "amber" | "emerald" | "rose" | "dark">(
+    "plum",
+  );
+  const [annFormTargetLink, setAnnFormTargetLink] = useState("/shop");
+  const [annFormCtaText, setAnnFormCtaText] = useState("Claim Offer");
 
   // Boutique Inventory Controller State (CRUD)
   const [managedProducts, setManagedProducts] = useState<Product[]>(() =>
@@ -482,13 +505,162 @@ function AdminDashboard() {
     toast.success("Appointments exported to CSV successfully.");
   };
 
-  // Save Promo Banner Settings
-  const handleSaveBanner = (e: React.FormEvent) => {
-    e.preventDefault();
-    setBannerSaved(true);
-    toast.success("Front-end announcement banner updated!");
-    setTimeout(() => setBannerSaved(false), 3000);
+  // ==========================================
+  // ANNOUNCEMENT CONTROLLER HANDLERS (CRUD & PULSE)
+  // ==========================================
+  const activeAnnouncement = useMemo(
+    () => announcements.find((a) => a.isActive) || null,
+    [announcements],
+  );
+
+  // Open Create Announcement Modal
+  const handleOpenCreateAnnouncement = () => {
+    setEditingAnnouncementId(null);
+    setAnnFormTitle("");
+    setAnnFormText("");
+    setAnnFormVoucher("SEDDY20");
+    setAnnFormDiscount("20% OFF");
+    setAnnFormBadge("Exclusive Promo");
+    setAnnFormPulse(true);
+    setAnnFormTheme("plum");
+    setAnnFormTargetLink("/shop");
+    setAnnFormCtaText("Claim Offer");
+    setIsAnnouncementModalOpen(true);
   };
+
+  // Open Edit Announcement Modal
+  const handleOpenEditAnnouncement = (item: AnnouncementItem) => {
+    setEditingAnnouncementId(item.id);
+    setAnnFormTitle(item.title);
+    setAnnFormText(item.text);
+    setAnnFormVoucher(item.voucherCode);
+    setAnnFormDiscount(item.discountPercent);
+    setAnnFormBadge(item.badgeLabel);
+    setAnnFormPulse(item.pulseAnimation);
+    setAnnFormTheme(item.theme);
+    setAnnFormTargetLink(item.targetLink);
+    setAnnFormCtaText(item.ctaText);
+    setIsAnnouncementModalOpen(true);
+  };
+
+  // Save Announcement (Create or Update)
+  const handleSaveAnnouncement = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!annFormText.trim()) {
+      toast.error("Please enter announcement headline text.");
+      return;
+    }
+
+    const updatedItem: AnnouncementItem = {
+      id: editingAnnouncementId || `promo_${Date.now()}`,
+      title: annFormTitle.trim() || "Studio Promo Campaign",
+      text: annFormText.trim(),
+      voucherCode: annFormVoucher.trim().toUpperCase(),
+      discountPercent: annFormDiscount.trim() || "SPECIAL OFFER",
+      badgeLabel: annFormBadge.trim() || "Promo",
+      pulseAnimation: annFormPulse,
+      theme: annFormTheme,
+      targetLink: annFormTargetLink.trim() || "/shop",
+      ctaText: annFormCtaText.trim() || "Claim Offer",
+      isActive: editingAnnouncementId
+        ? (announcements.find((a) => a.id === editingAnnouncementId)?.isActive ?? false)
+        : announcements.length === 0,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+
+    let nextAnnouncements: AnnouncementItem[];
+    if (editingAnnouncementId) {
+      nextAnnouncements = announcements.map((a) =>
+        a.id === editingAnnouncementId ? updatedItem : a,
+      );
+      toast.success(`Updated announcement "${updatedItem.title}".`);
+    } else {
+      nextAnnouncements = [updatedItem, ...announcements];
+      toast.success(`Created new announcement "${updatedItem.title}"!`);
+    }
+
+    setAnnouncements(nextAnnouncements);
+    saveStoredAnnouncements(nextAnnouncements);
+    setIsAnnouncementModalOpen(false);
+  };
+
+  // Toggle Pulse Animation on an Announcement
+  const handleTogglePulse = (item: AnnouncementItem) => {
+    const next = announcements.map((a) =>
+      a.id === item.id ? { ...a, pulseAnimation: !a.pulseAnimation } : a,
+    );
+    setAnnouncements(next);
+    saveStoredAnnouncements(next);
+    toast.info(
+      `Pulse animation ${!item.pulseAnimation ? "enabled (pulsing live)" : "paused"} for "${item.title}".`,
+    );
+  };
+
+  // Toggle / Set Active Broadcast Announcement
+  const handleToggleActive = (item: AnnouncementItem) => {
+    const next = announcements.map((a) => {
+      if (a.id === item.id) {
+        return { ...a, isActive: !a.isActive };
+      }
+      return { ...a, isActive: false };
+    });
+    setAnnouncements(next);
+    saveStoredAnnouncements(next);
+    const willBeActive = !item.isActive;
+    toast.success(
+      willBeActive
+        ? `Broadcast activated: "${item.title}" is now LIVE on storefront!`
+        : `Broadcast paused: Announcement banner hidden.`,
+    );
+  };
+
+  // Duplicate Announcement
+  const handleDuplicateAnnouncement = (item: AnnouncementItem) => {
+    const cloned: AnnouncementItem = {
+      ...item,
+      id: `${item.id}_copy_${Date.now()}`,
+      title: `${item.title} (Copy)`,
+      isActive: false,
+    };
+    const next = [cloned, ...announcements];
+    setAnnouncements(next);
+    saveStoredAnnouncements(next);
+    toast.success(`Duplicated announcement "${item.title}".`);
+  };
+
+  // Delete Announcement
+  const handleDeleteAnnouncement = (item: AnnouncementItem) => {
+    const next = announcements.filter((a) => a.id !== item.id);
+    setAnnouncements(next);
+    saveStoredAnnouncements(next);
+    setDeleteConfirmAnnouncement(null);
+    toast.info(`Deleted announcement "${item.title}".`);
+  };
+
+  // Reset to default announcements
+  const handleResetAnnouncements = () => {
+    const defaults = resetStoredAnnouncements();
+    setAnnouncements(defaults);
+    toast.info("Reset to 3 studio default announcement templates.");
+  };
+
+  // Filtered Announcements
+  const filteredAnnouncements = useMemo(() => {
+    return announcements.filter((a) => {
+      if (announcementFilter === "active" && !a.isActive) return false;
+      if (announcementFilter === "pulsing" && !a.pulseAnimation) return false;
+      if (announcementSearch.trim()) {
+        const q = announcementSearch.toLowerCase();
+        return (
+          a.title.toLowerCase().includes(q) ||
+          a.text.toLowerCase().includes(q) ||
+          a.voucherCode.toLowerCase().includes(q) ||
+          a.badgeLabel.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [announcements, announcementFilter, announcementSearch]);
 
   // Open Add Product Modal
   const handleOpenAddProduct = () => {
@@ -1549,134 +1721,593 @@ function AdminDashboard() {
         )}
 
         {/* ==================================================== */}
-        {/* MODULE 2: PROMO & ANNOUNCEMENT BANNER MANAGER */}
+        {/* MODULE 2: PROMO & ANNOUNCEMENT BANNER MANAGER (CRUD & PULSE) */}
         {/* ==================================================== */}
         {activeTab === "promos" && (
-          <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300">
-            {/* Live Visual Preview Container */}
-            <div className="rounded-2xl border border-amber-400/40 bg-gradient-to-br from-[#1C101A] to-[#120B10] p-6 shadow-2xl backdrop-blur-xl">
-              <div className="flex items-center justify-between mb-4">
+          <div className="space-y-6 animate-in fade-in duration-300">
+            {/* Header & Main Actions */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-display text-2xl sm:text-3xl text-white flex items-center gap-2.5">
+                  <Megaphone className="h-7 w-7 text-amber-300" />
+                  <span>Promo Banners &amp; Live Announcement Hub</span>
+                </h3>
+                <p className="text-xs text-white/60 mt-1">
+                  Create, edit, pulse, activate, duplicate, and delete promotional announcements
+                  broadcasted across the storefront.
+                </p>
+              </div>
+
+              <div className="flex items-center flex-wrap gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleResetAnnouncements}
+                  className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+                  title="Reset to 3 studio default templates"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span>Reset Defaults</span>
+                </button>
+
+                <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-2 text-xs font-bold text-emerald-300">
+                  <Radio className="h-4 w-4 animate-pulse text-emerald-400" />
+                  <span>
+                    {activeAnnouncement
+                      ? `Live: "${activeAnnouncement.title}"`
+                      : "Broadcast Paused (Hidden)"}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleOpenCreateAnnouncement}
+                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-300 text-plum px-5 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-400/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  <span>+ Create Announcement</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Live Visual Simulation Container */}
+            <div className="rounded-3xl border border-amber-400/30 bg-gradient-to-br from-[#1C101A] to-[#120B10] p-6 shadow-2xl backdrop-blur-xl space-y-3">
+              <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
-                  <Eye className="h-4 w-4" /> Live Front-End Banner Simulation
+                  <Eye className="h-4 w-4" />
+                  <span>Live Storefront Marquee Simulation</span>
                 </span>
-                <span className="text-[10px] rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 font-bold uppercase">
-                  {announcementActive ? "Active on Website" : "Hidden"}
+                <span
+                  className={`text-[10px] rounded-full px-2.5 py-0.5 font-bold uppercase border ${
+                    activeAnnouncement
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                      : "bg-white/10 text-white/50 border-white/10"
+                  }`}
+                >
+                  {activeAnnouncement ? "● Broadcasting to All Users" : "○ Hidden from Public"}
                 </span>
               </div>
 
               {/* Simulated Header Announcement Bar */}
-              <div className="rounded-xl overflow-hidden border border-white/10 bg-plum shadow-inner text-[#FAF9F5] p-3 text-center">
-                <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-medium">
-                  <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                  <span>{announcementText}</span>
-                  <span className="text-white/40">·</span>
-                  <span className="rounded-full bg-amber-400/20 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-400/30">
-                    Use Code: {voucherCode} ({discountPercent} OFF)
-                  </span>
+              {activeAnnouncement ? (
+                <div
+                  className={`rounded-2xl p-4 md:p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 border relative overflow-hidden transition-all duration-300 ${
+                    activeAnnouncement.theme === "amber"
+                      ? "bg-gradient-to-r from-[#3D2502] via-[#5C3A08] to-[#2B1A02] text-amber-100 border-amber-400/40"
+                      : activeAnnouncement.theme === "emerald"
+                        ? "bg-gradient-to-r from-[#032B1C] via-[#084D34] to-[#021F14] text-emerald-100 border-emerald-500/40"
+                        : activeAnnouncement.theme === "rose"
+                          ? "bg-gradient-to-r from-[#3B0818] via-[#59122A] to-[#2B0511] text-rose-100 border-rose-400/40"
+                          : activeAnnouncement.theme === "dark"
+                            ? "bg-gradient-to-r from-[#170E15] via-[#241320] to-[#120B10] text-[#FAF9F5] border-white/20"
+                            : "bg-gradient-to-r from-plum via-[#684a62] to-plum text-[#FAF9F5] border-white/10"
+                  }`}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
+
+                  <div className="flex items-center gap-3.5 z-10 text-center sm:text-left">
+                    <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur-md text-amber-300">
+                      <Crown className="h-5 w-5" />
+                      {activeAnnouncement.pulseAnimation && (
+                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400 ring-2 ring-white/20" />
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-center sm:justify-start gap-2">
+                        <span className="inline-block rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase text-amber-300 border border-amber-300/30">
+                          {activeAnnouncement.badgeLabel}
+                        </span>
+                        <span className="text-xs font-semibold opacity-80">
+                          {activeAnnouncement.discountPercent} Value
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-xs sm:text-sm font-medium">
+                        {activeAnnouncement.text}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 z-10 shrink-0">
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 rounded-xl bg-white text-plum px-4 py-2 text-xs font-bold uppercase tracking-wider shadow-sm"
+                    >
+                      <Copy className="h-3.5 w-3.5 text-lavender-deep" />
+                      <span>
+                        Code: <strong>{activeAnnouncement.voucherCode}</strong>
+                      </span>
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-white/50 text-xs">
+                  No announcement banner is currently active. Select one of the campaigns below and
+                  click "Activate Broadcast" to display it on the website.
+                </div>
+              )}
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+                {(
+                  [
+                    { id: "all", label: `All Campaigns (${announcements.length})` },
+                    {
+                      id: "active",
+                      label: `Active (${announcements.filter((a) => a.isActive).length})`,
+                    },
+                    {
+                      id: "pulsing",
+                      label: `Pulsing Live (${announcements.filter((a) => a.pulseAnimation).length})`,
+                    },
+                  ] as const
+                ).map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setAnnouncementFilter(tab.id)}
+                    className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      announcementFilter === tab.id
+                        ? "bg-amber-400 text-plum font-bold shadow-xs"
+                        : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+                <input
+                  type="text"
+                  value={announcementSearch}
+                  onChange={(e) => setAnnouncementSearch(e.target.value)}
+                  placeholder="Search campaigns..."
+                  className="h-9 w-full rounded-xl border border-white/15 bg-white/10 pl-9 pr-8 text-xs text-white placeholder:text-white/40 focus:border-amber-300 focus:outline-none"
+                />
+                {announcementSearch && (
+                  <button
+                    onClick={() => setAnnouncementSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Announcement Configuration Form */}
-            <form
-              onSubmit={handleSaveBanner}
-              className="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8 backdrop-blur-md space-y-6"
-            >
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div>
-                  <h3 className="font-display text-2xl text-white">
-                    Announcement &amp; Voucher Editor
-                  </h3>
-                  <p className="text-xs text-white/60 mt-0.5">
-                    Modify the promotional marquee displayed across the top of both the homepage and
-                    shop page.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-white/70">
-                    Status:
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setAnnouncementActive(!announcementActive)}
-                    className={`rounded-full px-3.5 py-1 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                      announcementActive
-                        ? "bg-emerald-500 text-white shadow-md"
-                        : "bg-white/10 text-white/50 border border-white/10"
-                    }`}
-                  >
-                    {announcementActive ? "ON (Enabled)" : "OFF (Disabled)"}
-                  </button>
-                </div>
+            {/* Campaigns Grid */}
+            {filteredAnnouncements.length === 0 ? (
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur-md">
+                <Megaphone className="mx-auto h-12 w-12 text-white/30 mb-3" />
+                <h4 className="font-display text-lg text-white">No announcements found</h4>
+                <p className="text-xs text-white/60 mt-1 max-w-sm mx-auto">
+                  Try adjusting your filter or click "+ Create Announcement" to launch a new studio
+                  promotion.
+                </p>
               </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAnnouncements.map((item) => {
+                  const themeLabels = {
+                    plum: "Plum Velvet",
+                    amber: "Amber Gold",
+                    emerald: "Emerald Jade",
+                    rose: "Ruby Rose",
+                    dark: "Dark Obsidian",
+                  };
 
-              <div className="space-y-4">
-                <div>
-                  <label className="text-xs uppercase tracking-wider font-bold text-amber-300 block mb-2">
-                    Announcement Headline Text:
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={announcementText}
-                    onChange={(e) => setAnnouncementText(e.target.value)}
-                    className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-amber-300 focus:outline-none"
-                  />
-                </div>
+                  const themePills = {
+                    plum: "bg-plum/40 border-plum/60 text-purple-200",
+                    amber: "bg-amber-500/20 border-amber-400/40 text-amber-300",
+                    emerald: "bg-emerald-500/20 border-emerald-400/40 text-emerald-300",
+                    rose: "bg-rose-500/20 border-rose-400/40 text-rose-300",
+                    dark: "bg-black/60 border-white/20 text-white/80",
+                  };
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs uppercase tracking-wider font-bold text-amber-300 block mb-2">
-                      Coupon Voucher Code:
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={voucherCode}
-                      onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-amber-300 font-bold uppercase tracking-widest focus:border-amber-300 focus:outline-none"
-                    />
+                  return (
+                    <div
+                      key={item.id}
+                      className={`group relative rounded-3xl border p-5 backdrop-blur-md flex flex-col justify-between space-y-4 transition-all shadow-lg ${
+                        item.isActive
+                          ? "border-amber-400/50 bg-white/[0.08] shadow-amber-400/10 ring-1 ring-amber-400/30"
+                          : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.07]"
+                      }`}
+                    >
+                      <div>
+                        {/* Top Meta Bar */}
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span
+                              className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${
+                                themePills[item.theme]
+                              }`}
+                            >
+                              {themeLabels[item.theme]}
+                            </span>
+                            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-bold text-amber-300 border border-white/10">
+                              {item.badgeLabel}
+                            </span>
+                          </div>
+
+                          {/* Active / Inactive Badge */}
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${
+                              item.isActive
+                                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 animate-pulse"
+                                : "bg-white/5 text-white/40 border-white/10"
+                            }`}
+                          >
+                            {item.isActive ? "● Broadcast Live" : "○ Paused"}
+                          </span>
+                        </div>
+
+                        {/* Title & Headline Text */}
+                        <h4 className="font-sans font-bold text-base text-white truncate">
+                          {item.title}
+                        </h4>
+                        <p className="mt-1 text-xs text-white/70 line-clamp-3 leading-relaxed font-sans">
+                          "{item.text}"
+                        </p>
+
+                        {/* Voucher & Value Card */}
+                        <div className="mt-3.5 flex items-center justify-between rounded-xl bg-black/30 p-2.5 border border-white/10 text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <Tag className="h-3.5 w-3.5 text-amber-300" />
+                            <span className="font-bold text-amber-300 uppercase tracking-wider">
+                              {item.voucherCode}
+                            </span>
+                          </div>
+                          <span className="font-semibold text-white/90">
+                            {item.discountPercent}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Controls Bar: Pulse, Broadcast, Edit, Duplicate, Delete */}
+                      <div className="pt-3 border-t border-white/10 space-y-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                          {/* 1-Click Pulse Animation Toggle */}
+                          <button
+                            type="button"
+                            onClick={() => handleTogglePulse(item)}
+                            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                              item.pulseAnimation
+                                ? "bg-amber-400/20 text-amber-300 border border-amber-400/40 shadow-xs"
+                                : "bg-white/5 text-white/40 border border-white/10 hover:text-white"
+                            }`}
+                            title="Toggle live pulsing neon glow effect on website"
+                          >
+                            <Zap
+                              className={`h-3.5 w-3.5 ${
+                                item.pulseAnimation ? "fill-amber-400 text-amber-400" : ""
+                              }`}
+                            />
+                            <span>{item.pulseAnimation ? "Pulse ON" : "Pulse OFF"}</span>
+                          </button>
+
+                          {/* 1-Click Broadcast Active Toggle */}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleActive(item)}
+                            className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                              item.isActive
+                                ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
+                                : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white border border-white/15"
+                            }`}
+                          >
+                            <Radio className="h-3 w-3" />
+                            <span>{item.isActive ? "Live (Broadcasting)" : "Set as Live"}</span>
+                          </button>
+                        </div>
+
+                        {/* Secondary Actions: Edit, Duplicate, Delete */}
+                        <div className="flex items-center justify-end gap-1.5 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditAnnouncement(item)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-amber-300 hover:bg-amber-400/20 transition-colors cursor-pointer"
+                            title="Edit announcement campaign"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDuplicateAnnouncement(item)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-indigo-300 hover:bg-indigo-400/20 transition-colors cursor-pointer"
+                            title="Duplicate campaign"
+                          >
+                            <CopyPlus className="h-3.5 w-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setDeleteConfirmAnnouncement(item)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"
+                            title="Delete announcement"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* ==================================================== */}
+            {/* CREATE / EDIT ANNOUNCEMENT MODAL */}
+            {/* ==================================================== */}
+            {isAnnouncementModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
+                <div className="relative w-full max-w-2xl rounded-3xl border border-white/15 bg-[#170E15] p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto space-y-6">
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/15 text-amber-300 border border-amber-400/30">
+                        <Megaphone className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-2xl text-white">
+                          {editingAnnouncementId
+                            ? "Edit Announcement Campaign"
+                            : "Create New Announcement Campaign"}
+                        </h3>
+                        <p className="text-xs text-white/60">
+                          Configure promotion copy, coupon code, theme palette, and live pulsing
+                          effects.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsAnnouncementModalOpen(false)}
+                      className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-white/60 hover:bg-white/15 hover:text-white cursor-pointer"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
 
+                  {/* Form */}
+                  <form onSubmit={handleSaveAnnouncement} className="space-y-5">
+                    {/* Campaign Title & Badge */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Campaign Name / Title *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={annFormTitle}
+                          onChange={(e) => setAnnFormTitle(e.target.value)}
+                          placeholder="e.g. Bridal Season 20% Drop"
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Badge Tag Label
+                        </label>
+                        <input
+                          type="text"
+                          value={annFormBadge}
+                          onChange={(e) => setAnnFormBadge(e.target.value)}
+                          placeholder="e.g. Exclusive Promo, Flash Drop, VIP Offer"
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Headline Text */}
+                    <div>
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        Announcement Headline Copy (Shown on Website) *
+                      </label>
+                      <textarea
+                        rows={2}
+                        required
+                        value={annFormText}
+                        onChange={(e) => setAnnFormText(e.target.value)}
+                        placeholder="e.g. Enjoy 20% OFF your first wig order + ALL beauty & bridal installation services!"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none leading-relaxed"
+                      />
+                    </div>
+
+                    {/* Voucher Code & Discount Tag */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Coupon Voucher Code:
+                        </label>
+                        <input
+                          type="text"
+                          value={annFormVoucher}
+                          onChange={(e) => setAnnFormVoucher(e.target.value.toUpperCase())}
+                          placeholder="e.g. SEDDY20"
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm font-bold uppercase tracking-widest text-amber-300 focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                          Discount / Offer Value Label:
+                        </label>
+                        <input
+                          type="text"
+                          value={annFormDiscount}
+                          onChange={(e) => setAnnFormDiscount(e.target.value)}
+                          placeholder="e.g. 20% OFF or FREE GIFT"
+                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Theme Palette & Pulsing Switch */}
+                    <div className="border-t border-white/10 pt-4 space-y-4">
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block">
+                        Visual Color Theme:
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                        {(
+                          [
+                            { id: "plum", label: "Plum Velvet", bg: "bg-plum" },
+                            { id: "amber", label: "Amber Gold", bg: "bg-amber-600" },
+                            { id: "emerald", label: "Emerald Jade", bg: "bg-emerald-600" },
+                            { id: "rose", label: "Ruby Rose", bg: "bg-rose-700" },
+                            { id: "dark", label: "Dark Obsidian", bg: "bg-neutral-900" },
+                          ] as const
+                        ).map((t) => {
+                          const isSelected = annFormTheme === t.id;
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => setAnnFormTheme(t.id)}
+                              className={`rounded-2xl p-2.5 border text-center transition-all cursor-pointer ${
+                                isSelected
+                                  ? "border-amber-400 bg-white/15 ring-2 ring-amber-400/30"
+                                  : "border-white/10 bg-white/5 hover:border-white/30"
+                              }`}
+                            >
+                              <div
+                                className={`h-6 w-full rounded-lg ${t.bg} border border-white/20 mb-1.5`}
+                              />
+                              <span className="text-[10px] font-semibold text-white truncate block">
+                                {t.label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Pulse Animation Toggle Switch */}
+                      <div className="flex items-center justify-between rounded-2xl bg-white/5 p-3.5 border border-white/10">
+                        <div className="flex items-center gap-3">
+                          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300">
+                            <Zap className="h-5 w-5" />
+                            {annFormPulse && (
+                              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400" />
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold text-white block">
+                              Live Pulse Glowing Animation
+                            </span>
+                            <span className="text-[10px] text-white/50">
+                              Display pulsing neon badge beacon on customer storefront.
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setAnnFormPulse(!annFormPulse)}
+                          className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${
+                            annFormPulse ? "bg-amber-400" : "bg-white/20"
+                          }`}
+                        >
+                          <div
+                            className={`h-5 w-5 rounded-full bg-plum shadow-md transition-transform ${
+                              annFormPulse ? "translate-x-5" : "translate-x-0"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="border-t border-white/10 pt-4 flex items-center justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsAnnouncementModalOpen(false)}
+                        className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 hover:text-white cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="flex items-center gap-2 rounded-xl bg-amber-400 text-plum px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-400/20 hover:bg-amber-300 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <Save className="h-4 w-4" />
+                        <span>Save Announcement</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* ==================================================== */}
+            {/* DELETE ANNOUNCEMENT CONFIRMATION MODAL */}
+            {/* ==================================================== */}
+            {deleteConfirmAnnouncement && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+                <div className="relative w-full max-w-md rounded-3xl border border-red-500/30 bg-[#170E15] p-6 shadow-2xl text-center space-y-4">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/15 text-red-400 border border-red-500/30">
+                    <Trash2 className="h-6 w-6" />
+                  </div>
                   <div>
-                    <label className="text-xs uppercase tracking-wider font-bold text-amber-300 block mb-2">
-                      Discount Percentage Label:
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={discountPercent}
-                      onChange={(e) => setDiscountPercent(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white focus:border-amber-300 focus:outline-none"
-                    />
+                    <h4 className="font-display text-xl text-white">Delete Promo Announcement?</h4>
+                    <p className="text-xs text-white/70 mt-1.5 leading-relaxed">
+                      Are you sure you want to remove{" "}
+                      <span className="font-bold text-amber-300">
+                        "{deleteConfirmAnnouncement.title}"
+                      </span>
+                      ? If this campaign is currently broadcasting, the announcement banner will be
+                      hidden from the storefront.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setDeleteConfirmAnnouncement(null)}
+                      className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 hover:text-white cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAnnouncement(deleteConfirmAnnouncement)}
+                      className="rounded-xl bg-red-500 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-red-600 active:scale-95 transition-all cursor-pointer shadow-lg shadow-red-500/20"
+                    >
+                      Yes, Delete Campaign
+                    </button>
                   </div>
                 </div>
               </div>
-
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAnnouncementText("Enjoy 20% OFF your first wig order + ALL beauty services");
-                    setVoucherCode("SEDDY20");
-                    setDiscountPercent("20%");
-                    toast.info("Reset to default announcement template.");
-                  }}
-                  className="text-xs text-white/50 hover:text-white flex items-center gap-1 cursor-pointer"
-                >
-                  <RotateCcw className="h-3 w-3" />
-                  <span>Restore Studio Default</span>
-                </button>
-
-                <button
-                  type="submit"
-                  className="flex items-center gap-2 rounded-xl bg-amber-400 text-plum px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-amber-300 active:scale-95 transition-all shadow-lg shadow-amber-400/20 cursor-pointer"
-                >
-                  <Save className="h-4 w-4" />
-                  <span>{bannerSaved ? "Saved Successfully!" : "Save Announcement"}</span>
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         )}
 
