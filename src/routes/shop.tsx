@@ -8,8 +8,6 @@ import { ProductQuickViewModal } from "@/components/boutique/ProductQuickViewMod
 import {
   Sparkles,
   ShoppingBag,
-  Menu,
-  X,
   Search,
   SlidersHorizontal,
   Copy,
@@ -33,7 +31,6 @@ type SortOption = "featured" | "price-asc" | "price-desc" | "rating";
 function ShopPage() {
   const { totalCount, openCart, addItem } = useCart();
   const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<"all" | "wigs" | "cosmetics" | "bestseller">(
     "all",
@@ -170,63 +167,54 @@ function ShopPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF9F5] text-foreground">
-      {/* Sticky Header Navigation */}
+      {/* Streamlined Luxury Shop Header Navigation */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
           scrolled || mobileMenuOpen
-            ? "bg-[#FAF9F5]/90 backdrop-blur-xl border-b border-border/60 shadow-xs"
-            : "bg-[#FAF9F5]/80 backdrop-blur-md"
+            ? "bg-[#FAF9F5]/95 backdrop-blur-xl border-b border-border/60 shadow-xs"
+            : "bg-[#FAF9F5]/85 backdrop-blur-md"
         }`}
       >
-        <nav className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4.5 md:px-12">
-          <Link
-            to="/"
-            className="font-outfit text-[24px] leading-[32px] font-semibold not-italic tracking-tight text-plum transition-opacity hover:opacity-90 flex items-center gap-2"
-          >
-            <span>Seddypluz Beauty Studio</span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden items-center gap-8 lg:gap-10 md:flex">
+        <nav className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4 md:px-12">
+          {/* Brand Logo + Return Home Pill */}
+          <div className="flex items-center gap-4 sm:gap-6">
             <Link
               to="/"
-              className="text-xs uppercase tracking-[0.28em] font-semibold text-plum/75 transition-colors hover:text-lavender-deep"
+              className="font-outfit text-[22px] md:text-[24px] leading-tight font-semibold tracking-tight text-plum transition-opacity hover:opacity-90 flex items-center gap-2"
             >
-              Home
+              <span>Seddypluz Beauty Studio</span>
             </Link>
-            <a
-              href="/#services"
-              className="text-xs uppercase tracking-[0.28em] font-semibold text-plum/75 transition-colors hover:text-lavender-deep"
-            >
-              Services
-            </a>
-            <a
-              href="/#portfolio"
-              className="text-xs uppercase tracking-[0.28em] font-semibold text-plum/75 transition-colors hover:text-lavender-deep"
-            >
-              Portfolio
-            </a>
+
+            <span className="hidden sm:inline-block h-4 w-px bg-plum/20" />
+
             <Link
-              to="/shop"
-              className="text-xs uppercase tracking-[0.28em] font-bold text-plum border-b-2 border-plum pb-0.5"
+              to="/"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.2em] font-semibold text-plum/70 transition-colors hover:text-plum"
             >
-              Shop Wigs &amp; Products
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Studio Home</span>
             </Link>
-            <a
-              href="/#contact"
-              className="text-xs uppercase tracking-[0.28em] font-semibold text-plum/75 transition-colors hover:text-lavender-deep"
-            >
-              Book Session
-            </a>
           </div>
 
-          {/* Action Group */}
-          <div className="flex items-center gap-2.5 sm:gap-3.5">
+          {/* Minimalist Action Controls */}
+          <div className="flex items-center gap-2.5 sm:gap-4">
+            {/* WhatsApp Concierge Inquiries */}
+            <a
+              href="https://wa.me/2348162292997?text=Hello%20Seddypluz%20Studio,%20I'm%20shopping%20on%20your%20website%20and%20would%20like%20to%20inquire%20about%20wigs%20and%20products."
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Direct WhatsApp Consultation"
+              className="hidden md:inline-flex items-center gap-2 rounded-full border border-emerald-600/30 bg-emerald-50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-emerald-800 shadow-xs transition-all hover:bg-emerald-100"
+            >
+              <MessageCircle className="h-3.5 w-3.5 fill-current text-[#25D366]" />
+              <span>WhatsApp Inquiries</span>
+            </a>
+
             {/* Bag Icon Button */}
             <button
               onClick={openCart}
               aria-label={`Open boutique bag, ${totalCount} items`}
-              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-plum/20 bg-white/70 text-plum backdrop-blur-md transition-all hover:bg-plum hover:text-[#FAF9F5] active:scale-95 cursor-pointer shadow-xs"
+              className="relative flex h-10 w-10 items-center justify-center rounded-full border border-plum/20 bg-white/80 text-plum backdrop-blur-md transition-all hover:bg-plum hover:text-[#FAF9F5] active:scale-95 cursor-pointer shadow-xs"
             >
               <ShoppingBag className="h-4.5 w-4.5" />
               {totalCount > 0 && (
@@ -236,74 +224,25 @@ function ShopPage() {
               )}
             </button>
 
-            {/* Direct WhatsApp Consultation */}
+            {/* Book Session CTA */}
             <a
-              href="https://wa.me/2348162292997?text=Hello%20Seddypluz%20Studio,%20I'm%20shopping%20on%20your%20website%20and%20would%20like%20to%20inquire%20about%20wigs%20and%20products."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-2 rounded-full border border-[#25D366]/40 bg-[#25D366] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-xs transition-all hover:bg-[#20ba5a]"
+              href="/#contact"
+              className="hidden sm:inline-flex items-center rounded-full border border-plum/30 bg-plum px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.24em] text-[#FAF9F5] shadow-xs transition-all hover:bg-lavender-deep hover:border-lavender-deep"
             >
-              <MessageCircle className="h-3.5 w-3.5 fill-current" />
-              <span>WhatsApp Concierge</span>
+              Book Session
             </a>
 
-            {/* Mobile Hamburger Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-plum/20 bg-white/70 text-plum backdrop-blur-md transition-all hover:bg-plum hover:text-[#FAF9F5] active:scale-95 cursor-pointer md:hidden shadow-xs"
+            {/* Mobile Home & Action Button */}
+            <Link
+              to="/"
+              className="sm:hidden flex h-10 w-10 items-center justify-center rounded-full border border-plum/20 bg-white/70 text-plum backdrop-blur-md transition-all active:scale-95 shadow-xs"
+              aria-label="Return to Studio Home"
+              title="Return to Studio Home"
             >
-              {mobileMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
-            </button>
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           </div>
         </nav>
-
-        {/* Mobile Navigation Dropdown */}
-        {mobileMenuOpen && (
-          <div className="border-b border-plum/10 bg-[#FAF9F5]/98 backdrop-blur-2xl px-6 py-6 shadow-2xl transition-all md:hidden animate-in slide-in-from-top-3 duration-300">
-            <div className="flex flex-col space-y-3.5">
-              <Link
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between border-b border-plum/8 pb-2.5 text-xs uppercase tracking-wider font-bold text-plum/85 hover:text-lavender-deep"
-              >
-                <span>Studio Home</span>
-                <span className="text-xs text-plum/40">→</span>
-              </Link>
-              <a
-                href="/#services"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between border-b border-plum/8 pb-2.5 text-xs uppercase tracking-wider font-bold text-plum/85 hover:text-lavender-deep"
-              >
-                <span>Services Atelier</span>
-                <span className="text-xs text-plum/40">→</span>
-              </a>
-              <a
-                href="/#portfolio"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between border-b border-plum/8 pb-2.5 text-xs uppercase tracking-wider font-bold text-plum/85 hover:text-lavender-deep"
-              >
-                <span>Bridal Portfolio</span>
-                <span className="text-xs text-plum/40">→</span>
-              </a>
-              <Link
-                to="/shop"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between border-b border-plum/8 pb-2.5 text-xs uppercase tracking-wider font-bold text-lavender-deep"
-              >
-                <span>Shop Wigs &amp; Products</span>
-                <span className="text-xs">✓</span>
-              </Link>
-              <a
-                href="/#contact"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center rounded-full bg-plum py-3.5 text-xs uppercase tracking-[0.24em] font-bold text-[#FAF9F5] shadow-md shadow-plum/20 mt-2"
-              >
-                <span>Book Bridal Session</span>
-              </a>
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Main Shop Container */}
