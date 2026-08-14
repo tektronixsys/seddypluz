@@ -90,24 +90,24 @@ export function ProductQuickViewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl w-[95vw] md:w-full bg-[#FAF9F5] border border-plum/15 p-0 overflow-hidden rounded-[2rem] shadow-2xl z-[150] max-h-[90vh] flex flex-col md:flex-row">
+      <DialogContent className="max-w-3xl w-[94vw] md:w-full bg-[#FAF9F5] border border-plum/15 p-0 overflow-y-auto md:overflow-hidden rounded-[2rem] shadow-2xl z-[150] max-h-[92vh] flex flex-col md:flex-row">
         {/* Left: Product Image Showcase */}
         <div
-          className={`relative w-full md:w-1/2 ${product.bgClass} flex flex-col items-center justify-center p-6 md:p-8 min-h-[300px] md:min-h-[460px] overflow-hidden`}
+          className={`relative w-full md:w-1/2 ${product.bgClass} flex flex-col items-center justify-center p-4 xs:p-6 md:p-8 min-h-[220px] xs:min-h-[260px] md:min-h-[460px] overflow-hidden`}
         >
           {/* Ambient Glow */}
           <div className="absolute inset-0 bg-gradient-to-t from-plum/15 via-transparent to-white/40 pointer-events-none" />
 
           {/* Badges Top-Left */}
-          <div className="absolute top-4 left-4 z-10 flex flex-col gap-1.5">
+          <div className="absolute top-3 left-3 xs:top-4 xs:left-4 z-10 flex flex-col gap-1.5">
             {product.badge && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-plum px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#FAF9F5] shadow-xs">
-                <Sparkles className="h-3 w-3 text-amber-300" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-plum px-2.5 xs:px-3 py-0.5 xs:py-1 text-[9px] xs:text-[10px] font-bold uppercase tracking-wider text-[#FAF9F5] shadow-xs">
+                <Sparkles className="h-2.5 w-2.5 xs:h-3 xs:w-3 text-amber-300" />
                 {product.badge}
               </span>
             )}
             {product.discountBadge && (
-              <span className="inline-flex items-center rounded-full bg-rose-600 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-xs">
+              <span className="inline-flex items-center rounded-full bg-rose-600 px-2 py-0.5 text-[8.5px] xs:text-[9px] font-bold uppercase tracking-wider text-white shadow-xs">
                 {product.discountBadge}
               </span>
             )}
@@ -117,27 +117,27 @@ export function ProductQuickViewModal({
           <button
             onClick={() => onWishlistToggle && onWishlistToggle(product.id)}
             aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            className={`absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-all active:scale-90 cursor-pointer ${
+            className={`absolute top-3 right-3 xs:top-4 xs:right-4 z-10 flex h-9 w-9 xs:h-10 xs:w-10 items-center justify-center rounded-full backdrop-blur-md transition-all active:scale-90 cursor-pointer ${
               isWishlisted
                 ? "bg-rose-500 text-white shadow-md shadow-rose-500/30"
                 : "bg-white/80 text-plum/70 hover:bg-white hover:text-plum shadow-xs"
             }`}
           >
-            <Heart className={`h-4.5 w-4.5 ${isWishlisted ? "fill-current" : ""}`} />
+            <Heart className={`h-4 w-4 xs:h-4.5 xs:w-4.5 ${isWishlisted ? "fill-current" : ""}`} />
           </button>
 
           {/* Product Image with smooth hover scale */}
-          <div className="relative z-0 max-h-[340px] flex items-center justify-center">
+          <div className="relative z-0 max-h-[220px] xs:max-h-[260px] md:max-h-[340px] flex items-center justify-center">
             <img
               src={product.img}
               alt={product.name}
-              className="max-h-[320px] w-auto object-contain drop-shadow-xl transition-transform duration-500 hover:scale-105"
+              className="max-h-[200px] xs:max-h-[240px] md:max-h-[320px] w-auto object-contain drop-shadow-xl transition-transform duration-500 hover:scale-105"
             />
           </div>
 
           {/* Bottom Category Label */}
-          <div className="absolute bottom-4 left-4 right-4 text-center z-10">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/85 backdrop-blur-md px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-plum border border-white/60">
+          <div className="absolute bottom-3 left-3 right-3 xs:bottom-4 xs:left-4 xs:right-4 text-center z-10">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/85 backdrop-blur-md px-3 py-1 text-[9.5px] xs:text-[10px] font-bold uppercase tracking-wider text-plum border border-white/60">
               <Sparkle className="h-3 w-3 text-lavender-deep" />
               {product.categoryLabel}
             </span>
@@ -145,7 +145,7 @@ export function ProductQuickViewModal({
         </div>
 
         {/* Right: Details, Variant Selector, Quantity, Actions */}
-        <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto max-h-[500px] md:max-h-[560px]">
+        <div className="w-full md:w-1/2 p-5 xs:p-6 md:p-8 flex flex-col justify-between overflow-y-visible md:overflow-y-auto max-h-none md:max-h-[560px]">
           <div>
             {/* Header with Title & Rating */}
             <DialogHeader className="text-left space-y-1">
