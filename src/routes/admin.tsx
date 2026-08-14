@@ -35,6 +35,7 @@ import {
   ExternalLink,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   ArrowUpRight,
   Star,
   MapPin,
@@ -52,6 +53,13 @@ import {
   PlusCircle,
   X,
   Package,
+  Settings,
+  LogOut,
+  SlidersHorizontal,
+  Globe,
+  Database,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import {
   adminLogin,
@@ -146,13 +154,45 @@ function AdminDashboard() {
   const fetchAppointments = useServerFn(getAppointments);
   const updateStatus = useServerFn(updateAppointmentStatus);
 
-  // Authentication State
+  // Authentication & Profile State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [currentAdminUser, setCurrentAdminUser] = useState<string>("Admin");
+  const [adminRole, setAdminRole] = useState<string>("Super Admin");
+  const [adminEmail, setAdminEmail] = useState<string>("admin@seddypluz.com");
   const [authChecking, setAuthChecking] = useState(false);
+
+  // Avatar Widget & Settings Modal State
+  const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [soundNotifications, setSoundNotifications] = useState(true);
+  const [autoRefreshInterval, setAutoRefreshInterval] = useState<number>(0);
+  const [ambientGlow, setAmbientGlow] = useState(true);
+
+  // Compute initials for Avatar
+  const userInitials = useMemo(() => {
+    if (!currentAdminUser) return "SP";
+    const parts = currentAdminUser.trim().split(" ");
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return currentAdminUser.slice(0, 2).toUpperCase();
+  }, [currentAdminUser]);
+
+  // Click outside to dismiss avatar dropdown
+  useEffect(() => {
+    if (!isAvatarMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest("#avatar-widget-container")) {
+        setIsAvatarMenuOpen(false);
+      }
+    };
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, [isAvatarMenuOpen]);
 
   // Navigation State
   const [activeTab, setActiveTab] = useState<AdminTab>("appointments");
@@ -810,14 +850,8 @@ function AdminDashboard() {
             </div>
           </div>
 
-          {/* Quick Action Hub */}
+          {/* Quick Action Hub & Avatar Widget */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Authenticated Admin Pill */}
-            <div className="hidden md:flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80">
-              <User className="h-3.5 w-3.5 text-amber-300" />
-              <span className="font-semibold text-white">{currentAdminUser}</span>
-            </div>
-
             {/* Refresh Appointments Button */}
             <button
               onClick={() => loadData(true)}
@@ -833,21 +867,179 @@ function AdminDashboard() {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-semibold text-white/80 transition-all hover:bg-white/10 hover:text-white"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 transition-all hover:bg-white/10 hover:text-white"
+              title="Open customer-facing website"
             >
-              <Eye className="h-3.5 w-3.5 text-amber-300" />
+              <Globe className="h-3.5 w-3.5 text-amber-300" />
               <span>Live Site</span>
               <ArrowUpRight className="h-3 w-3 text-white/40" />
             </a>
 
-            {/* Lock Session */}
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-rose-300 transition-all hover:bg-rose-500 hover:text-white active:scale-95 cursor-pointer"
-            >
-              <Lock className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Lock Suite</span>
-            </button>
+            {/* ==================================================== */}
+            {/* AVATAR WIDGET WITH PROFILE DROPDOWN */}
+            {/* ==================================================== */}
+            <div id="avatar-widget-container" className="relative">
+              <button
+                type="button"
+                onClick={() => setIsAvatarMenuOpen(!isAvatarMenuOpen)}
+                aria-expanded={isAvatarMenuOpen}
+                aria-haspopup="true"
+                className={`group flex items-center gap-2.5 rounded-2xl border p-1.5 pr-3 transition-all cursor-pointer select-none ${
+                  isAvatarMenuOpen
+                    ? "border-amber-400 bg-white/15 shadow-lg shadow-amber-400/10 ring-2 ring-amber-400/20"
+                    : "border-white/15 bg-white/5 hover:border-white/30 hover:bg-white/10"
+                }`}
+              >
+                {/* Circular Gradient Avatar Badge with Online Dot */}
+                <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 text-plum font-bold text-xs tracking-wider shadow-md shadow-amber-400/20 ring-1 ring-white/20 shrink-0">
+                  <span>{userInitials}</span>
+                  {/* Glowing Pulse Online Indicator */}
+                  <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 ring-1 ring-[#170E15]" />
+                  </span>
+                </div>
+
+                {/* User Info Label */}
+                <div className="hidden md:flex flex-col text-left">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-[120px]">
+                      {currentAdminUser}
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-semibold uppercase tracking-wider text-amber-300/80">
+                    {adminRole}
+                  </span>
+                </div>
+
+                {/* Dropdown Chevron */}
+                <ChevronDown
+                  className={`h-3.5 w-3.5 text-white/50 transition-transform duration-200 ${
+                    isAvatarMenuOpen ? "rotate-180 text-amber-300" : ""
+                  }`}
+                />
+              </button>
+
+              {/* Glassmorphic Dropdown Menu Popover */}
+              {isAvatarMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-72 rounded-3xl border border-white/15 bg-[#170E15]/95 backdrop-blur-2xl p-2.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
+                  {/* User Profile Card */}
+                  <div className="rounded-2xl bg-white/5 p-3.5 border border-white/10 mb-1 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 text-plum font-bold text-sm shadow-md ring-2 ring-white/15 shrink-0">
+                        <span>{userInitials}</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-sm text-white truncate">
+                            {currentAdminUser}
+                          </span>
+                          <Crown className="h-3.5 w-3.5 text-amber-300 shrink-0" />
+                        </div>
+                        <span className="text-[11px] text-white/60 truncate block font-sans">
+                          {adminEmail}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[10px]">
+                      <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>Active Session</span>
+                      </span>
+                      <span className="text-white/40 uppercase tracking-wider font-semibold">
+                        TLS 256-Bit
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Settings Modal Shortcut */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAvatarMenuOpen(false);
+                      setIsSettingsModalOpen(true);
+                    }}
+                    className="w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-xs text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/5 text-amber-300 group-hover:bg-amber-400/20 group-hover:text-amber-200">
+                        <Settings className="h-4 w-4" />
+                      </div>
+                      <span className="font-semibold">Studio &amp; Suite Settings</span>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-white/30 group-hover:text-white/80 group-hover:translate-x-0.5 transition-all" />
+                  </button>
+
+                  {/* Quick Modules Navigation */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("appointments");
+                      setIsAvatarMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <Calendar className="h-3.5 w-3.5 text-lavender-deep" />
+                    <span>Appointments CRM</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("boutique");
+                      setIsAvatarMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <ShoppingBag className="h-3.5 w-3.5 text-amber-400" />
+                    <span>Wigs &amp; Boutique Catalog</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("concierge");
+                      setIsAvatarMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <Sliders className="h-3.5 w-3.5 text-indigo-400" />
+                    <span>Studio Contacts &amp; Hotline</span>
+                  </button>
+
+                  <div className="my-1 border-t border-white/10" />
+
+                  {/* View Live Website */}
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setIsAvatarMenuOpen(false)}
+                    className="flex items-center justify-between rounded-xl px-3 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Globe className="h-3.5 w-3.5 text-emerald-400" />
+                      <span>View Live Website</span>
+                    </div>
+                    <ArrowUpRight className="h-3 w-3 text-white/40" />
+                  </a>
+
+                  {/* Lock / Sign Out Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAvatarMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-rose-400 hover:bg-rose-500/15 hover:text-rose-300 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Lock Command Suite</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -2406,6 +2598,233 @@ function AdminDashboard() {
                   >
                     <span>View CRM</span>
                     <ChevronRight className="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* ==================================================== */}
+        {/* SETTINGS & PREFERENCES MODAL */}
+        {/* ==================================================== */}
+        {isSettingsModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
+            <div className="relative w-full max-w-xl rounded-3xl border border-white/15 bg-[#170E15] p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto space-y-6">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/15 text-amber-300 border border-amber-400/30">
+                    <Settings className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl sm:text-2xl text-white">
+                      Studio &amp; Suite Settings
+                    </h3>
+                    <p className="text-xs text-white/60">
+                      Manage administrator profile, workspace preferences, and security options.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsSettingsModalOpen(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-white/60 hover:bg-white/15 hover:text-white cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Settings Form */}
+              <div className="space-y-5">
+                {/* Profile Section */}
+                <div className="space-y-3">
+                  <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5" />
+                    <span>Administrator Profile</span>
+                  </h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label className="text-[11px] text-white/60 block mb-1">Display Name:</label>
+                      <input
+                        type="text"
+                        value={currentAdminUser}
+                        onChange={(e) => setCurrentAdminUser(e.target.value)}
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-xs text-white focus:border-amber-300 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] text-white/60 block mb-1">
+                        Role Designation:
+                      </label>
+                      <input
+                        type="text"
+                        value={adminRole}
+                        onChange={(e) => setAdminRole(e.target.value)}
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-xs text-white focus:border-amber-300 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] text-white/60 block mb-1">Contact Email:</label>
+                    <input
+                      type="email"
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-xs text-white focus:border-amber-300 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Workspace Preferences */}
+                <div className="border-t border-white/10 pt-4 space-y-3">
+                  <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1.5">
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    <span>Workspace Preferences</span>
+                  </h4>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between rounded-xl bg-white/5 p-3 border border-white/10">
+                      <div>
+                        <span className="text-xs font-semibold text-white block">
+                          Sound Cues &amp; Audio Notifications
+                        </span>
+                        <span className="text-[10px] text-white/50">
+                          Play soft chime when new bridal inquiry is registered.
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSoundNotifications(!soundNotifications)}
+                        className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${
+                          soundNotifications ? "bg-amber-400" : "bg-white/20"
+                        }`}
+                      >
+                        <div
+                          className={`h-5 w-5 rounded-full bg-plum shadow-md transition-transform ${
+                            soundNotifications ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-xl bg-white/5 p-3 border border-white/10">
+                      <div>
+                        <span className="text-xs font-semibold text-white block">
+                          Ambient Luxury Glow
+                        </span>
+                        <span className="text-[10px] text-white/50">
+                          Show animated plum and gold background gradients.
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setAmbientGlow(!ambientGlow)}
+                        className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${
+                          ambientGlow ? "bg-amber-400" : "bg-white/20"
+                        }`}
+                      >
+                        <div
+                          className={`h-5 w-5 rounded-full bg-plum shadow-md transition-transform ${
+                            ambientGlow ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-xl bg-white/5 p-3 border border-white/10">
+                      <div>
+                        <span className="text-xs font-semibold text-white block">
+                          Auto-Refresh Interval
+                        </span>
+                        <span className="text-[10px] text-white/50">
+                          Automatically poll for new customer appointments.
+                        </span>
+                      </div>
+                      <select
+                        value={autoRefreshInterval}
+                        onChange={(e) => setAutoRefreshInterval(Number(e.target.value))}
+                        className="rounded-lg border border-white/15 bg-[#251522] px-2.5 py-1.5 text-xs text-white focus:border-amber-300 focus:outline-none"
+                      >
+                        <option value={0}>Manual Only</option>
+                        <option value={30}>Every 30 Seconds</option>
+                        <option value={60}>Every 1 Minute</option>
+                        <option value={300}>Every 5 Minutes</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Security & Access Section */}
+                <div className="border-t border-white/10 pt-4 space-y-3">
+                  <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1.5">
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    <span>Security &amp; Active Session</span>
+                  </h4>
+
+                  <div className="rounded-xl bg-white/5 p-3.5 border border-white/10 space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-white/70">
+                      <span>Session Duration:</span>
+                      <span className="font-semibold text-white">8 Hours (HTTP-Only Cookie)</span>
+                    </div>
+                    <div className="flex items-center justify-between text-white/70">
+                      <span>Brute Force Lockout:</span>
+                      <span className="font-semibold text-emerald-400">
+                        Active (5 attempts / 30m lock)
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-white/70">
+                      <span>Authorized Super-Admins:</span>
+                      <span className="font-semibold text-amber-300">ajuhlouis, seddypluz</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Data Backup Section */}
+                <div className="border-t border-white/10 pt-4 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const backupData = {
+                        exportedAt: new Date().toISOString(),
+                        appointments,
+                        products: managedProducts,
+                        pinnedProductIds,
+                        contacts: {
+                          phone: studioPhone,
+                          location: studioLocation,
+                          hours: studioHours,
+                        },
+                      };
+                      const blob = new Blob([JSON.stringify(backupData, null, 2)], {
+                        type: "application/json",
+                      });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `seddypluz_studio_backup_${new Date().toISOString().slice(0, 10)}.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      toast.success("Studio backup JSON exported successfully.");
+                    }}
+                    className="flex items-center gap-1.5 text-xs text-amber-300 hover:text-white font-semibold cursor-pointer"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    <span>Export Full Studio Backup (JSON)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSettingsModalOpen(false);
+                      toast.success("Studio & suite preferences updated.");
+                    }}
+                    className="flex items-center gap-2 rounded-xl bg-amber-400 text-plum px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-amber-300 active:scale-95 transition-all cursor-pointer shadow-md shadow-amber-400/20"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>Save Settings</span>
                   </button>
                 </div>
               </div>
