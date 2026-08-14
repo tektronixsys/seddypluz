@@ -170,7 +170,7 @@ function ShopPage() {
       {/* Streamlined Luxury Shop Header Navigation */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          scrolled || mobileMenuOpen
+          scrolled
             ? "bg-[#FAF9F5]/95 backdrop-blur-xl border-b border-border/60 shadow-xs"
             : "bg-[#FAF9F5]/85 backdrop-blur-md"
         }`}
