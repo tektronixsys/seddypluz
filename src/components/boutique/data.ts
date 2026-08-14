@@ -351,3 +351,111 @@ export function resetStoredBoutiqueProducts(): Product[] {
   } catch {}
   return boutiqueProducts;
 }
+
+// ==========================================
+// ANNOUNCEMENT & PROMO BANNER DATA & CONTROLLER
+// ==========================================
+export interface AnnouncementItem {
+  id: string;
+  title: string;
+  text: string;
+  voucherCode: string;
+  discountPercent: string;
+  badgeLabel: string;
+  pulseAnimation: boolean;
+  theme: "plum" | "amber" | "emerald" | "rose" | "dark";
+  targetLink: string;
+  ctaText: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export const defaultAnnouncements: AnnouncementItem[] = [
+  {
+    id: "promo_bridal_20",
+    title: "Bridal Season & Wig Debut Drop",
+    text: "Enjoy 20% OFF your first wig order + ALL beauty & bridal installation services!",
+    voucherCode: "SEDDY20",
+    discountPercent: "20%",
+    badgeLabel: "Exclusive Promo",
+    pulseAnimation: true,
+    theme: "plum",
+    targetLink: "/shop",
+    ctaText: "Claim 20% OFF",
+    isActive: true,
+    createdAt: "2026-08-14",
+  },
+  {
+    id: "promo_flash_wigs",
+    title: "Bone Straight Flash Drop",
+    text: "Limited Batch! 15% OFF all Raw Bone Straight bundles with complimentary studio styling in Kaduna.",
+    voucherCode: "FLASHWIG15",
+    discountPercent: "15%",
+    badgeLabel: "Flash Drop",
+    pulseAnimation: true,
+    theme: "amber",
+    targetLink: "/shop",
+    ctaText: "Shop Straight Units",
+    isActive: false,
+    createdAt: "2026-08-14",
+  },
+  {
+    id: "promo_glam_suite",
+    title: "Luxury Glam & Gele VIP Package",
+    text: "Book your VIP Bridal Soft Glam + Traditional Gele styling session and receive a complimentary lip elixir.",
+    voucherCode: "GLAMVIP",
+    discountPercent: "FREE GIFT",
+    badgeLabel: "VIP Booking",
+    pulseAnimation: false,
+    theme: "emerald",
+    targetLink: "/#booking",
+    ctaText: "Reserve VIP Date",
+    isActive: false,
+    createdAt: "2026-08-14",
+  },
+];
+
+export function getStoredAnnouncements(): AnnouncementItem[] {
+  if (typeof window === "undefined") return defaultAnnouncements;
+  try {
+    const raw = localStorage.getItem("seddypluz_announcements");
+    if (!raw) return defaultAnnouncements;
+    const parsed = JSON.parse(raw) as AnnouncementItem[];
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaultAnnouncements;
+  } catch {
+    return defaultAnnouncements;
+  }
+}
+
+export function saveStoredAnnouncements(announcements: AnnouncementItem[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem("seddypluz_announcements", JSON.stringify(announcements));
+    const active = announcements.find((a) => a.isActive) || null;
+    window.dispatchEvent(
+      new CustomEvent("seddypluz_announcement_updated", {
+        detail: { announcements, active },
+      }),
+    );
+  } catch (err) {
+    console.error("Failed to save announcements to local storage:", err);
+  }
+}
+
+export function getActiveAnnouncement(): AnnouncementItem | null {
+  const all = getStoredAnnouncements();
+  return all.find((a) => a.isActive) || null;
+}
+
+export function resetStoredAnnouncements(): AnnouncementItem[] {
+  if (typeof window === "undefined") return defaultAnnouncements;
+  try {
+    localStorage.removeItem("seddypluz_announcements");
+    window.dispatchEvent(
+      new CustomEvent("seddypluz_announcement_updated", {
+        detail: { announcements: defaultAnnouncements, active: defaultAnnouncements[0] },
+      }),
+    );
+  } catch {}
+  return defaultAnnouncements;
+}

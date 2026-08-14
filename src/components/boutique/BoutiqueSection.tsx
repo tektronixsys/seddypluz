@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useCart } from "@/context/CartContext";
-import { getStoredBoutiqueProducts } from "./data";
+import { getStoredBoutiqueProducts, getActiveAnnouncement, type AnnouncementItem } from "./data";
 import type { Product } from "./types";
 import { ProductCard } from "./ProductCard";
 import { ProductQuickViewModal } from "./ProductQuickViewModal";
@@ -29,6 +29,9 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
   const [activeCategory, setActiveCategory] = useState<"all" | "wigs" | "cosmetics" | "bestseller">(
     "all",
   );
+  const [activeAnnouncement, setActiveAnnouncement] = useState<AnnouncementItem | null>(() =>
+    getActiveAnnouncement(),
+  );
   const [wishlistedIds, setWishlistedIds] = useState<Set<string>>(new Set());
   const [selectedQuickViewProduct, setSelectedQuickViewProduct] = useState<Product | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -38,8 +41,19 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
     const handleUpdate = () => {
       setProducts(getStoredBoutiqueProducts());
     };
+    const handleAnnounceUpdate = (e: any) => {
+      if (e?.detail?.active !== undefined) {
+        setActiveAnnouncement(e.detail.active);
+      } else {
+        setActiveAnnouncement(getActiveAnnouncement());
+      }
+    };
     window.addEventListener("seddypluz_inventory_updated", handleUpdate);
-    return () => window.removeEventListener("seddypluz_inventory_updated", handleUpdate);
+    window.addEventListener("seddypluz_announcement_updated", handleAnnounceUpdate);
+    return () => {
+      window.removeEventListener("seddypluz_inventory_updated", handleUpdate);
+      window.removeEventListener("seddypluz_announcement_updated", handleAnnounceUpdate);
+    };
   }, []);
 
   // Per-product selected variant state
@@ -54,10 +68,11 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
   });
 
   const handleCopyVoucher = () => {
-    navigator.clipboard.writeText("SEDDY20");
+    const code = activeAnnouncement?.voucherCode || "SEDDY20";
+    navigator.clipboard.writeText(code);
     setCopiedCode(true);
-    toast.success("Promo code SEDDY20 copied!", {
-      description: "Enjoy 20% OFF your first wig order + all studio beauty services.",
+    toast.success(`Promo code ${code} copied!`, {
+      description: activeAnnouncement?.text || "Enjoy discount on your studio order.",
     });
     setTimeout(() => setCopiedCode(false), 2500);
   };
@@ -207,49 +222,73 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
           </div>
         </div>
 
-        {/* 20% OFF Voucher Banner */}
-        <div className="mt-8 rounded-2xl bg-gradient-to-r from-plum via-[#684a62] to-plum text-[#FAF9F5] p-4 md:p-5 shadow-lg shadow-plum/15 flex flex-col sm:flex-row items-center justify-between gap-4 border border-white/10 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
+        {/* Dynamic Studio Announcement Banner */}
+        {activeAnnouncement && (
+          <div
+            className={`mt-8 rounded-2xl p-4 md:p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 border relative overflow-hidden transition-all duration-300 ${
+              activeAnnouncement.theme === "amber"
+                ? "bg-gradient-to-r from-[#3D2502] via-[#5C3A08] to-[#2B1A02] text-amber-100 border-amber-400/40 shadow-amber-950/30"
+                : activeAnnouncement.theme === "emerald"
+                  ? "bg-gradient-to-r from-[#032B1C] via-[#084D34] to-[#021F14] text-emerald-100 border-emerald-500/40 shadow-emerald-950/30"
+                  : activeAnnouncement.theme === "rose"
+                    ? "bg-gradient-to-r from-[#3B0818] via-[#59122A] to-[#2B0511] text-rose-100 border-rose-400/40 shadow-rose-950/30"
+                    : activeAnnouncement.theme === "dark"
+                      ? "bg-gradient-to-r from-[#170E15] via-[#241320] to-[#120B10] text-[#FAF9F5] border-white/20 shadow-black/40"
+                      : "bg-gradient-to-r from-plum via-[#684a62] to-plum text-[#FAF9F5] border-white/10 shadow-plum/15"
+            }`}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
 
-          <div className="flex items-center gap-3.5 z-10 text-center sm:text-left">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur-md text-amber-300">
-              <Crown className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center justify-center sm:justify-start gap-2">
-                <span className="inline-block rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase text-amber-300 border border-amber-300/30">
-                  Exclusive Promo
-                </span>
-                <span className="text-xs font-semibold text-[#FAF9F5]/80">Limited-Time Offer</span>
-              </div>
-              <p className="mt-0.5 text-xs sm:text-sm font-medium text-[#FAF9F5]">
-                Enjoy <strong className="text-amber-300 font-bold font-sans">20% OFF</strong> your
-                first wig order + ALL beauty &amp; bridal installation services!
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 z-10 shrink-0">
-            <button
-              onClick={handleCopyVoucher}
-              className="flex items-center gap-2 rounded-xl bg-white text-plum px-4 py-2.5 text-xs font-bold uppercase tracking-wider shadow-sm transition-all hover:bg-amber-300 hover:text-plum active:scale-95 cursor-pointer"
-            >
-              {copiedCode ? (
-                <>
-                  <CheckCheck className="h-4 w-4 text-emerald-600" />
-                  <span>Copied (SEDDY20)</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4 text-lavender-deep" />
-                  <span>
-                    Copy Code: <strong>SEDDY20</strong>
+            <div className="flex items-center gap-3.5 z-10 text-center sm:text-left">
+              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur-md text-amber-300">
+                <Crown className="h-5 w-5" />
+                {activeAnnouncement.pulseAnimation && (
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500 ring-2 ring-white/20" />
                   </span>
-                </>
+                )}
+              </div>
+              <div>
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <span className="inline-block rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase text-amber-300 border border-amber-300/30">
+                    {activeAnnouncement.badgeLabel || "Exclusive Promo"}
+                  </span>
+                  <span className="text-xs font-semibold opacity-80">
+                    {activeAnnouncement.discountPercent} Value
+                  </span>
+                </div>
+                <p className="mt-0.5 text-xs sm:text-sm font-medium">
+                  {activeAnnouncement.text}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 z-10 shrink-0">
+              {activeAnnouncement.voucherCode && (
+                <button
+                  type="button"
+                  onClick={handleCopyVoucher}
+                  className="flex items-center gap-2 rounded-xl bg-white text-plum px-4 py-2.5 text-xs font-bold uppercase tracking-wider shadow-sm transition-all hover:bg-amber-300 hover:text-plum active:scale-95 cursor-pointer"
+                >
+                  {copiedCode ? (
+                    <>
+                      <CheckCheck className="h-4 w-4 text-emerald-600" />
+                      <span>Copied ({activeAnnouncement.voucherCode})</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4 text-lavender-deep" />
+                      <span>
+                        Code: <strong>{activeAnnouncement.voucherCode}</strong>
+                      </span>
+                    </>
+                  )}
+                </button>
               )}
-            </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Filter Navigation Tabs */}
         <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-plum/10 pb-5">

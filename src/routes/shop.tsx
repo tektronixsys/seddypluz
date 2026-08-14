@@ -1,7 +1,11 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCart } from "@/context/CartContext";
-import { getStoredBoutiqueProducts } from "@/components/boutique/data";
+import {
+  getStoredBoutiqueProducts,
+  getActiveAnnouncement,
+  type AnnouncementItem,
+} from "@/components/boutique/data";
 import type { Product } from "@/components/boutique/types";
 import { ProductCard } from "@/components/boutique/ProductCard";
 import { ProductQuickViewModal } from "@/components/boutique/ProductQuickViewModal";
@@ -37,6 +41,9 @@ function ShopPage() {
     "all",
   );
   const [sortBy, setSortBy] = useState<SortOption>("featured");
+  const [activeAnnouncement, setActiveAnnouncement] = useState<AnnouncementItem | null>(() =>
+    getActiveAnnouncement(),
+  );
   const [wishlistedIds, setWishlistedIds] = useState<Set<string>>(new Set());
   const [selectedQuickViewProduct, setSelectedQuickViewProduct] = useState<Product | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -46,8 +53,19 @@ function ShopPage() {
     const handleUpdate = () => {
       setProducts(getStoredBoutiqueProducts());
     };
+    const handleAnnounceUpdate = (e: any) => {
+      if (e?.detail?.active !== undefined) {
+        setActiveAnnouncement(e.detail.active);
+      } else {
+        setActiveAnnouncement(getActiveAnnouncement());
+      }
+    };
     window.addEventListener("seddypluz_inventory_updated", handleUpdate);
-    return () => window.removeEventListener("seddypluz_inventory_updated", handleUpdate);
+    window.addEventListener("seddypluz_announcement_updated", handleAnnounceUpdate);
+    return () => {
+      window.removeEventListener("seddypluz_inventory_updated", handleUpdate);
+      window.removeEventListener("seddypluz_announcement_updated", handleAnnounceUpdate);
+    };
   }, []);
 
   // Per-product selected variant state
@@ -68,10 +86,11 @@ function ShopPage() {
   }, []);
 
   const handleCopyVoucher = () => {
-    navigator.clipboard.writeText("SEDDY20");
+    const code = activeAnnouncement?.voucherCode || "SEDDY20";
+    navigator.clipboard.writeText(code);
     setCopiedCode(true);
-    toast.success("Promo code SEDDY20 copied!", {
-      description: "Enjoy 20% OFF your first wig order + all studio beauty services.",
+    toast.success(`Promo code ${code} copied!`, {
+      description: activeAnnouncement?.text || "Enjoy discount on your studio order.",
     });
     setTimeout(() => setCopiedCode(false), 2500);
   };
@@ -294,41 +313,51 @@ function ShopPage() {
                 illuminators.
               </p>
 
-              {/* 20% OFF Promo Code Pill */}
-              <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-white/15 pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400 text-plum font-bold">
-                    <Crown className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">
-                      First Order Discount
-                    </span>
-                    <span className="text-xs sm:text-sm font-semibold text-white">
-                      Get 20% OFF with voucher code
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleCopyVoucher}
-                  className="flex items-center gap-2 rounded-xl bg-white text-plum px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all hover:bg-amber-300 active:scale-95 cursor-pointer shadow-md"
-                >
-                  {copiedCode ? (
-                    <>
-                      <CheckCheck className="h-4 w-4 text-emerald-600" />
-                      <span>Copied (SEDDY20)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4 text-lavender-deep" />
-                      <span>
-                        Copy Code: <strong>SEDDY20</strong>
+              {/* Dynamic Studio Announcement Pill */}
+              {activeAnnouncement && (
+                <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-white/15 pt-6">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400 text-plum font-bold">
+                      <Crown className="h-5 w-5" />
+                      {activeAnnouncement.pulseAnimation && (
+                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-300 ring-2 ring-plum" />
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">
+                        {activeAnnouncement.badgeLabel || "Special Studio Promo"}
                       </span>
-                    </>
+                      <span className="text-xs sm:text-sm font-semibold text-white">
+                        {activeAnnouncement.text}
+                      </span>
+                    </div>
+                  </div>
+
+                  {activeAnnouncement.voucherCode && (
+                    <button
+                      onClick={handleCopyVoucher}
+                      className="flex items-center gap-2 rounded-xl bg-white text-plum px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all hover:bg-amber-300 active:scale-95 cursor-pointer shadow-md"
+                    >
+                      {copiedCode ? (
+                        <>
+                          <CheckCheck className="h-4 w-4 text-emerald-600" />
+                          <span>Copied ({activeAnnouncement.voucherCode})</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 text-lavender-deep" />
+                          <span>
+                            Copy Code: <strong>{activeAnnouncement.voucherCode}</strong>
+                          </span>
+                        </>
+                      )}
+                    </button>
                   )}
-                </button>
-              </div>
+                </div>
+              )}
             </div>
           </div>
 
