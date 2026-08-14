@@ -141,7 +141,7 @@ export function BoutiqueSection() {
             <div className="inline-flex items-center gap-2 rounded-full border border-plum/15 bg-white/80 backdrop-blur-md px-3.5 py-1 mb-3">
               <Sparkles className="h-3 w-3 text-amber-500" />
               <span className="eyebrow text-plum font-semibold tracking-widest text-[10px]">
-                Atelier Boutique &amp; Wigs
+                Wigs &amp; Hair Products
               </span>
             </div>
             <h2 className="font-display text-4xl leading-[1.08] text-plum sm:text-5xl md:text-6xl">
