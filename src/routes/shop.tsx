@@ -79,7 +79,7 @@ function ShopPage() {
   const handleToggleWishlist = (productId: string) => {
     setWishlistedIds((prev) => {
       const next = new Set(prev);
-      const product = boutiqueProducts.find((p) => p.id === productId);
+      const product = products.find((p) => p.id === productId);
       if (next.has(productId)) {
         next.delete(productId);
         toast.info(`Removed ${product?.name || "item"} from wishlist`);
@@ -403,7 +403,7 @@ function ShopPage() {
               </div>
 
               <span className="text-xs font-semibold text-plum/60 shrink-0">
-                Showing {filteredProducts.length} of {boutiqueProducts.length} items
+                Showing {filteredProducts.length} of {products.length} items
               </span>
             </div>
           </div>

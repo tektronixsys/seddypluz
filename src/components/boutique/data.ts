@@ -310,7 +310,12 @@ export const PRODUCT_IMAGE_PRESETS: {
   { id: "curl", label: "Pixie Bouncy Curl", value: hairCurlImg, category: "wigs" },
   { id: "bob", label: "Blunt Cut Silk Bob", value: hairBobImg, category: "wigs" },
   { id: "lipstick", label: "Velvet Matte Lipstick", value: lipstickImg, category: "cosmetics" },
-  { id: "highlighter", label: "Radiance Highlighter", value: highlighterImg, category: "cosmetics" },
+  {
+    id: "highlighter",
+    label: "Radiance Highlighter",
+    value: highlighterImg,
+    category: "cosmetics",
+  },
   { id: "brush", label: "Artistry Buffing Brush", value: brushImg, category: "cosmetics" },
 ];
 
