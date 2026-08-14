@@ -341,8 +341,8 @@ function ShopPage() {
               </h1>
 
               <p className="mt-4 text-sm md:text-base leading-relaxed text-[#FAF9F5]/80 max-w-2xl">
-                Explore our full atelier catalog: handcrafted single-donor raw virgin weaves,
-                melted Swiss HD lace units, weightless velvet lip elixirs, and radiant baked mineral
+                Explore our full atelier catalog: handcrafted single-donor raw virgin weaves, melted
+                Swiss HD lace units, weightless velvet lip elixirs, and radiant baked mineral
                 illuminators.
               </p>
 
@@ -569,8 +569,8 @@ function ShopPage() {
                 Need a custom wig unit or bespoke color formulation?
               </h4>
               <p className="mt-1 text-xs text-plum/65">
-                Our master stylists construct custom cap sizes, custom highlighted tones, and
-                bridal units.
+                Our master stylists construct custom cap sizes, custom highlighted tones, and bridal
+                units.
               </p>
             </div>
             <div className="mt-4 sm:mt-0 shrink-0">
@@ -608,10 +608,7 @@ function ShopPage() {
               <p className="eyebrow mb-5 text-lavender-deep">Navigation</p>
               <ul className="space-y-3">
                 <li>
-                  <Link
-                    to="/"
-                    className="text-sm text-plum/60 transition-colors hover:text-plum"
-                  >
+                  <Link to="/" className="text-sm text-plum/60 transition-colors hover:text-plum">
                     Studio Home
                   </Link>
                 </li>
@@ -632,10 +629,7 @@ function ShopPage() {
                   </a>
                 </li>
                 <li>
-                  <Link
-                    to="/shop"
-                    className="text-sm font-bold text-plum transition-colors"
-                  >
+                  <Link to="/shop" className="text-sm font-bold text-plum transition-colors">
                     Shop Wigs &amp; Hair Products
                   </Link>
                 </li>

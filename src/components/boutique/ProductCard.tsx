@@ -53,7 +53,9 @@ export function ProductCard({
           {/* Wishlist Heart Button */}
           <button
             onClick={onToggleWishlist}
-            aria-label={isWishlisted ? `Remove ${p.name} from wishlist` : `Add ${p.name} to wishlist`}
+            aria-label={
+              isWishlisted ? `Remove ${p.name} from wishlist` : `Add ${p.name} to wishlist`
+            }
             className={`absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 active:scale-90 cursor-pointer ${
               isWishlisted
                 ? "bg-rose-500 text-white shadow-md shadow-rose-500/35 scale-105"
@@ -132,9 +134,7 @@ export function ProductCard({
             </span>
           </div>
 
-          <h3 className="font-sans font-bold text-xl tracking-tight text-plum mt-2">
-            {p.name}
-          </h3>
+          <h3 className="font-sans font-bold text-xl tracking-tight text-plum mt-2">{p.name}</h3>
           <p className="text-[11px] uppercase tracking-wider text-lavender-deep font-semibold mt-0.5">
             Selected: <span className="text-plum font-bold">{selectedVariant}</span>
           </p>

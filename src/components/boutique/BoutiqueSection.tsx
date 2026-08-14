@@ -149,14 +149,15 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
               </span>
             </div>
             <h2 className="font-display text-4xl leading-[1.08] text-plum sm:text-5xl md:text-6xl">
-              Signature <em className="text-lavender-deep font-normal italic">hair &amp; beauty pieces.</em>
+              Signature{" "}
+              <em className="text-lavender-deep font-normal italic">hair &amp; beauty pieces.</em>
             </h2>
           </div>
 
           <div className="flex flex-col gap-4 max-w-xl">
             <p className="text-sm md:text-base leading-relaxed text-plum/70 lg:text-right">
-              Crafted from 100% cuticle-aligned raw virgin hair and camera-calibrated bridal formulas,
-              available for direct order &amp; nationwide delivery.
+              Crafted from 100% cuticle-aligned raw virgin hair and camera-calibrated bridal
+              formulas, available for direct order &amp; nationwide delivery.
             </p>
 
             {/* Boutique Social channels + Direct Shop Link */}
@@ -341,7 +342,8 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
               <div>
                 <h4 className="font-sans text-sm font-bold text-plum">100% Raw Virgin Hair</h4>
                 <p className="mt-1 text-xs text-plum/65 leading-relaxed">
-                  Single-donor, cuticle-aligned strands that can be bleached to 613 with zero shedding.
+                  Single-donor, cuticle-aligned strands that can be bleached to 613 with zero
+                  shedding.
                 </p>
               </div>
             </div>
@@ -375,7 +377,9 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
                 <ShieldCheck className="h-5 w-5 text-lavender-deep" />
               </div>
               <div>
-                <h4 className="font-sans text-sm font-bold text-plum">Studio Concierge &amp; Fitting</h4>
+                <h4 className="font-sans text-sm font-bold text-plum">
+                  Studio Concierge &amp; Fitting
+                </h4>
                 <p className="mt-1 text-xs text-plum/65 leading-relaxed">
                   Bundle your wig order with professional studio lace customization and bridal glam.
                 </p>
@@ -391,7 +395,8 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
               Need a custom wig unit or bespoke color formulation?
             </h4>
             <p className="mt-1 text-xs text-plum/65">
-              Our master stylists construct custom cap sizes, custom highlighted tones, and bridal units.
+              Our master stylists construct custom cap sizes, custom highlighted tones, and bridal
+              units.
             </p>
           </div>
           <div className="mt-4 sm:mt-0 shrink-0">
