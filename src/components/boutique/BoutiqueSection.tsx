@@ -1,20 +1,16 @@
 import React, { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { useCart } from "@/context/CartContext";
 import { boutiqueProducts } from "./data";
 import type { Product } from "./types";
+import { ProductCard } from "./ProductCard";
 import { ProductQuickViewModal } from "./ProductQuickViewModal";
 import {
   Sparkles,
-  ShoppingBag,
-  Heart,
-  Star,
-  Check,
-  Eye,
   Copy,
   CheckCheck,
   ShieldCheck,
   Truck,
-  Sparkle,
   Crown,
   Scissors,
   ArrowRight,
@@ -22,7 +18,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-export function BoutiqueSection() {
+interface BoutiqueSectionProps {
+  isFullShopPage?: boolean;
+  limit?: number;
+}
+
+export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueSectionProps) {
   const { addItem } = useCart();
   const [activeCategory, setActiveCategory] = useState<"all" | "wigs" | "cosmetics" | "bestseller">(
     "all",
@@ -109,8 +110,11 @@ export function BoutiqueSection() {
     return true;
   });
 
+  // If on homepage and not full page mode, display the top limited items
+  const displayedProducts = isFullShopPage ? filteredProducts : filteredProducts.slice(0, limit);
+
   const categories = [
-    { id: "all", label: "All Atelier", count: boutiqueProducts.length },
+    { id: "all", label: "All Featured", count: boutiqueProducts.length },
     {
       id: "wigs",
       label: "Luxury Wigs & Extensions",
@@ -118,7 +122,7 @@ export function BoutiqueSection() {
     },
     {
       id: "cosmetics",
-      label: "Signature Cosmetics & Tools",
+      label: "Signature Cosmetics",
       count: boutiqueProducts.filter((p) => p.category === "cosmetics").length,
     },
     {
@@ -145,21 +149,26 @@ export function BoutiqueSection() {
               </span>
             </div>
             <h2 className="font-display text-4xl leading-[1.08] text-plum sm:text-5xl md:text-6xl">
-              Signature <em className="text-lavender-deep font-normal italic">atelier pieces.</em>
+              Signature <em className="text-lavender-deep font-normal italic">hair &amp; beauty pieces.</em>
             </h2>
           </div>
 
           <div className="flex flex-col gap-4 max-w-xl">
             <p className="text-sm md:text-base leading-relaxed text-plum/70 lg:text-right">
-              Crafted from 100% cuticle-aligned raw virgin hair and dermatologist-calibrated bridal
-              formulas, designed to preserve the luminous finish of the studio.
+              Crafted from 100% cuticle-aligned raw virgin hair and camera-calibrated bridal formulas,
+              available for direct order &amp; nationwide delivery.
             </p>
 
-            {/* Boutique Social channels */}
+            {/* Boutique Social channels + Direct Shop Link */}
             <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-              <span className="text-xs font-semibold uppercase tracking-wider text-plum/50">
-                Explore custom drops:
-              </span>
+              <Link
+                to="/shop"
+                className="group inline-flex items-center gap-2 rounded-full bg-plum px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#FAF9F5] shadow-sm transition-all hover:bg-lavender-deep"
+              >
+                <span>View Full Shop</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </Link>
+
               <div className="flex items-center gap-2">
                 <a
                   href="https://instagram.com/seddypluz_wigs"
@@ -180,22 +189,6 @@ export function BoutiqueSection() {
                     <rect x="2" y="2" width="20" height="20" rx="5" />
                     <circle cx="12" cy="12" r="5" />
                     <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
-                  </svg>
-                  <span className="text-[11px] font-bold tracking-wide">@seddypluz_wigs</span>
-                </a>
-                <a
-                  href="https://tiktok.com/@seddypluz_wigs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Shop wigs on TikTok @seddypluz_wigs"
-                  className="group flex items-center gap-2 rounded-full border border-plum/10 bg-white px-3.5 py-1.5 text-plum/70 shadow-xs transition-all duration-300 hover:border-lavender-deep/30 hover:bg-lavender-deep/5 hover:text-lavender-deep hover:shadow-sm"
-                >
-                  <svg
-                    className="h-3.5 w-3.5 transition-transform duration-300 group-hover:scale-110"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.05a8.3 8.3 0 004.76 1.49V7.09a4.84 4.84 0 01-1-.4z" />
                   </svg>
                   <span className="text-[11px] font-bold tracking-wide">@seddypluz_wigs</span>
                 </a>
@@ -276,216 +269,70 @@ export function BoutiqueSection() {
             })}
           </div>
 
-          <span className="hidden sm:inline-block text-xs font-semibold text-plum/50">
-            Showing {filteredProducts.length} of {boutiqueProducts.length} items
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline-block text-xs font-semibold text-plum/50">
+              Showing {displayedProducts.length} featured items
+            </span>
+            <Link
+              to="/shop"
+              className="text-xs uppercase tracking-wider font-bold text-lavender-deep hover:text-plum transition-colors flex items-center gap-1"
+            >
+              <span>See All ({boutiqueProducts.length})</span>
+              <span className="text-sm">→</span>
+            </Link>
+          </div>
         </div>
 
-        {/* Product Cards Grid */}
+        {/* Product Cards Grid (Curated on Homepage) */}
         <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {filteredProducts.map((p) => {
+          {displayedProducts.map((p) => {
             const isWishlisted = wishlistedIds.has(p.id);
             const currentVariant = selectedVariants[p.id] || p.dots[0]?.name || "Standard";
-            const currentDot = p.dots.find((d) => d.name === currentVariant) || p.dots[0];
-            const activePriceFormatted = currentDot?.priceFormatted || p.price;
             const isAdded = !!addedIds[p.id];
 
             return (
-              <div
+              <ProductCard
                 key={p.id}
-                className="group relative flex flex-col justify-between rounded-[2.2rem] bg-white p-5 border border-plum/10 shadow-[0_16px_36px_-12px_rgba(82,58,77,0.06)] transition-all duration-400 hover:shadow-[0_24px_50px_rgba(82,58,77,0.12)] hover:-translate-y-1.5"
-              >
-                <div>
-                  {/* Top Image Box */}
-                  <div
-                    className={`relative w-full h-[320px] ${p.bgClass} rounded-3xl overflow-hidden transition-colors duration-500 flex items-center justify-center`}
-                  >
-                    {/* Ambient Lighting Gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-plum/15 via-transparent to-white/30 pointer-events-none" />
-
-                    {/* Top Badges */}
-                    <div className="absolute top-4 left-4 z-10 flex flex-col gap-1.5">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-plum border border-white/60 shadow-xs">
-                        <Sparkle className="h-3 w-3 text-lavender-deep" />
-                        {p.category === "wigs" ? "Luxury Wig" : "Cosmetics"}
-                      </span>
-                      {p.badge && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-plum/90 backdrop-blur-md px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#FAF9F5] shadow-xs">
-                          <Sparkles className="h-2.5 w-2.5 text-amber-300" />
-                          {p.badge}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Wishlist Heart Button */}
-                    <button
-                      onClick={() => handleToggleWishlist(p.id)}
-                      aria-label={
-                        isWishlisted
-                          ? `Remove ${p.name} from wishlist`
-                          : `Add ${p.name} to wishlist`
-                      }
-                      className={`absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 active:scale-90 cursor-pointer ${
-                        isWishlisted
-                          ? "bg-rose-500 text-white shadow-md shadow-rose-500/35 scale-105"
-                          : "bg-white/80 text-plum/70 hover:bg-white hover:text-plum shadow-xs"
-                      }`}
-                    >
-                      <Heart className={`h-4.5 w-4.5 ${isWishlisted ? "fill-current" : ""}`} />
-                    </button>
-
-                    {/* Product Image */}
-                    <img
-                      src={p.img}
-                      alt={p.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-106"
-                    />
-
-                    {/* Quick View Hover Pill (Desktop + Mobile) */}
-                    <div className="absolute inset-x-0 bottom-14 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none group-hover:pointer-events-auto">
-                      <button
-                        onClick={() => setSelectedQuickViewProduct(p)}
-                        className="inline-flex items-center gap-2 rounded-full bg-plum/90 backdrop-blur-md px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#FAF9F5] shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer"
-                      >
-                        <Eye className="h-3.5 w-3.5 text-amber-300" />
-                        <span>Quick View Details</span>
-                      </button>
-                    </div>
-
-                    {/* Color / Length Dots Selector */}
-                    <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-3 z-10 px-4">
-                      <div className="flex items-center gap-2 rounded-full bg-white/85 backdrop-blur-md px-3 py-1.5 border border-white/60 shadow-xs">
-                        {p.dots.map((dot) => (
-                          <button
-                            key={dot.name}
-                            onClick={() => handleSelectVariant(p.id, dot.name)}
-                            aria-label={`Select ${dot.name}`}
-                            className="flex items-center gap-1.5 group/dot cursor-pointer transition-transform"
-                          >
-                            <span
-                              className={`h-4 w-4 rounded-full border-2 transition-all duration-300 ${
-                                currentVariant === dot.name
-                                  ? "border-plum scale-115 ring-2 ring-plum/20"
-                                  : "border-white/80 scale-90 opacity-70 hover:opacity-100"
-                              }`}
-                              style={{ backgroundColor: dot.color }}
-                            />
-                            {currentVariant === dot.name && (
-                              <span className="text-[10px] uppercase tracking-wider font-bold text-plum">
-                                {dot.name}
-                              </span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card Body */}
-                  <div className="px-2 pt-5">
-                    <div className="flex items-center justify-between gap-2">
-                      {/* Rating */}
-                      <div className="flex items-center gap-1.5">
-                        <div className="flex items-center text-amber-500">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="h-3 w-3 fill-current" />
-                          ))}
-                        </div>
-                        <span className="text-[11px] font-semibold text-plum/60">
-                          {p.rating.toFixed(1)} ({p.reviewCount})
-                        </span>
-                      </div>
-
-                      {/* 20% First Order Badge */}
-                      <span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-800">
-                        20% OFF Ready
-                      </span>
-                    </div>
-
-                    <h3 className="font-sans font-bold text-xl tracking-tight text-plum mt-2">
-                      {p.name}
-                    </h3>
-                    <p className="text-[11px] uppercase tracking-wider text-lavender-deep font-semibold mt-0.5">
-                      Selected: <span className="text-plum font-bold">{currentVariant}</span>
-                    </p>
-
-                    <p className="mt-3 text-xs leading-relaxed text-plum/65 line-clamp-2">
-                      {p.desc}
-                    </p>
-
-                    {/* Specs Badges */}
-                    <div className="mt-4 flex flex-wrap gap-1.5">
-                      {p.specs.map((spec, i) => {
-                        const IconComp = spec.icon;
-                        return (
-                          <div
-                            key={i}
-                            className="flex items-center gap-1.5 rounded-lg bg-plum/[0.04] border border-plum/10 px-2.5 py-1 text-[11px] text-plum/80 font-medium"
-                          >
-                            <IconComp className="h-3 w-3 text-lavender-deep shrink-0" />
-                            <span>{spec.label}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card Footer: Price & CTA */}
-                <div className="mt-6 px-2 pt-4 border-t border-plum/10 flex items-center justify-between gap-3">
-                  <div>
-                    <span className="block text-[10px] uppercase tracking-wider font-semibold text-plum/50">
-                      Studio Price
-                    </span>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-xl font-bold text-plum font-sans">
-                        {activePriceFormatted}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {/* Quick View Icon button */}
-                    <button
-                      onClick={() => setSelectedQuickViewProduct(p)}
-                      title="Quick View specs & care tips"
-                      aria-label={`Quick view ${p.name}`}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-plum/20 bg-white text-plum/80 hover:bg-plum/5 hover:text-plum transition-all active:scale-95 cursor-pointer shadow-xs"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-
-                    {/* Add to Bag CTA */}
-                    <button
-                      onClick={() => handleAddToCart(p)}
-                      className={`flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs uppercase tracking-wider font-bold transition-all active:scale-95 cursor-pointer shadow-md ${
-                        isAdded
-                          ? "bg-emerald-600 text-white"
-                          : "bg-plum text-[#FAF9F5] hover:bg-lavender-deep shadow-plum/20"
-                      }`}
-                    >
-                      {isAdded ? (
-                        <>
-                          <Check className="h-3.5 w-3.5" />
-                          <span>Added</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag className="h-3.5 w-3.5" />
-                          <span>Add to Bag</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
+                product={p}
+                selectedVariant={currentVariant}
+                isWishlisted={isWishlisted}
+                isAdded={isAdded}
+                onSelectVariant={(v) => handleSelectVariant(p.id, v)}
+                onToggleWishlist={() => handleToggleWishlist(p.id)}
+                onQuickView={() => setSelectedQuickViewProduct(p)}
+                onAddToCart={() => handleAddToCart(p)}
+              />
             );
           })}
         </div>
 
+        {/* View All Products Gateway Banner */}
+        <div className="mt-12 rounded-3xl bg-gradient-to-r from-plum/5 via-lavender-deep/10 to-mauve/10 border border-plum/15 p-8 text-center flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-plum mb-2">
+              <Sparkles className="h-3 w-3 text-amber-500" />
+              Full Atelier Catalog
+            </span>
+            <h3 className="font-display text-2xl md:text-3xl text-plum">
+              Looking for more wigs, lengths &amp; bridal essentials?
+            </h3>
+            <p className="mt-1 text-xs md:text-sm text-plum/70 max-w-xl">
+              Explore our complete collection of Bone Straight, Water Wave, Pixie, Bob Units,
+              Signature Lip Elixirs, Highlighters, and Brush Suites in the dedicated shop.
+            </p>
+          </div>
+
+          <Link
+            to="/shop"
+            className="shrink-0 inline-flex items-center gap-3 rounded-full bg-plum px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-[#FAF9F5] shadow-lg shadow-plum/20 transition-all hover:bg-lavender-deep hover:shadow-xl active:scale-[0.98]"
+          >
+            <span>Explore Full Shop ({boutiqueProducts.length} Items)</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
         {/* Atelier Guarantees & Trust Bar */}
-        <div className="mt-16 rounded-3xl bg-white border border-plum/10 p-6 md:p-8 shadow-sm">
+        <div className="mt-14 rounded-3xl bg-white border border-plum/10 p-6 md:p-8 shadow-sm">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div className="flex items-start gap-3.5">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-plum/5 text-plum">
@@ -494,8 +341,7 @@ export function BoutiqueSection() {
               <div>
                 <h4 className="font-sans text-sm font-bold text-plum">100% Raw Virgin Hair</h4>
                 <p className="mt-1 text-xs text-plum/65 leading-relaxed">
-                  Single-donor, cuticle-aligned strands that can be bleached to 613 with zero
-                  shedding.
+                  Single-donor, cuticle-aligned strands that can be bleached to 613 with zero shedding.
                 </p>
               </div>
             </div>
@@ -529,9 +375,7 @@ export function BoutiqueSection() {
                 <ShieldCheck className="h-5 w-5 text-lavender-deep" />
               </div>
               <div>
-                <h4 className="font-sans text-sm font-bold text-plum">
-                  Studio Concierge &amp; Fitting
-                </h4>
+                <h4 className="font-sans text-sm font-bold text-plum">Studio Concierge &amp; Fitting</h4>
                 <p className="mt-1 text-xs text-plum/65 leading-relaxed">
                   Bundle your wig order with professional studio lace customization and bridal glam.
                 </p>
@@ -547,8 +391,7 @@ export function BoutiqueSection() {
               Need a custom wig unit or bespoke color formulation?
             </h4>
             <p className="mt-1 text-xs text-plum/65">
-              Our master stylists construct custom cap sizes, custom highlighted tones, and bridal
-              units.
+              Our master stylists construct custom cap sizes, custom highlighted tones, and bridal units.
             </p>
           </div>
           <div className="mt-4 sm:mt-0 shrink-0">
