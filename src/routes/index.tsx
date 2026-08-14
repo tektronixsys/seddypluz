@@ -27,6 +27,7 @@ import { TestimonialsCarousel } from "@/components/testimonials/TestimonialsCaro
 import { FaqSection } from "@/components/faq/FaqSection";
 import { BookingSection } from "@/components/booking/BookingSection";
 import { BoutiqueSection } from "@/components/boutique/BoutiqueSection";
+import { HeroAccordionCarousel } from "@/components/hero/HeroAccordionCarousel";
 import heroBride from "@/assets/hero-bride.jpg";
 import artist from "@/assets/artist.jpg";
 import glam1 from "@/assets/glam-1.jpg";
@@ -419,88 +420,9 @@ function Home() {
             </div>
           </div>
 
-          {/* Right Column: Editorial Visual Showcase & Interactive Floating Cards */}
+          {/* Right Column: Expanding & Contracting Editorial Lookbook Carousel */}
           <div className="relative md:col-span-6 flex items-center justify-center pt-4 lg:pt-0">
-            {/* Ambient lighting backdrop */}
-            <div className="absolute -inset-4 rounded-[3rem] bg-gradient-to-tr from-lavender-deep/15 via-amber-200/20 to-mauve/20 blur-2xl -z-10" />
-
-            {/* Main Glassmorphic border container */}
-            <div className="relative aspect-[4/5] w-full max-w-[500px] animate-veil-in overflow-hidden rounded-[2.5rem] p-3 bg-white/40 backdrop-blur-xl border border-plum/15 shadow-[0_30px_100px_rgba(82,58,77,0.14)]">
-              <div className="relative h-full w-full overflow-hidden rounded-[1.8rem] group">
-                <img
-                  src={heroBride}
-                  alt="Seddypluz Beauty Studio bridal editorial masterpiece"
-                  width={1280}
-                  height={1600}
-                  className="h-full w-full object-cover transition-transform duration-[3000ms] group-hover:scale-105"
-                />
-                <div className="absolute inset-0" style={{ background: "var(--gradient-veil)" }} />
-
-                {/* Bottom Image Overlay Card */}
-                <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-ivory">
-                  <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-[10px] uppercase tracking-widest font-semibold text-ivory border border-white/20 mb-2">
-                      <Sparkles className="h-3 w-3 text-amber-300" />
-                      <span>Signature Editorial</span>
-                    </span>
-                    <p className="font-display text-2xl md:text-3xl italic">Her Royal Moment</p>
-                  </div>
-                  <span className="font-display text-4xl italic text-amber-300/90">01</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Top-Left: Vol IV Medallion Badge */}
-            <div
-              className="absolute -left-4 sm:-left-6 top-8 hidden sm:block z-20 animate-float-up"
-              style={{ animationDelay: "0.3s" }}
-            >
-              <div className="flex h-20 w-20 md:h-24 md:w-24 flex-col items-center justify-center rounded-full border border-lavender-deep/30 bg-white/90 backdrop-blur-xl text-plum shadow-xl transition-transform hover:scale-105 duration-300">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-lavender-deep">
-                  Vol
-                </span>
-                <span className="font-display text-xl italic font-semibold mt-0.5 text-plum">
-                  IV
-                </span>
-              </div>
-            </div>
-
-            {/* Top-Right: Verified Luxury Badge */}
-            <div
-              className="absolute -right-2 sm:-right-4 top-16 hidden sm:flex items-center gap-2.5 rounded-2xl border border-plum/10 bg-white/90 backdrop-blur-xl px-4 py-2.5 shadow-xl animate-float-up z-20 transition-transform hover:scale-105 duration-300"
-              style={{ animationDelay: "0.5s" }}
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400/20 text-amber-600">
-                <Star className="h-4 w-4 fill-amber-400 text-amber-500" />
-              </div>
-              <div>
-                <span className="block text-[10px] uppercase tracking-wider font-bold text-plum/50">
-                  Editorial Grade
-                </span>
-                <span className="text-xs font-bold text-plum">100% Bridal Perfection</span>
-              </div>
-            </div>
-
-            {/* Bottom-Left: Gele & HD Base Floating Feature Pill */}
-            <div
-              className="absolute -left-4 sm:-left-6 bottom-10 hidden sm:flex items-center gap-3 rounded-2xl border border-plum/10 bg-white/95 backdrop-blur-xl p-2.5 pr-5 shadow-xl animate-float-up z-20 transition-transform hover:scale-105 duration-300"
-              style={{ animationDelay: "0.7s" }}
-            >
-              <img
-                src={gele1}
-                alt="Bespoke Gele Artistry"
-                className="h-11 w-11 rounded-xl object-cover ring-1 ring-plum/10"
-              />
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-plum">Bespoke Gele &amp; HD Base</span>
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                </div>
-                <span className="block text-[10px] text-plum/60 font-medium">
-                  18H Tear-Resistant Finish
-                </span>
-              </div>
-            </div>
+            <HeroAccordionCarousel />
           </div>
         </div>
 
