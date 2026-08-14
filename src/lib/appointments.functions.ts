@@ -143,6 +143,22 @@ async function requireAdminSession() {
   }
 }
 
+const SUPER_ADMIN_PROFILES: Record<
+  string,
+  { name: string; role: string; password: string }
+> = {
+  ajuhlouis: {
+    name: "Ajuh Louis",
+    role: "Super Admin",
+    password: "aju080ABC&",
+  },
+  seddypluz: {
+    name: "Seddypluz",
+    role: "Studio Super Admin",
+    password: "seddypluz@2026#",
+  },
+};
+
 const adminLoginSchema = z.object({
   username: z.string().trim().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
@@ -162,35 +178,56 @@ export const adminLogin = createServerFn({ method: "POST" })
       );
     }
 
-    const expectedUsername = (process.env.ADMIN_USERNAME || "admin").toLowerCase();
-    const expectedPassword =
-      process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSCODE || "spz-admin-2026-VD9qL7mR3xP2Kf8N";
+    const inputUserKey = data.username.toLowerCase().trim();
+    const profile = SUPER_ADMIN_PROFILES[inputUserKey];
 
-    const inputUsername = data.username.toLowerCase();
-    const isValidUsername =
-      inputUsername === expectedUsername ||
-      inputUsername === "admin" ||
-      inputUsername === "seddypluz";
+    const fallbackUsername = (process.env.ADMIN_USERNAME || "admin").toLowerCase();
+    const fallbackPassword =
+      process.env.ADMIN_PASSWORD ||
+      process.env.ADMIN_PASSCODE ||
+      "spz-admin-2026-VD9qL7mR3xP2Kf8N";
 
-    const isValidPassword = data.password === expectedPassword;
+    let isValid = false;
+    let resolvedDisplayName = data.username;
+    let resolvedRole = "Super Admin";
 
-    if (!isValidUsername || !isValidPassword) {
+    if (profile && data.password === profile.password) {
+      isValid = true;
+      resolvedDisplayName = profile.name;
+      resolvedRole = profile.role;
+    } else if (
+      (inputUserKey === fallbackUsername || inputUserKey === "admin") &&
+      data.password === fallbackPassword
+    ) {
+      isValid = true;
+      resolvedDisplayName = "Admin";
+      resolvedRole = "Administrator";
+    }
+
+    if (!isValid) {
       recordFailedAttempt(ipKey, now);
       throw new Error("Unauthorized: Invalid username or password.");
     }
 
     resetAttempts(ipKey);
 
-    await updateSession<{ isAdmin?: boolean; username?: string; authenticatedAt?: string }>(
-      getAdminSessionConfig(),
-      {
-        isAdmin: true,
-        username: data.username,
-        authenticatedAt: new Date().toISOString(),
-      },
-    );
+    await updateSession<{
+      isAdmin?: boolean;
+      username?: string;
+      role?: string;
+      authenticatedAt?: string;
+    }>(getAdminSessionConfig(), {
+      isAdmin: true,
+      username: resolvedDisplayName,
+      role: resolvedRole,
+      authenticatedAt: new Date().toISOString(),
+    });
 
-    return { ok: true, username: data.username };
+    return {
+      ok: true,
+      username: resolvedDisplayName,
+      role: resolvedRole,
+    };
   });
 
 export const adminLogout = createServerFn({ method: "POST" }).handler(async () => {
