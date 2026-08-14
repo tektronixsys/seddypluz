@@ -143,10 +143,7 @@ async function requireAdminSession() {
   }
 }
 
-const SUPER_ADMIN_PROFILES: Record<
-  string,
-  { name: string; role: string; password: string }
-> = {
+const SUPER_ADMIN_PROFILES: Record<string, { name: string; role: string; password: string }> = {
   ajuhlouis: {
     name: "Ajuh Louis",
     role: "Super Admin",
@@ -183,9 +180,7 @@ export const adminLogin = createServerFn({ method: "POST" })
 
     const fallbackUsername = (process.env.ADMIN_USERNAME || "admin").toLowerCase();
     const fallbackPassword =
-      process.env.ADMIN_PASSWORD ||
-      process.env.ADMIN_PASSCODE ||
-      "spz-admin-2026-VD9qL7mR3xP2Kf8N";
+      process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSCODE || "spz-admin-2026-VD9qL7mR3xP2Kf8N";
 
     let isValid = false;
     let resolvedDisplayName = data.username;
