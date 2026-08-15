@@ -14,7 +14,6 @@ import {
   Trash2,
   ArrowRight,
   Sparkles,
-  MessageCircle,
   CreditCard,
   Loader2,
   ShieldCheck,
@@ -38,20 +37,6 @@ export function CartDrawer() {
 
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  const handleWhatsAppCheckout = () => {
-    if (items.length === 0) return;
-
-    const itemsSummary = items
-      .map((item) => `• ${item.quantity}x ${item.name} (${item.variant}) — ${item.priceFormatted}`)
-      .join("\n");
-
-    const message = `Hello Seddypluz Beauty Studio! ✨\n\nI would like to place an order for the following boutique item(s):\n\n${itemsSummary}\n\n🛍️ *Total Amount:* ${totalPriceFormatted}\n\nPlease confirm availability and provide payment / delivery details. Thank you!`;
-
-    const encoded = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/2348162292997?text=${encoded}`;
-    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-  };
-
   const handleFlutterwaveCheckout = async () => {
     if (items.length === 0 || isProcessingPayment) return;
 
@@ -63,7 +48,7 @@ export function CartDrawer() {
 
       if (!keyResult.ok || !keyResult.publicKey) {
         toast.error("Payment gateway unavailable", {
-          description: keyResult.error || "Please try again or order via WhatsApp.",
+          description: keyResult.error || "Please try again or contact studio support.",
         });
         setIsProcessingPayment(false);
         return;
@@ -105,25 +90,9 @@ export function CartDrawer() {
 
             if (verification.ok) {
               toast.success("Payment Confirmed! 🎉", {
-                description: `Your order (${txRef}) has been received. We'll prepare your items and reach out via WhatsApp shortly.`,
+                description: `Your order (${txRef}) has been received and verified. We'll prepare your items for doorstep delivery or studio pickup.`,
                 duration: 8000,
               });
-
-              // Send WhatsApp notification with payment confirmation
-              const paidItemsSummary = items
-                .map(
-                  (item) =>
-                    `• ${item.quantity}x ${item.name} (${item.variant}) — ${item.priceFormatted}`,
-                )
-                .join("\n");
-
-              const confirmMsg = `Hello Seddypluz Studio! 🎉\n\nI just completed an online payment:\n\n📦 *Order Ref:* ${txRef}\n💳 *Amount Paid:* ${totalPriceFormatted}\n\n${paidItemsSummary}\n\nPlease confirm and arrange delivery. Thank you!`;
-              const encodedConfirm = encodeURIComponent(confirmMsg);
-              window.open(
-                `https://wa.me/2348162292997?text=${encodedConfirm}`,
-                "_blank",
-                "noopener,noreferrer",
-              );
 
               clearCart();
               setIsCartOpen(false);
@@ -131,14 +100,14 @@ export function CartDrawer() {
               toast.error("Payment Verification Issue", {
                 description:
                   verification.error ||
-                  "Please contact us on WhatsApp with your transaction reference.",
+                  "Please save your transaction reference and contact studio support.",
                 duration: 10000,
               });
             }
           } catch {
             toast.error("Verification Error", {
               description:
-                "We couldn't verify your payment automatically. Please contact us on WhatsApp with your order reference: " +
+                "We couldn't verify your payment automatically. Please save your order reference: " +
                 txRef,
               duration: 12000,
             });
@@ -153,7 +122,7 @@ export function CartDrawer() {
     } catch (err) {
       console.error("[Flutterwave] Checkout error:", err);
       toast.error("Payment Error", {
-        description: "Could not open the payment gateway. Please try again or order via WhatsApp.",
+        description: "Could not open the payment gateway. Please try again.",
       });
       setIsProcessingPayment(false);
     }
@@ -284,7 +253,7 @@ export function CartDrawer() {
               </span>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               {/* Flutterwave Pay Now Button */}
               <button
                 onClick={handleFlutterwaveCheckout}
@@ -299,34 +268,16 @@ export function CartDrawer() {
                 ) : (
                   <>
                     <CreditCard className="h-4.5 w-4.5" />
-                    <span>Pay Now ({totalPriceFormatted})</span>
+                    <span>Checkout ({totalPriceFormatted})</span>
                   </>
                 )}
               </button>
 
               {/* Secure payment badge */}
               <div className="flex items-center justify-center gap-1.5 text-[10px] text-plum/45 font-medium">
-                <ShieldCheck className="h-3 w-3" />
+                <ShieldCheck className="h-3 w-3 text-emerald-600" />
                 <span>Secured by Flutterwave · Cards · Bank Transfer · USSD</span>
               </div>
-
-              {/* Divider */}
-              <div className="flex items-center gap-3 py-1">
-                <div className="flex-1 h-px bg-plum/10" />
-                <span className="text-[10px] uppercase tracking-wider text-plum/40 font-semibold">
-                  or
-                </span>
-                <div className="flex-1 h-px bg-plum/10" />
-              </div>
-
-              {/* WhatsApp Order */}
-              <button
-                onClick={handleWhatsAppCheckout}
-                className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-white py-3.5 px-6 text-xs uppercase tracking-widest font-bold shadow-lg shadow-[#25D366]/25 transition-all active:scale-[0.98] cursor-pointer"
-              >
-                <MessageCircle className="h-4.5 w-4.5 fill-current" />
-                <span>Order via WhatsApp</span>
-              </button>
 
               <button
                 onClick={clearCart}
