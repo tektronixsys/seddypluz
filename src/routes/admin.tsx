@@ -356,9 +356,9 @@ function AdminDashboard() {
         },
       });
 
-      if (res.success) {
+      if (res.ok) {
         setIsAuthenticated(true);
-        const user = res.user || "Admin";
+        const user = res.username || "Admin";
         setCurrentAdminUser(user);
         if (user.toLowerCase().includes("ajuh")) {
           setAdminRole("Super Admin");
@@ -366,15 +366,15 @@ function AdminDashboard() {
         } else if (user.toLowerCase().includes("seddy")) {
           setAdminRole("Studio Super Admin");
           setAdminEmail("contact@seddypluz.com");
+        } else if (res.role) {
+          setAdminRole(res.role);
         }
         toast.success(`Welcome back, ${user}!`);
         loadData();
-      } else {
-        toast.error("Invalid credentials. Please verify username and password.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login request failed:", err);
-      toast.error("Authentication service unavailable.");
+      toast.error(err?.message || "Invalid credentials. Please verify username and password.");
     } finally {
       setAuthChecking(false);
     }
@@ -403,21 +403,19 @@ function AdminDashboard() {
     setUpdating(true);
     try {
       const res = await updateStatus({
-        data: { id, status, notes },
+        data: { id, status, notes: notes ?? null },
       });
 
-      if (res.success) {
+      if (res.ok) {
         setAppointments((prev) =>
           prev.map((app) => (app.id === id ? { ...app, status, notes: notes || app.notes } : app)),
         );
         toast.success(`Appointment status set to ${status.toUpperCase()}`);
         setEditingId(null);
-      } else {
-        toast.error(res.message || "Failed to update status.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Status update error:", err);
-      toast.error("Network error updating status.");
+      toast.error(err?.message || "Network error updating status.");
     } finally {
       setUpdating(false);
     }

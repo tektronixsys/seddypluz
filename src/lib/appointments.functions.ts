@@ -234,8 +234,16 @@ export const adminLogout = createServerFn({ method: "POST" }).handler(async () =
 });
 
 export const getAdminAuthStatus = createServerFn({ method: "GET" }).handler(async () => {
-  const session = await getSession<{ isAdmin?: boolean }>(getAdminSessionConfig());
-  return { authenticated: session.data.isAdmin === true };
+  const session = await getSession<{
+    isAdmin?: boolean;
+    username?: string;
+    role?: string;
+  }>(getAdminSessionConfig());
+  return {
+    authenticated: session.data.isAdmin === true,
+    user: session.data.username || (session.data.isAdmin ? "Admin" : undefined),
+    role: session.data.role || (session.data.isAdmin ? "Super Admin" : undefined),
+  };
 });
 
 export const getAppointments = createServerFn({ method: "GET" }).handler(async () => {
@@ -252,7 +260,7 @@ export const getAppointments = createServerFn({ method: "GET" }).handler(async (
 const updateSchema = z.object({
   id: z.string(),
   status: z.enum(["pending", "confirmed", "declined", "completed"]),
-  notes: z.string().max(1000).nullable(),
+  notes: z.string().max(1000).nullable().optional(),
 });
 
 export const updateAppointmentStatus = createServerFn({ method: "POST" })
@@ -260,7 +268,7 @@ export const updateAppointmentStatus = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await requireAdminSession();
     try {
-      await updateAppointmentRequestInFirestore(data.id, data.status, data.notes);
+      await updateAppointmentRequestInFirestore(data.id, data.status, data.notes ?? null);
       return { ok: true };
     } catch (error) {
       console.error("Failed to update appointment:", error);
