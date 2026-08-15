@@ -20,14 +20,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  openFlutterwaveCheckout,
-  generateTxRef,
-} from "@/integrations/flutterwave/checkout";
-import {
-  getFlutterwavePublicKey,
-  verifyFlutterwavePayment,
-} from "@/lib/payment.functions";
+import { openFlutterwaveCheckout, generateTxRef } from "@/integrations/flutterwave/checkout";
+import { getFlutterwavePublicKey, verifyFlutterwavePayment } from "@/lib/payment.functions";
 
 export function CartDrawer() {
   const {
@@ -69,8 +63,7 @@ export function CartDrawer() {
 
       if (!keyResult.ok || !keyResult.publicKey) {
         toast.error("Payment gateway unavailable", {
-          description:
-            keyResult.error || "Please try again or order via WhatsApp.",
+          description: keyResult.error || "Please try again or order via WhatsApp.",
         });
         setIsProcessingPayment(false);
         return;
@@ -80,10 +73,7 @@ export function CartDrawer() {
 
       // Build the order description from cart items
       const orderDescription = items
-        .map(
-          (item) =>
-            `${item.quantity}x ${item.name} (${item.variant})`,
-        )
+        .map((item) => `${item.quantity}x ${item.name} (${item.variant})`)
         .join(", ");
 
       await openFlutterwaveCheckout({
@@ -163,8 +153,7 @@ export function CartDrawer() {
     } catch (err) {
       console.error("[Flutterwave] Checkout error:", err);
       toast.error("Payment Error", {
-        description:
-          "Could not open the payment gateway. Please try again or order via WhatsApp.",
+        description: "Could not open the payment gateway. Please try again or order via WhatsApp.",
       });
       setIsProcessingPayment(false);
     }

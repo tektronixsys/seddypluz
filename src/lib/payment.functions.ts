@@ -7,18 +7,16 @@ import { z } from "zod";
  * The public key is stored in .env and returned to the client at runtime.
  * This prevents it from being hardcoded in client-side JavaScript bundles.
  */
-export const getFlutterwavePublicKey = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const publicKey = process.env.FLUTTERWAVE_PUBLIC_KEY;
+export const getFlutterwavePublicKey = createServerFn({ method: "GET" }).handler(async () => {
+  const publicKey = process.env.FLUTTERWAVE_PUBLIC_KEY;
 
-    if (!publicKey) {
-      console.error("[Flutterwave] FLUTTERWAVE_PUBLIC_KEY is not set in environment variables");
-      return { ok: false as const, publicKey: null, error: "Payment gateway is not configured" };
-    }
+  if (!publicKey) {
+    console.error("[Flutterwave] FLUTTERWAVE_PUBLIC_KEY is not set in environment variables");
+    return { ok: false as const, publicKey: null, error: "Payment gateway is not configured" };
+  }
 
-    return { ok: true as const, publicKey };
-  },
-);
+  return { ok: true as const, publicKey };
+});
 
 const verifyPaymentSchema = z.object({
   transactionId: z.number().positive("Invalid transaction ID"),
@@ -61,9 +59,7 @@ export const verifyFlutterwavePayment = createServerFn({ method: "POST" })
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(
-          `[Flutterwave] Verify API returned ${response.status}: ${errorText}`,
-        );
+        console.error(`[Flutterwave] Verify API returned ${response.status}: ${errorText}`);
         return {
           ok: false as const,
           error: "Payment verification failed. Please contact support.",
@@ -84,9 +80,7 @@ export const verifyFlutterwavePayment = createServerFn({ method: "POST" })
 
       // Check transaction status
       if (txData.status !== "successful") {
-        console.warn(
-          `[Flutterwave] Transaction ${data.transactionId} status: ${txData.status}`,
-        );
+        console.warn(`[Flutterwave] Transaction ${data.transactionId} status: ${txData.status}`);
         return {
           ok: false as const,
           error: `Payment was not successful (status: ${txData.status})`,
@@ -117,9 +111,7 @@ export const verifyFlutterwavePayment = createServerFn({ method: "POST" })
 
       // Verify tx_ref matches
       if (txData.tx_ref !== data.txRef) {
-        console.warn(
-          `[Flutterwave] tx_ref mismatch: expected ${data.txRef}, got ${txData.tx_ref}`,
-        );
+        console.warn(`[Flutterwave] tx_ref mismatch: expected ${data.txRef}, got ${txData.tx_ref}`);
         return {
           ok: false as const,
           error: "Transaction reference mismatch. Please contact support.",

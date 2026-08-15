@@ -70,9 +70,7 @@ function loadFlutterwaveScript(): Promise<void> {
   }
 
   scriptLoading = new Promise<void>((resolve, reject) => {
-    const existingScript = document.querySelector(
-      `script[src="${FLUTTERWAVE_INLINE_URL}"]`,
-    );
+    const existingScript = document.querySelector(`script[src="${FLUTTERWAVE_INLINE_URL}"]`);
     if (existingScript) {
       scriptLoaded = true;
       resolve();
@@ -114,15 +112,11 @@ export function generateTxRef(): string {
  * @param config - The Flutterwave checkout configuration (public_key injected at runtime)
  * @throws If the script fails to load or FlutterwaveCheckout is not available
  */
-export async function openFlutterwaveCheckout(
-  config: FlutterwaveConfig,
-): Promise<void> {
+export async function openFlutterwaveCheckout(config: FlutterwaveConfig): Promise<void> {
   await loadFlutterwaveScript();
 
   if (!window.FlutterwaveCheckout) {
-    throw new Error(
-      "FlutterwaveCheckout is not available after script load. Please try again.",
-    );
+    throw new Error("FlutterwaveCheckout is not available after script load. Please try again.");
   }
 
   window.FlutterwaveCheckout(config);
