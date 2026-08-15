@@ -1,6 +1,21 @@
 import React from "react";
 import type { Product } from "./types";
-import { Sparkles, ShoppingBag, Heart, Star, Check, Eye, Sparkle } from "lucide-react";
+import {
+  Sparkles,
+  ShoppingBag,
+  Heart,
+  Star,
+  Check,
+  Eye,
+  Sparkle,
+  Layers,
+  ShieldCheck,
+  Scissors,
+  Ruler,
+  Gem,
+  Scale,
+  Droplets,
+} from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -11,6 +26,57 @@ interface ProductCardProps {
   onToggleWishlist: () => void;
   onQuickView: () => void;
   onAddToCart: () => void;
+}
+
+function renderSpecIcon(specIcon: unknown, label?: string) {
+  if (
+    typeof specIcon === "function" ||
+    (typeof specIcon === "object" &&
+      specIcon !== null &&
+      ("$$typeof" in specIcon || "render" in specIcon))
+  ) {
+    const Icon = specIcon as React.ComponentType<{ className?: string }>;
+    return <Icon className="h-3 w-3 text-lavender-deep shrink-0" />;
+  }
+
+  const l = (label || "").toLowerCase();
+  if (l.includes("hair") || l.includes("virgin") || l.includes("single-donor")) {
+    return <Sparkles className="h-3 w-3 text-lavender-deep shrink-0" />;
+  }
+  if (
+    l.includes("lace") ||
+    l.includes("hd") ||
+    l.includes("swiss") ||
+    l.includes("blend") ||
+    l.includes("matte")
+  ) {
+    return <Layers className="h-3 w-3 text-lavender-deep shrink-0" />;
+  }
+  if (
+    l.includes("tangle") ||
+    l.includes("shed") ||
+    l.includes("proof") ||
+    l.includes("cruelty") ||
+    l.includes("shield")
+  ) {
+    return <ShieldCheck className="h-3 w-3 text-lavender-deep shrink-0" />;
+  }
+  if (l.includes("cut") || l.includes("bob")) {
+    return <Scissors className="h-3 w-3 text-lavender-deep shrink-0" />;
+  }
+  if (l.includes("length") || l.includes('"')) {
+    return <Ruler className="h-3 w-3 text-lavender-deep shrink-0" />;
+  }
+  if (l.includes("mineral") || l.includes("gem") || l.includes("gold") || l.includes("ferrule")) {
+    return <Gem className="h-3 w-3 text-lavender-deep shrink-0" />;
+  }
+  if (l.includes("scale") || l.includes("weight") || l.includes("dense") || l.includes("skin")) {
+    return <Scale className="h-3 w-3 text-lavender-deep shrink-0" />;
+  }
+  if (l.includes("hyaluronic") || l.includes("texture") || l.includes("oil")) {
+    return <Droplets className="h-3 w-3 text-lavender-deep shrink-0" />;
+  }
+  return <Sparkles className="h-3 w-3 text-lavender-deep shrink-0" />;
 }
 
 export function ProductCard({
@@ -142,20 +208,19 @@ export function ProductCard({
           <p className="mt-3 text-xs leading-relaxed text-plum/65 line-clamp-2">{p.desc}</p>
 
           {/* Specs Badges */}
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {p.specs.map((spec, i) => {
-              const IconComp = spec.icon;
-              return (
+          {p.specs && p.specs.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {p.specs.map((spec, i) => (
                 <div
                   key={i}
                   className="flex items-center gap-1.5 rounded-lg bg-plum/[0.04] border border-plum/10 px-2.5 py-1 text-[11px] text-plum/80 font-medium"
                 >
-                  <IconComp className="h-3 w-3 text-lavender-deep shrink-0" />
+                  {renderSpecIcon(spec.icon, spec.label)}
                   <span>{spec.label}</span>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

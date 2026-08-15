@@ -325,7 +325,19 @@ export function getStoredBoutiqueProducts(): Product[] {
     const raw = localStorage.getItem("seddypluz_boutique_products");
     if (!raw) return boutiqueProducts;
     const parsed = JSON.parse(raw) as Product[];
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : boutiqueProducts;
+    if (!Array.isArray(parsed) || parsed.length === 0) return boutiqueProducts;
+
+    // Rehydrate specs icons if deserialized from JSON
+    return parsed.map((p) => {
+      const defaultProduct = boutiqueProducts.find((bp) => bp.id === p.id);
+      if (defaultProduct && defaultProduct.specs) {
+        return {
+          ...p,
+          specs: defaultProduct.specs,
+        };
+      }
+      return p;
+    });
   } catch {
     return boutiqueProducts;
   }
