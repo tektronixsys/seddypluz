@@ -99,7 +99,7 @@ type AdminTab = "appointments" | "promos" | "boutique" | "lookbook" | "concierge
 interface LookbookSlideItem {
   id: string;
   num: string;
-  tag: string;
+  category: string;
   title: string;
   subtitle: string;
   technique: string;
@@ -108,46 +108,46 @@ interface LookbookSlideItem {
   active: boolean;
 }
 
-const initialLookbookSlides: LookbookSlideItem[] = [
+const INITIAL_LOOKBOOK_SLIDES: LookbookSlideItem[] = [
   {
-    id: "royal-bridal",
+    id: "slide_1",
     num: "01",
-    tag: "Haute Bridal Masterpiece",
-    title: "Her Royal Moment",
-    subtitle: "2026/2027 Bridal Collection",
-    technique: "18H HD Base · Dewy Glass Skin",
-    img: heroBride,
+    category: "Traditional Gele",
+    title: "Royal Crimson Infinity",
+    subtitle: "Aso-Oke & Heritage Velvet",
+    technique: "Geometric Pleats · Multi-Tier Fan",
+    img: gele1,
     vol: "Vol. IV",
     active: true,
   },
   {
-    id: "heritage-gele",
+    id: "slide_2",
     num: "02",
-    tag: "Sculptural Headwrap Artistry",
-    title: "Heritage Gele Crown",
-    subtitle: "Couture Traditional Majesty",
-    technique: "Precision Pleating · Royal Silhouette",
-    img: gele1,
-    vol: "Vol. III",
+    category: "Bridal Soft Glam",
+    title: "Timeless Golden Radiance",
+    subtitle: "Luminous Skin & Sculpted Brow",
+    technique: "HD Airbrush · 24-Hour Melt",
+    img: heroBride,
+    vol: "Vol. I",
     active: true,
   },
   {
-    id: "velvet-monarch",
+    id: "slide_3",
     num: "03",
-    tag: "Studio Signature Glam",
-    title: "The Velvet Monarch",
-    subtitle: "Camera-Calibrated Portraiture",
-    technique: "Airbrushed Base · Satin Plum Lip",
+    category: "Contemporary Bridal",
+    title: "The Sculpted Elegance",
+    subtitle: "Ethereal Veil & Natural Glow",
+    technique: "Skin-Finish Velvet · Dewy Cheek",
     img: bridalAfter,
     vol: "Vol. II",
     active: true,
   },
   {
-    id: "sunset-radiance",
+    id: "slide_4",
     num: "04",
-    tag: "Editorial Campaign Finish",
-    title: "Sunset Radiance",
-    subtitle: "4K Luminous Gold Glow",
+    category: "Editorial Glamour",
+    title: "Smoky Orchid Shimmer",
+    subtitle: "High-Fashion Evening Look",
     technique: "Baked Micro-Pearls · Soft Focus",
     img: glam1,
     vol: "Vol. I",
@@ -256,7 +256,7 @@ function AdminDashboard() {
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [deleteConfirmProduct, setDeleteConfirmProduct] = useState<Product | null>(null);
 
-  // Form State for Add / Edit
+  // Form State for Add / Edit Product
   const [formName, setFormName] = useState("");
   const [formCategory, setFormCategory] = useState<"wigs" | "cosmetics">("wigs");
   const [formPrice, setFormPrice] = useState("₦280,000");
@@ -284,53 +284,66 @@ function AdminDashboard() {
     "lipstick_plum",
   ]);
 
-  // Lookbook Carousel Manager State
-  const [lookbookSlides, setLookbookSlides] = useState<LookbookSlideItem[]>(initialLookbookSlides);
+  // Lookbook Curator State
+  const [lookbookSlides, setLookbookSlides] =
+    useState<LookbookSlideItem[]>(INITIAL_LOOKBOOK_SLIDES);
 
-  // Studio Concierge Settings State
+  // Concierge & Contact Settings State
   const [studioPhone, setStudioPhone] = useState("+234 816 229 2997");
-  const [studioLocation, setStudioLocation] = useState("Kaduna, Nigeria");
-  const [studioHours, setStudioHours] = useState(
-    "Mon – Sat: 09:00 AM – 07:00 PM | Sun: VIP Bridal Bookings Only",
-  );
-  const [instagramHandle, setInstagramHandle] = useState("@seddypluz_wigs");
-  const [tiktokHandle, setTiktokHandle] = useState("@seddypluz_wigs");
+  const [studioLocation, setStudioLocation] = useState("Kaduna Studio Sessions");
+  const [studioHours, setStudioHours] = useState("Mon - Sat: 9:00 AM - 7:00 PM");
+  const [contactSaved, setContactSaved] = useState(false);
 
-  // Verify Auth Session on Mount
-  const verifySession = async (suppressToast = true) => {
-    setAuthChecking(true);
-    try {
-      const status = await getAuthStatus();
-      const authenticated = status.authenticated;
-      setIsAuthenticated(authenticated);
-      if (authenticated) {
-        await loadData();
-      } else if (!suppressToast) {
-        toast.error("Session expired. Please enter passcode.");
-      }
-    } catch {
-      setIsAuthenticated(false);
-      if (!suppressToast) {
-        toast.error("Unable to verify session.");
-      }
-    } finally {
-      setAuthChecking(false);
-    }
-  };
-
+  // 1. Initial Authentication Check on Mount
   useEffect(() => {
-    verifySession(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    async function checkAuth() {
+      try {
+        const res = await getAuthStatus({});
+        if (res.authenticated) {
+          setIsAuthenticated(true);
+          if (res.user) {
+            setCurrentAdminUser(res.user);
+            if (res.user.toLowerCase().includes("ajuh")) {
+              setAdminRole("Super Admin");
+              setAdminEmail("ajuhlouis@gmail.com");
+            } else if (res.user.toLowerCase().includes("seddy")) {
+              setAdminRole("Studio Super Admin");
+              setAdminEmail("contact@seddypluz.com");
+            }
+          }
+          loadData();
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+      }
+    }
+    checkAuth();
   }, []);
 
+  // 2. Fetch Appointments from Server Action
+  async function loadData(showSuccessToast = false) {
+    setLoading(true);
+    setRefreshing(true);
+    try {
+      const data = await fetchAppointments({});
+      setAppointments(data as AppointmentRequest[]);
+      if (showSuccessToast) {
+        toast.success("Appointments synchronized with database.");
+      }
+    } catch (err) {
+      console.error("Failed to load appointments:", err);
+      toast.error("Failed to synchronize appointments.");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }
+
+  // 3. Handle Admin Login Form Submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!usernameInput.trim()) {
-      toast.error("Please enter your administrator username.");
-      return;
-    }
-    if (!passwordInput.trim()) {
-      toast.error("Please enter your security password.");
+    if (!usernameInput.trim() || !passwordInput.trim()) {
+      toast.error("Please enter both username and password.");
       return;
     }
 
@@ -342,86 +355,82 @@ function AdminDashboard() {
           password: passwordInput.trim(),
         },
       });
-      setIsAuthenticated(true);
-      setCurrentAdminUser(res.username || usernameInput.trim());
-      setPasswordInput("");
-      toast.success(`Welcome to Atelier HQ, ${res.username || usernameInput.trim()}!`);
-      await loadData();
-    } catch {
-      setIsAuthenticated(false);
-      toast.error("Access Denied: Invalid username or password.");
+
+      if (res.success) {
+        setIsAuthenticated(true);
+        const user = res.user || "Admin";
+        setCurrentAdminUser(user);
+        if (user.toLowerCase().includes("ajuh")) {
+          setAdminRole("Super Admin");
+          setAdminEmail("ajuhlouis@gmail.com");
+        } else if (user.toLowerCase().includes("seddy")) {
+          setAdminRole("Studio Super Admin");
+          setAdminEmail("contact@seddypluz.com");
+        }
+        toast.success(`Welcome back, ${user}!`);
+        loadData();
+      } else {
+        toast.error("Invalid credentials. Please verify username and password.");
+      }
+    } catch (err) {
+      console.error("Login request failed:", err);
+      toast.error("Authentication service unavailable.");
     } finally {
       setAuthChecking(false);
     }
   };
 
+  // 4. Handle Admin Logout
   const handleLogout = async () => {
     try {
-      await logout();
-    } catch {
-      // clear local state regardless
-    }
-    setIsAuthenticated(false);
-    setUsernameInput("");
-    setPasswordInput("");
-    setAppointments([]);
-    toast.success("Atelier Command Locked.");
-  };
-
-  const loadData = async (showRefreshIndicator = false) => {
-    if (showRefreshIndicator) setRefreshing(true);
-    else setLoading(true);
-
-    try {
-      const data = await fetchAppointments();
-      setAppointments(data);
+      await logout({});
+      setIsAuthenticated(false);
+      setUsernameInput("");
+      setPasswordInput("");
+      toast.info("Session closed. Command suite locked.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to load requests.");
-      if (err instanceof Error && err.message.includes("Unauthorized")) {
-        setIsAuthenticated(false);
-      }
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+      console.error("Logout failed:", err);
+      setIsAuthenticated(false);
     }
   };
 
-  const handleUpdate = async (id: string) => {
+  // 5. Handle Status Update
+  const handleUpdateStatus = async (
+    id: string,
+    status: "pending" | "confirmed" | "declined" | "completed",
+    notes?: string,
+  ) => {
     setUpdating(true);
     try {
-      await updateStatus({
-        data: {
-          id,
-          status: editStatus,
-          notes: editNotes || null,
-        },
+      const res = await updateStatus({
+        data: { id, status, notes },
       });
-      toast.success("Appointment request status updated.");
-      setEditingId(null);
-      await loadData();
+
+      if (res.success) {
+        setAppointments((prev) =>
+          prev.map((app) => (app.id === id ? { ...app, status, notes: notes || app.notes } : app)),
+        );
+        toast.success(`Appointment status set to ${status.toUpperCase()}`);
+        setEditingId(null);
+      } else {
+        toast.error(res.message || "Failed to update status.");
+      }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update appointment.");
+      console.error("Status update error:", err);
+      toast.error("Network error updating status.");
     } finally {
       setUpdating(false);
     }
   };
 
-  // Filtered Appointments
-  const filteredAppointments = useMemo(() => {
-    return appointments.filter((app) => {
-      const matchesStatus = filterStatus === "all" || app.status === filterStatus;
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        app.name.toLowerCase().includes(q) ||
-        app.email.toLowerCase().includes(q) ||
-        app.service.toLowerCase().includes(q) ||
-        (app.phone && app.phone.includes(q));
-      return matchesStatus && matchesSearch;
-    });
-  }, [appointments, filterStatus, searchQuery]);
+  // 6. WhatsApp Direct Message Deep Link Generator
+  const generateClientWhatsAppUrl = (app: AppointmentRequest) => {
+    const cleanPhone = (app.phone || "").replace(/\D/g, "");
+    const greeting = `Hello ${app.name}! This is Seddypluz Studio regarding your ${app.service} appointment requested for ${app.appointment_date} at ${app.preferred_time}.`;
+    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(greeting)}`;
+  };
 
-  // Appointment Stats & Analytics
+  // 7. Summary Performance Stats
   const stats = useMemo(() => {
     const total = appointments.length;
     const pending = appointments.filter((a) => a.status === "pending").length;
@@ -429,37 +438,34 @@ function AdminDashboard() {
     const completed = appointments.filter((a) => a.status === "completed").length;
     const declined = appointments.filter((a) => a.status === "declined").length;
 
-    // Estimated revenue based on average service value (₦150k bridal / ₦45k glam)
-    const estimatedValue = confirmed * 150000 + completed * 150000 + pending * 100000;
+    // Estimated value calculation
+    const estimatedValue = confirmed * 150000 + completed * 150000 + pending * 80000;
     const conversionRate = total > 0 ? Math.round(((confirmed + completed) / total) * 100) : 0;
 
-    return {
-      total,
-      pending,
-      confirmed,
-      completed,
-      declined,
-      estimatedValue,
-      conversionRate,
-    };
+    return { total, pending, confirmed, completed, declined, estimatedValue, conversionRate };
   }, [appointments]);
 
-  // Generate 1-Click WhatsApp Confirmation Link
-  const generateClientWhatsAppUrl = (app: AppointmentRequest) => {
-    const phoneClean = (app.phone || studioPhone).replace(/\D/g, "");
-    const targetPhone = phoneClean.startsWith("0")
-      ? `234${phoneClean.slice(1)}`
-      : phoneClean || "2348162292997";
+  // 8. Filtered Appointments List
+  const filteredAppointments = useMemo(() => {
+    return appointments.filter((app) => {
+      const matchesFilter = filterStatus === "all" || app.status === filterStatus;
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        app.name.toLowerCase().includes(q) ||
+        app.email.toLowerCase().includes(q) ||
+        (app.phone && app.phone.includes(q)) ||
+        app.service.toLowerCase().includes(q) ||
+        (app.notes && app.notes.toLowerCase().includes(q));
 
-    const msg = `Hello ${app.name}! ✨\n\nThis is Seddypluz Beauty Studio confirming your appointment inquiry:\n\n💄 *Service:* ${app.service}\n📅 *Date:* ${app.appointment_date}\n⏰ *Time:* ${app.preferred_time}\n\nYour session is currently *${app.status.toUpperCase()}*. Please let us know if you have any questions or custom styling preferences. We look forward to creating your royal look!\n\n— *Seddypluz Beauty Atelier*`;
+      return matchesFilter && matchesSearch;
+    });
+  }, [appointments, filterStatus, searchQuery]);
 
-    return `https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`;
-  };
-
-  // Export Appointments to CSV
+  // 9. Export Appointments to CSV
   const handleExportCSV = () => {
     if (appointments.length === 0) {
-      toast.error("No appointment records to export.");
+      toast.error("No appointment data available to export.");
       return;
     }
 
@@ -868,7 +874,6 @@ function AdminDashboard() {
     newSlides[index] = newSlides[targetIndex];
     newSlides[targetIndex] = temp;
 
-    // re-assign indices
     const updated = newSlides.map((s, i) => ({
       ...s,
       num: String(i + 1).padStart(2, "0"),
@@ -878,39 +883,47 @@ function AdminDashboard() {
     toast.success("Lookbook carousel order updated.");
   };
 
+  // Save Concierge Contact Settings
+  const handleSaveContacts = (e: React.FormEvent) => {
+    e.preventDefault();
+    setContactSaved(true);
+    toast.success("Studio concierge details updated across platform!");
+    setTimeout(() => setContactSaved(false), 3000);
+  };
+
   // ==========================================
   // 1. UNLOCK / LOGIN SCREEN (Unauthenticated)
   // ==========================================
   if (!isAuthenticated) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center bg-[#140C12] text-[#FAF9F5] px-6 overflow-hidden select-none">
-        {/* Ambient Luxury Dark Backdrop Glows */}
-        <div className="absolute top-1/4 -left-40 h-[600px] w-[600px] rounded-full bg-mauve/20 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-40 h-[600px] w-[600px] rounded-full bg-amber-400/10 blur-[140px] pointer-events-none" />
+      <div className="relative flex min-h-screen items-center justify-center bg-[#FAF7F2] text-[#2D1B28] px-6 overflow-hidden select-none">
+        {/* Ambient Luxury Soft Blooms */}
+        <div className="absolute top-1/4 -left-40 h-[600px] w-[600px] rounded-full bg-mauve/25 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 -right-40 h-[600px] w-[600px] rounded-full bg-blush-soft blur-[140px] pointer-events-none" />
 
-        <div className="relative w-full max-w-md rounded-[2.5rem] border border-white/15 bg-white/5 p-8 md:p-10 shadow-2xl backdrop-blur-2xl z-10 animate-in fade-in zoom-in-95 duration-500">
+        <div className="relative w-full max-w-md rounded-[2.5rem] border border-plum/15 bg-white/90 p-8 md:p-10 shadow-2xl shadow-plum/10 backdrop-blur-2xl z-10 animate-in fade-in zoom-in-95 duration-500">
           <div className="text-center">
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-300 border border-amber-400/30 shadow-lg">
-              <Crown className="h-7 w-7" />
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-plum/5 text-plum border border-plum/15 shadow-sm">
+              <Crown className="h-8 w-8 text-lavender-deep" />
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-amber-300 mb-2 border border-white/15">
-              <Sparkles className="h-3 w-3" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-plum/5 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-plum mb-2 border border-plum/15">
+              <Sparkles className="h-3 w-3 text-amber-500" />
               <span>Seddypluz Atelier HQ</span>
             </div>
-            <h2 className="font-display text-3xl sm:text-4xl text-white tracking-tight">
+            <h2 className="font-display text-3xl sm:text-4xl text-plum font-bold tracking-tight">
               Command Suite
             </h2>
-            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-white/70">
-              Enter your studio authorization passcode to manage bridal appointments, inventory, and
-              front-end displays.
+            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-plum/70">
+              Enter your studio administrator credentials to manage bridal sessions, boutique
+              inventory, and live storefront displays.
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="mt-8 space-y-4">
             {/* Username Field */}
             <div className="space-y-1.5 text-left">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5 pl-1">
-                <User className="h-3.5 w-3.5" />
+              <label className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center gap-1.5 pl-1">
+                <User className="h-3.5 w-3.5 text-lavender-deep" />
                 <span>Username / Administrator ID</span>
               </label>
               <div className="relative">
@@ -920,16 +933,16 @@ function AdminDashboard() {
                   autoComplete="username"
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
-                  placeholder="e.g. admin or seddypluz"
-                  className="h-12 w-full rounded-2xl border border-white/20 bg-white/10 px-4 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:border-amber-300 focus:bg-white/15 focus:ring-2 focus:ring-amber-300/20"
+                  placeholder="e.g. ajuhlouis or seddypluz"
+                  className="h-12 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] px-4 text-sm text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10"
                 />
               </div>
             </div>
 
             {/* Password Field */}
             <div className="space-y-1.5 text-left">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5 pl-1">
-                <Lock className="h-3.5 w-3.5" />
+              <label className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center gap-1.5 pl-1">
+                <Lock className="h-3.5 w-3.5 text-lavender-deep" />
                 <span>Security Password</span>
               </label>
               <div className="relative">
@@ -940,13 +953,13 @@ function AdminDashboard() {
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="Enter studio password"
-                  className="h-12 w-full rounded-2xl border border-white/20 bg-white/10 pl-4 pr-11 text-sm text-white placeholder:text-white/30 outline-none transition-all focus:border-amber-300 focus:bg-white/15 focus:ring-2 focus:ring-amber-300/20"
+                  className="h-12 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] pl-4 pr-11 text-sm text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-lg text-white/50 hover:text-amber-300 transition-colors cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-lg text-plum/40 hover:text-plum transition-colors cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -957,7 +970,7 @@ function AdminDashboard() {
             <button
               type="submit"
               disabled={authChecking}
-              className="mt-2 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 text-plum text-xs uppercase tracking-[0.24em] font-bold shadow-xl shadow-amber-400/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50"
+              className="mt-2 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-plum via-[#5a3a52] to-plum text-[#FAF9F5] text-xs uppercase tracking-[0.24em] font-bold shadow-xl shadow-plum/20 transition-all hover:bg-lavender-deep active:scale-[0.98] cursor-pointer disabled:opacity-50"
             >
               {authChecking ? (
                 <>
@@ -966,24 +979,24 @@ function AdminDashboard() {
                 </>
               ) : (
                 <>
-                  <KeyRound className="h-4 w-4" />
+                  <KeyRound className="h-4 w-4 text-amber-300" />
                   <span>Authorize &amp; Sign In</span>
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-8 border-t border-white/10 pt-6 flex items-center justify-between text-xs text-white/60">
+          <div className="mt-8 border-t border-plum/10 pt-6 flex items-center justify-between text-xs text-plum/60">
             <Link
               to="/"
-              className="hover:text-amber-300 transition-colors flex items-center gap-1.5"
+              className="hover:text-plum transition-colors flex items-center gap-1.5 font-semibold"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
               <span>Studio Homepage</span>
             </Link>
             <Link
               to="/shop"
-              className="hover:text-amber-300 transition-colors flex items-center gap-1.5"
+              className="hover:text-plum transition-colors flex items-center gap-1.5 font-semibold"
             >
               <span>Boutique Catalog</span>
               <ChevronRight className="h-3.5 w-3.5" />
@@ -998,25 +1011,25 @@ function AdminDashboard() {
   // 2. MAIN ATELIER COMMAND CENTER (Authenticated)
   // ==========================================
   return (
-    <div className="min-h-screen bg-[#120B10] text-[#FAF9F5] selection:bg-amber-400 selection:text-plum pb-24 md:pb-12">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2D1B28] font-sans selection:bg-lavender-deep selection:text-white pb-24 md:pb-12">
       {/* Top Glassmorphic Navigation Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#170E15]/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-plum/10 bg-white/85 backdrop-blur-xl shadow-xs">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between px-4 sm:px-8 py-3.5">
           {/* Brand & Suite Name */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/15 text-amber-300 border border-amber-400/30 shadow-xs">
-              <Crown className="h-5 w-5" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-plum/5 text-plum border border-plum/15 shadow-xs">
+              <Crown className="h-5 w-5 text-lavender-deep" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-display text-xl font-bold tracking-tight text-white">
+                <span className="font-display text-xl font-bold tracking-tight text-plum">
                   Seddypluz
                 </span>
-                <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-300 border border-amber-400/30">
+                <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-900 border border-amber-300">
                   Command HQ
                 </span>
               </div>
-              <p className="text-[10px] text-white/50 tracking-wide font-sans">
+              <p className="text-[10px] text-plum/60 tracking-wide font-sans">
                 Atelier Suite · {studioLocation}
               </p>
             </div>
@@ -1028,10 +1041,12 @@ function AdminDashboard() {
             <button
               onClick={() => loadData(true)}
               disabled={refreshing || loading}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white/80 transition-all hover:bg-white/10 hover:text-white active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-plum/15 bg-white text-plum/80 transition-all hover:bg-plum/5 hover:text-plum active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
               title="Refresh live data"
             >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin text-amber-300" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${refreshing ? "animate-spin text-lavender-deep" : ""}`}
+              />
             </button>
 
             {/* Live Front-End Preview Link */}
@@ -1039,12 +1054,12 @@ function AdminDashboard() {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 transition-all hover:bg-white/10 hover:text-white"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-plum/15 bg-white px-3 py-2 text-xs font-semibold text-plum/80 transition-all hover:bg-plum/5 hover:text-plum shadow-xs"
               title="Open customer-facing website"
             >
-              <Globe className="h-3.5 w-3.5 text-amber-300" />
+              <Globe className="h-3.5 w-3.5 text-lavender-deep" />
               <span>Live Site</span>
-              <ArrowUpRight className="h-3 w-3 text-white/40" />
+              <ArrowUpRight className="h-3 w-3 text-plum/40" />
             </a>
 
             {/* ==================================================== */}
@@ -1058,68 +1073,68 @@ function AdminDashboard() {
                 aria-haspopup="true"
                 className={`group flex items-center gap-2.5 rounded-2xl border p-1.5 pr-3 transition-all cursor-pointer select-none ${
                   isAvatarMenuOpen
-                    ? "border-amber-400 bg-white/15 shadow-lg shadow-amber-400/10 ring-2 ring-amber-400/20"
-                    : "border-white/15 bg-white/5 hover:border-white/30 hover:bg-white/10"
+                    ? "border-plum bg-plum/5 shadow-md ring-2 ring-plum/10"
+                    : "border-plum/15 bg-white hover:border-plum/30 hover:bg-plum/5 shadow-xs"
                 }`}
               >
                 {/* Circular Gradient Avatar Badge with Online Dot */}
-                <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 text-plum font-bold text-xs tracking-wider shadow-md shadow-amber-400/20 ring-1 ring-white/20 shrink-0">
+                <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-plum via-[#684a62] to-lavender-deep text-[#FAF9F5] font-bold text-xs tracking-wider shadow-sm ring-1 ring-plum/20 shrink-0">
                   <span>{userInitials}</span>
                   {/* Glowing Pulse Online Indicator */}
                   <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 ring-1 ring-[#170E15]" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 ring-1 ring-white" />
                   </span>
                 </div>
 
                 {/* User Info Label */}
                 <div className="hidden md:flex flex-col text-left">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-[120px]">
+                    <span className="text-xs font-bold text-plum group-hover:text-lavender-deep transition-colors truncate max-w-[120px]">
                       {currentAdminUser}
                     </span>
                   </div>
-                  <span className="text-[9px] font-semibold uppercase tracking-wider text-amber-300/80">
+                  <span className="text-[9px] font-semibold uppercase tracking-wider text-plum/60">
                     {adminRole}
                   </span>
                 </div>
 
                 {/* Dropdown Chevron */}
                 <ChevronDown
-                  className={`h-3.5 w-3.5 text-white/50 transition-transform duration-200 ${
-                    isAvatarMenuOpen ? "rotate-180 text-amber-300" : ""
+                  className={`h-3.5 w-3.5 text-plum/50 transition-transform duration-200 ${
+                    isAvatarMenuOpen ? "rotate-180 text-plum" : ""
                   }`}
                 />
               </button>
 
               {/* Glassmorphic Dropdown Menu Popover */}
               {isAvatarMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-3xl border border-white/15 bg-[#170E15]/95 backdrop-blur-2xl p-2.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
+                <div className="absolute right-0 top-full mt-2 w-72 rounded-3xl border border-plum/15 bg-white/95 backdrop-blur-2xl p-2.5 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 text-plum">
                   {/* User Profile Card */}
-                  <div className="rounded-2xl bg-white/5 p-3.5 border border-white/10 mb-1 space-y-2">
+                  <div className="rounded-2xl bg-[#FAF7F2] p-3.5 border border-plum/10 mb-1 space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 text-plum font-bold text-sm shadow-md ring-2 ring-white/15 shrink-0">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-plum via-[#684a62] to-lavender-deep text-[#FAF9F5] font-bold text-sm shadow-md ring-2 ring-plum/15 shrink-0">
                         <span>{userInitials}</span>
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-sm text-white truncate">
+                          <span className="font-bold text-sm text-plum truncate">
                             {currentAdminUser}
                           </span>
-                          <Crown className="h-3.5 w-3.5 text-amber-300 shrink-0" />
+                          <Crown className="h-3.5 w-3.5 text-amber-500 shrink-0" />
                         </div>
-                        <span className="text-[11px] text-white/60 truncate block font-sans">
+                        <span className="text-[11px] text-plum/60 truncate block font-sans">
                           {adminEmail}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[10px]">
-                      <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <div className="flex items-center justify-between pt-2 border-t border-plum/10 text-[10px]">
+                      <span className="inline-flex items-center gap-1 text-emerald-700 font-bold">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         <span>Active Session</span>
                       </span>
-                      <span className="text-white/40 uppercase tracking-wider font-semibold">
+                      <span className="text-plum/50 uppercase tracking-wider font-semibold">
                         TLS 256-Bit
                       </span>
                     </div>
@@ -1132,15 +1147,15 @@ function AdminDashboard() {
                       setIsAvatarMenuOpen(false);
                       setIsSettingsModalOpen(true);
                     }}
-                    className="w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-xs text-white/80 hover:bg-white/10 hover:text-white transition-all cursor-pointer group"
+                    className="w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-xs text-plum/80 hover:bg-plum/5 hover:text-plum transition-all cursor-pointer group"
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/5 text-amber-300 group-hover:bg-amber-400/20 group-hover:text-amber-200">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-plum/5 text-plum group-hover:bg-plum/10">
                         <Settings className="h-4 w-4" />
                       </div>
                       <span className="font-semibold">Studio &amp; Suite Settings</span>
                     </div>
-                    <ChevronRight className="h-3.5 w-3.5 text-white/30 group-hover:text-white/80 group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight className="h-3.5 w-3.5 text-plum/30 group-hover:text-plum group-hover:translate-x-0.5 transition-all" />
                   </button>
 
                   {/* Quick Modules Navigation */}
@@ -1150,7 +1165,7 @@ function AdminDashboard() {
                       setActiveTab("appointments");
                       setIsAvatarMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-plum/70 hover:bg-plum/5 hover:text-plum transition-colors cursor-pointer"
                   >
                     <Calendar className="h-3.5 w-3.5 text-lavender-deep" />
                     <span>Appointments CRM</span>
@@ -1162,9 +1177,9 @@ function AdminDashboard() {
                       setActiveTab("boutique");
                       setIsAvatarMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-plum/70 hover:bg-plum/5 hover:text-plum transition-colors cursor-pointer"
                   >
-                    <ShoppingBag className="h-3.5 w-3.5 text-amber-400" />
+                    <ShoppingBag className="h-3.5 w-3.5 text-amber-600" />
                     <span>Wigs &amp; Boutique Catalog</span>
                   </button>
 
@@ -1174,13 +1189,13 @@ function AdminDashboard() {
                       setActiveTab("concierge");
                       setIsAvatarMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-plum/70 hover:bg-plum/5 hover:text-plum transition-colors cursor-pointer"
                   >
-                    <Sliders className="h-3.5 w-3.5 text-indigo-400" />
+                    <Sliders className="h-3.5 w-3.5 text-indigo-600" />
                     <span>Studio Contacts &amp; Hotline</span>
                   </button>
 
-                  <div className="my-1 border-t border-white/10" />
+                  <div className="my-1 border-t border-plum/10" />
 
                   {/* View Live Website */}
                   <a
@@ -1188,13 +1203,13 @@ function AdminDashboard() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsAvatarMenuOpen(false)}
-                    className="flex items-center justify-between rounded-xl px-3 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                    className="flex items-center justify-between rounded-xl px-3 py-2 text-xs text-plum/70 hover:bg-plum/5 hover:text-plum transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Globe className="h-3.5 w-3.5 text-emerald-400" />
+                      <Globe className="h-3.5 w-3.5 text-emerald-600" />
                       <span>View Live Website</span>
                     </div>
-                    <ArrowUpRight className="h-3 w-3 text-white/40" />
+                    <ArrowUpRight className="h-3 w-3 text-plum/40" />
                   </a>
 
                   {/* Lock / Sign Out Button */}
@@ -1204,7 +1219,7 @@ function AdminDashboard() {
                       setIsAvatarMenuOpen(false);
                       handleLogout();
                     }}
-                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-rose-400 hover:bg-rose-500/15 hover:text-rose-300 transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Lock Command Suite</span>
@@ -1216,7 +1231,7 @@ function AdminDashboard() {
         </div>
 
         {/* Module Switcher Tabs Strip */}
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-8 border-t border-white/5">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-8 border-t border-plum/10">
           <nav className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-2">
             {[
               {
@@ -1244,8 +1259,8 @@ function AdminDashboard() {
                   onClick={() => setActiveTab(tab.id as AdminTab)}
                   className={`flex items-center gap-2 shrink-0 rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                     isActive
-                      ? "bg-amber-400 text-plum shadow-md shadow-amber-400/20 font-extrabold"
-                      : "bg-transparent text-white/60 hover:bg-white/5 hover:text-white"
+                      ? "bg-plum text-[#FAF9F5] shadow-md shadow-plum/20 font-extrabold"
+                      : "bg-transparent text-plum/70 hover:bg-plum/5 hover:text-plum"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -1253,7 +1268,7 @@ function AdminDashboard() {
                   {tab.badge !== undefined && (
                     <span
                       className={`flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
-                        isActive ? "bg-plum text-amber-300" : "bg-white/10 text-amber-300"
+                        isActive ? "bg-amber-400 text-plum" : "bg-plum/10 text-plum"
                       }`}
                     >
                       {tab.badge}
@@ -1275,85 +1290,87 @@ function AdminDashboard() {
           <div className="space-y-8 animate-in fade-in duration-300">
             {/* Top KPI Metrics Bar */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-5">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 backdrop-blur-md">
-                <span className="text-[11px] uppercase tracking-wider font-bold text-white/50 block">
+              <div className="rounded-3xl border border-plum/10 bg-white p-5 md:p-6 shadow-sm">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-plum/60 block">
                   Total Inquiries
                 </span>
-                <span className="font-display text-3xl sm:text-4xl text-white font-bold mt-1 block">
+                <span className="font-display text-3xl sm:text-4xl text-plum font-bold mt-1 block">
                   {stats.total}
                 </span>
-                <span className="text-[10px] text-amber-300/80 mt-1 block">
+                <span className="text-[10px] text-plum/60 mt-1 block font-medium">
                   All registered brides
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 sm:p-5 backdrop-blur-md">
+              <div className="rounded-3xl border border-amber-300/60 bg-amber-50/70 p-5 md:p-6 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] uppercase tracking-wider font-bold text-amber-300">
+                  <span className="text-[11px] uppercase tracking-wider font-bold text-amber-900">
                     Pending Review
                   </span>
-                  <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+                  <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-ping" />
                 </div>
-                <span className="font-display text-3xl sm:text-4xl text-amber-300 font-bold mt-1 block">
+                <span className="font-display text-3xl sm:text-4xl text-amber-900 font-bold mt-1 block">
                   {stats.pending}
                 </span>
-                <span className="text-[10px] text-amber-200/80 mt-1 block">Requires action</span>
+                <span className="text-[10px] text-amber-800/80 mt-1 block font-semibold">
+                  Requires response
+                </span>
               </div>
 
-              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-5 backdrop-blur-md">
-                <span className="text-[11px] uppercase tracking-wider font-bold text-emerald-400 block">
+              <div className="rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5 md:p-6 shadow-sm">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-emerald-900 block">
                   Confirmed Bookings
                 </span>
-                <span className="font-display text-3xl sm:text-4xl text-emerald-400 font-bold mt-1 block">
+                <span className="font-display text-3xl sm:text-4xl text-emerald-900 font-bold mt-1 block">
                   {stats.confirmed}
                 </span>
-                <span className="text-[10px] text-emerald-300/80 mt-1 block">
+                <span className="text-[10px] text-emerald-800/80 mt-1 block font-semibold">
                   Locked on studio calendar
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-4 sm:p-5 backdrop-blur-md">
-                <span className="text-[11px] uppercase tracking-wider font-bold text-indigo-300 block">
+              <div className="rounded-3xl border border-indigo-200 bg-indigo-50/70 p-5 md:p-6 shadow-sm">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-indigo-900 block">
                   Completed Artistry
                 </span>
-                <span className="font-display text-3xl sm:text-4xl text-indigo-300 font-bold mt-1 block">
+                <span className="font-display text-3xl sm:text-4xl text-indigo-900 font-bold mt-1 block">
                   {stats.completed}
                 </span>
-                <span className="text-[10px] text-indigo-200/80 mt-1 block">
+                <span className="text-[10px] text-indigo-800/80 mt-1 block font-semibold">
                   Delivered sessions
                 </span>
               </div>
 
-              <div className="col-span-2 sm:col-span-4 lg:col-span-1 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 backdrop-blur-md">
-                <span className="text-[11px] uppercase tracking-wider font-bold text-white/50 block">
+              <div className="col-span-2 sm:col-span-4 lg:col-span-1 rounded-3xl border border-plum/10 bg-white p-5 md:p-6 shadow-sm">
+                <span className="text-[11px] uppercase tracking-wider font-bold text-plum/60 block">
                   Pipeline Value (Est.)
                 </span>
-                <span className="font-display text-2xl sm:text-3xl text-amber-300 font-bold mt-1 block truncate">
+                <span className="font-display text-2xl sm:text-3xl text-plum font-bold mt-1 block truncate">
                   ₦{stats.estimatedValue.toLocaleString()}
                 </span>
-                <span className="text-[10px] text-emerald-400 mt-1 block">
+                <span className="text-[10px] text-emerald-700 font-semibold mt-1 block">
                   {stats.conversionRate}% Conversion Rate
                 </span>
               </div>
             </div>
 
             {/* Filter, Search & Export Toolbar */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 backdrop-blur-md space-y-4">
+            <div className="rounded-3xl border border-plum/10 bg-white p-4 sm:p-5 shadow-sm space-y-4">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 {/* Search Bar */}
                 <div className="relative flex-1 max-w-lg">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-plum/40" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search by client name, email, phone, or service..."
-                    className="w-full rounded-xl border border-white/15 bg-white/5 py-3 pl-11 pr-4 text-xs text-white placeholder:text-white/40 focus:border-amber-300 focus:bg-white/10 focus:outline-none shadow-xs"
+                    className="w-full rounded-2xl border border-plum/15 bg-[#FAF7F2] py-3 pl-11 pr-4 text-xs text-plum placeholder:text-plum/40 focus:border-plum focus:bg-white focus:outline-none shadow-xs"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery("")}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/50 hover:text-white cursor-pointer"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-plum/50 hover:text-plum cursor-pointer"
                     >
                       Clear
                     </button>
@@ -1362,13 +1379,13 @@ function AdminDashboard() {
 
                 {/* Right controls: View mode + Export CSV */}
                 <div className="flex items-center gap-2.5 self-end lg:self-auto">
-                  <div className="flex items-center rounded-xl border border-white/15 bg-white/5 p-1">
+                  <div className="flex items-center rounded-xl border border-plum/15 bg-[#FAF7F2] p-1">
                     <button
                       onClick={() => setViewMode("list")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                         viewMode === "list"
-                          ? "bg-amber-400 text-plum shadow-xs"
-                          : "text-white/60 hover:text-white"
+                          ? "bg-plum text-[#FAF9F5] shadow-xs"
+                          : "text-plum/60 hover:text-plum"
                       }`}
                     >
                       List
@@ -1377,8 +1394,8 @@ function AdminDashboard() {
                       onClick={() => setViewMode("kanban")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                         viewMode === "kanban"
-                          ? "bg-amber-400 text-plum shadow-xs"
-                          : "text-white/60 hover:text-white"
+                          ? "bg-plum text-[#FAF9F5] shadow-xs"
+                          : "text-plum/60 hover:text-plum"
                       }`}
                     >
                       Pipeline
@@ -1387,68 +1404,48 @@ function AdminDashboard() {
 
                   <button
                     onClick={handleExportCSV}
-                    className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 rounded-xl border border-plum/15 bg-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-plum hover:bg-plum/5 active:scale-95 transition-all cursor-pointer shadow-xs"
                     title="Export to CSV"
                   >
-                    <Download className="h-3.5 w-3.5 text-amber-300" />
+                    <Download className="h-3.5 w-3.5 text-lavender-deep" />
                     <span className="hidden sm:inline">Export CSV</span>
                   </button>
                 </div>
               </div>
 
               {/* Status Filter Chips */}
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-white/5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-white/50 flex items-center gap-1 shrink-0 mr-1">
-                  <Filter className="h-3 w-3" /> Filter:
-                </span>
-                {[
-                  { id: "all", label: "All Inquiries", count: stats.total },
-                  { id: "pending", label: "Pending", count: stats.pending },
-                  { id: "confirmed", label: "Confirmed", count: stats.confirmed },
-                  { id: "completed", label: "Completed", count: stats.completed },
-                  { id: "declined", label: "Declined", count: stats.declined },
-                ].map((st) => {
-                  const isActive = filterStatus === st.id;
-                  return (
-                    <button
-                      key={st.id}
-                      onClick={() => setFilterStatus(st.id)}
-                      className={`flex items-center gap-1.5 shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                        isActive
-                          ? "bg-amber-400 text-plum shadow-sm"
-                          : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10"
-                      }`}
-                    >
-                      <span>{st.label}</span>
-                      <span
-                        className={`flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold ${
-                          isActive ? "bg-plum text-amber-300" : "bg-white/10 text-white/60"
-                        }`}
-                      >
-                        {st.count}
-                      </span>
-                    </button>
-                  );
-                })}
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-plum/10">
+                {(
+                  [
+                    { id: "all", label: `All Inquiries (${stats.total})` },
+                    { id: "pending", label: `Pending (${stats.pending})` },
+                    { id: "confirmed", label: `Confirmed (${stats.confirmed})` },
+                    { id: "completed", label: `Completed (${stats.completed})` },
+                    { id: "declined", label: `Declined (${stats.declined})` },
+                  ] as const
+                ).map((chip) => (
+                  <button
+                    key={chip.id}
+                    onClick={() => setFilterStatus(chip.id)}
+                    className={`rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
+                      filterStatus === chip.id
+                        ? "bg-plum text-[#FAF9F5] shadow-xs"
+                        : "bg-[#FAF7F2] text-plum/70 hover:bg-plum/5 hover:text-plum border border-plum/10"
+                    }`}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Main Appointments Display */}
-            {loading ? (
-              <div className="flex h-72 flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-white/50">
-                <RefreshCw className="h-8 w-8 animate-spin text-amber-300" />
-                <p className="text-xs uppercase tracking-widest font-semibold">
-                  Loading Client Records...
-                </p>
-              </div>
-            ) : filteredAppointments.length === 0 ? (
-              <div className="flex h-72 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
-                <Calendar className="h-10 w-10 text-white/20 mb-2" />
-                <h3 className="font-display text-xl text-white">No Appointment Requests Found</h3>
-                <p className="text-xs text-white/50 max-w-sm">
-                  {searchQuery
-                    ? "No clients match your search criteria. Try a different keyword or reset filters."
-                    : "New bridal and studio inquiries submitted through the website booking form will appear here in real-time."}
+            {/* Appointments View (List vs Kanban) */}
+            {filteredAppointments.length === 0 ? (
+              <div className="rounded-3xl border border-plum/10 bg-white p-12 text-center shadow-sm">
+                <Calendar className="mx-auto h-12 w-12 text-plum/30 mb-3" />
+                <h4 className="font-display text-xl text-plum font-bold">No appointments found</h4>
+                <p className="text-xs text-plum/60 mt-1 max-w-sm mx-auto">
+                  Try adjusting your filter or search query to find relevant booking inquiries.
                 </p>
                 {searchQuery && (
                   <button
@@ -1456,7 +1453,7 @@ function AdminDashboard() {
                       setSearchQuery("");
                       setFilterStatus("all");
                     }}
-                    className="mt-4 rounded-full bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-amber-300 hover:bg-white/20 cursor-pointer"
+                    className="mt-4 rounded-full bg-plum/5 border border-plum/15 px-4 py-2 text-xs font-bold uppercase tracking-wider text-plum hover:bg-plum hover:text-white cursor-pointer transition-all"
                   >
                     Reset Search
                   </button>
@@ -1468,26 +1465,26 @@ function AdminDashboard() {
                 {filteredAppointments.map((app) => {
                   const isEditing = editingId === app.id;
                   const statusColors = {
-                    pending: "bg-amber-400/20 text-amber-300 border-amber-400/40",
-                    confirmed: "bg-emerald-500/20 text-emerald-300 border-emerald-400/40",
-                    completed: "bg-indigo-500/20 text-indigo-300 border-indigo-400/40",
-                    declined: "bg-rose-500/20 text-rose-300 border-rose-400/40",
+                    pending: "bg-amber-50 text-amber-800 border-amber-300",
+                    confirmed: "bg-emerald-50 text-emerald-800 border-emerald-300",
+                    completed: "bg-indigo-50 text-indigo-800 border-indigo-300",
+                    declined: "bg-rose-50 text-rose-800 border-rose-300",
                   };
 
                   return (
                     <div
                       key={app.id}
-                      className="group rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 backdrop-blur-md transition-all hover:border-amber-400/30 hover:bg-white/[0.07]"
+                      className="group rounded-3xl border border-plum/10 bg-white p-5 sm:p-6 shadow-sm transition-all hover:border-plum/30 hover:shadow-md"
                     >
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         {/* Left: Client Name & Service */}
                         <div className="flex items-start gap-3.5">
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300 font-display text-lg font-bold border border-amber-400/30">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-plum/5 text-plum font-display text-lg font-bold border border-plum/15">
                             {app.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <h4 className="font-display text-lg sm:text-xl font-semibold text-white">
+                              <h4 className="font-display text-lg sm:text-xl font-bold text-plum">
                                 {app.name}
                               </h4>
                               <span
@@ -1499,36 +1496,36 @@ function AdminDashboard() {
                               </span>
                             </div>
 
-                            <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/70">
-                              <span className="font-semibold text-amber-300 flex items-center gap-1">
+                            <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-plum/80">
+                              <span className="font-semibold text-lavender-deep flex items-center gap-1">
                                 <Sparkles className="h-3 w-3" />
                                 {app.service}
                               </span>
-                              <span className="flex items-center gap-1 text-white/60">
-                                <Calendar className="h-3 w-3 text-white/40" />
+                              <span className="flex items-center gap-1 text-plum/60">
+                                <Calendar className="h-3 w-3 text-plum/40" />
                                 {app.appointment_date}
                               </span>
-                              <span className="flex items-center gap-1 text-white/60">
-                                <Clock className="h-3 w-3 text-white/40" />
+                              <span className="flex items-center gap-1 text-plum/60">
+                                <Clock className="h-3 w-3 text-plum/40" />
                                 {app.preferred_time}
                               </span>
                             </div>
 
                             {/* Contact Details */}
-                            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-white/60">
+                            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-plum/60">
                               <a
                                 href={`mailto:${app.email}`}
-                                className="flex items-center gap-1 hover:text-amber-300 transition-colors"
+                                className="flex items-center gap-1 hover:text-plum transition-colors"
                               >
-                                <Mail className="h-3 w-3 text-white/40" />
+                                <Mail className="h-3 w-3 text-plum/40" />
                                 <span>{app.email}</span>
                               </a>
                               {app.phone && (
                                 <a
                                   href={`tel:${app.phone}`}
-                                  className="flex items-center gap-1 hover:text-amber-300 transition-colors"
+                                  className="flex items-center gap-1 hover:text-plum transition-colors font-medium"
                                 >
-                                  <Phone className="h-3 w-3 text-white/40" />
+                                  <Phone className="h-3 w-3 text-plum/40" />
                                   <span>{app.phone}</span>
                                 </a>
                               )}
@@ -1536,7 +1533,7 @@ function AdminDashboard() {
 
                             {/* Client Notes if any */}
                             {app.notes && (
-                              <p className="mt-2 rounded-lg bg-black/30 p-2.5 text-xs italic text-white/80 border border-white/5">
+                              <p className="mt-2 rounded-xl bg-[#FAF7F2] p-2.5 text-xs italic text-plum/80 border border-plum/10">
                                 "{app.notes}"
                               </p>
                             )}
@@ -1544,7 +1541,7 @@ function AdminDashboard() {
                         </div>
 
                         {/* Right: Actions (Status Switcher & WhatsApp Message) */}
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 self-end lg:self-center border-t lg:border-t-0 border-white/5 pt-3 lg:pt-0 w-full lg:w-auto justify-end">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 self-end lg:self-center border-t lg:border-t-0 border-plum/10 pt-3 lg:pt-0 w-full lg:w-auto justify-end">
                           {/* 1-Click WhatsApp Direct Chat */}
                           <a
                             href={generateClientWhatsAppUrl(app)}
@@ -1564,7 +1561,7 @@ function AdminDashboard() {
                               setEditStatus(app.status);
                               setEditNotes(app.notes || "");
                             }}
-                            className="rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+                            className="rounded-xl border border-plum/15 bg-[#FAF7F2] px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-plum hover:bg-plum/10 active:scale-95 transition-all cursor-pointer shadow-xs"
                           >
                             {isEditing ? "Close Editor" : "Change Status"}
                           </button>
@@ -1573,14 +1570,14 @@ function AdminDashboard() {
 
                       {/* Expandable Inline Status Editor */}
                       {isEditing && (
-                        <div className="mt-4 rounded-xl border border-amber-400/30 bg-black/40 p-4 animate-in fade-in duration-200">
-                          <h5 className="text-xs font-bold uppercase tracking-wider text-amber-300 mb-3">
+                        <div className="mt-4 rounded-2xl border border-plum/20 bg-[#FAF7F2] p-4 animate-in fade-in duration-200">
+                          <h5 className="text-xs font-bold uppercase tracking-wider text-plum mb-3">
                             Update Appointment Status &amp; Studio Notes
                           </h5>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                              <label className="text-[10px] uppercase tracking-wider text-white/60 block mb-1">
+                              <label className="text-[10px] uppercase tracking-wider text-plum/60 block mb-1">
                                 Set Status:
                               </label>
                               <select
@@ -1591,47 +1588,42 @@ function AdminDashboard() {
                                       "pending" | "confirmed" | "declined" | "completed",
                                   )
                                 }
-                                className="w-full rounded-lg border border-white/20 bg-[#1A1017] p-2 text-xs text-white outline-none focus:border-amber-300 cursor-pointer"
+                                className="w-full rounded-xl border border-plum/20 bg-white px-3 py-2 text-xs text-plum font-semibold focus:outline-none"
                               >
-                                <option value="pending">Pending Review</option>
-                                <option value="confirmed">Confirmed &amp; Scheduled</option>
-                                <option value="completed">Completed Artistry</option>
-                                <option value="declined">Declined</option>
+                                <option value="pending">PENDING (Under Review)</option>
+                                <option value="confirmed">CONFIRMED (Date Locked)</option>
+                                <option value="completed">COMPLETED (Session Done)</option>
+                                <option value="declined">DECLINED (Unavailable)</option>
                               </select>
                             </div>
 
                             <div>
-                              <label className="text-[10px] uppercase tracking-wider text-white/60 block mb-1">
-                                Internal Studio Note:
+                              <label className="text-[10px] uppercase tracking-wider text-plum/60 block mb-1">
+                                Studio Follow-up Notes:
                               </label>
                               <input
                                 type="text"
                                 value={editNotes}
                                 onChange={(e) => setEditNotes(e.target.value)}
-                                placeholder="e.g. Paid 50% deposit, requires 2 bridesmaids gele..."
-                                className="w-full rounded-lg border border-white/20 bg-[#1A1017] p-2 text-xs text-white outline-none focus:border-amber-300"
+                                placeholder="Add internal studio notes..."
+                                className="w-full rounded-xl border border-plum/20 bg-white px-3 py-2 text-xs text-plum focus:outline-none"
                               />
                             </div>
                           </div>
 
-                          <div className="mt-3 flex justify-end gap-2">
+                          <div className="mt-3 flex items-center justify-end gap-2">
                             <button
                               onClick={() => setEditingId(null)}
-                              className="rounded-lg px-3 py-1.5 text-xs text-white/60 hover:text-white cursor-pointer"
+                              className="rounded-xl border border-plum/15 bg-white px-3.5 py-1.5 text-xs text-plum/70 hover:bg-plum/5 cursor-pointer"
                             >
                               Cancel
                             </button>
                             <button
-                              onClick={() => handleUpdate(app.id)}
                               disabled={updating}
-                              className="flex items-center gap-1.5 rounded-lg bg-amber-400 text-plum px-4 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-amber-300 transition-all cursor-pointer disabled:opacity-50"
+                              onClick={() => handleUpdateStatus(app.id, editStatus, editNotes)}
+                              className="rounded-xl bg-plum text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-lavender-deep cursor-pointer transition-all shadow-xs"
                             >
-                              {updating ? (
-                                <RefreshCw className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Save className="h-3 w-3" />
-                              )}
-                              <span>Save Changes</span>
+                              {updating ? "Saving..." : "Save Changes"}
                             </button>
                           </div>
                         </div>
@@ -1652,56 +1644,56 @@ function AdminDashboard() {
                     declined: "Declined",
                   };
                   const colBg = {
-                    pending: "border-amber-400/30 bg-amber-400/5",
-                    confirmed: "border-emerald-500/30 bg-emerald-500/5",
-                    completed: "border-indigo-500/30 bg-indigo-500/5",
-                    declined: "border-rose-500/30 bg-rose-500/5",
+                    pending: "border-amber-200 bg-amber-50/40",
+                    confirmed: "border-emerald-200 bg-emerald-50/40",
+                    completed: "border-indigo-200 bg-indigo-50/40",
+                    declined: "border-rose-200 bg-rose-50/40",
                   };
 
                   return (
                     <div
                       key={colStatus}
-                      className={`rounded-2xl border ${colBg[colStatus]} p-4 flex flex-col justify-between min-h-[400px]`}
+                      className={`rounded-3xl border ${colBg[colStatus]} p-4 flex flex-col justify-between min-h-[400px] shadow-xs`}
                     >
                       <div>
-                        <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
-                          <span className="text-xs font-bold uppercase tracking-wider text-white">
+                        <div className="flex items-center justify-between pb-3 border-b border-plum/10 mb-3">
+                          <span className="text-xs font-bold uppercase tracking-wider text-plum">
                             {titles[colStatus]}
                           </span>
-                          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                          <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-plum border border-plum/10 shadow-xs">
                             {colItems.length}
                           </span>
                         </div>
 
                         <div className="space-y-2.5">
                           {colItems.length === 0 ? (
-                            <p className="text-[11px] text-white/40 italic text-center py-6">
+                            <p className="text-[11px] text-plum/40 italic text-center py-6">
                               No requests in this stage
                             </p>
                           ) : (
                             colItems.map((app) => (
                               <div
                                 key={app.id}
-                                className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs space-y-1.5 hover:border-amber-400/30 transition-all"
+                                className="rounded-2xl border border-plum/10 bg-white p-3.5 text-xs space-y-1.5 shadow-sm hover:border-plum/30 transition-all"
                               >
                                 <div className="flex items-center justify-between">
-                                  <span className="font-bold text-white truncate max-w-[140px]">
+                                  <span className="font-bold text-plum truncate max-w-[140px]">
                                     {app.name}
                                   </span>
-                                  <span className="text-[10px] text-amber-300 font-semibold">
+                                  <span className="text-[10px] text-lavender-deep font-semibold">
                                     {app.appointment_date}
                                   </span>
                                 </div>
-                                <p className="text-[11px] text-white/70 truncate">{app.service}</p>
-                                <div className="flex items-center justify-between pt-1 border-t border-white/5">
-                                  <span className="text-[10px] text-white/50">
+                                <p className="text-[11px] text-plum/70 truncate">{app.service}</p>
+                                <div className="flex items-center justify-between pt-1 border-t border-plum/5">
+                                  <span className="text-[10px] text-plum/50">
                                     {app.preferred_time}
                                   </span>
                                   <a
                                     href={generateClientWhatsAppUrl(app)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 text-[10px]"
+                                    className="text-emerald-700 hover:text-emerald-800 flex items-center gap-1 text-[10px] font-bold"
                                   >
                                     <MessageCircle className="h-3 w-3" />
                                     <span>Chat</span>
@@ -1728,11 +1720,11 @@ function AdminDashboard() {
             {/* Header & Main Actions */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h3 className="font-display text-2xl sm:text-3xl text-white flex items-center gap-2.5">
-                  <Megaphone className="h-7 w-7 text-amber-300" />
+                <h3 className="font-display text-2xl sm:text-3xl text-plum font-bold flex items-center gap-2.5">
+                  <Megaphone className="h-7 w-7 text-lavender-deep" />
                   <span>Promo Banners &amp; Live Announcement Hub</span>
                 </h3>
-                <p className="text-xs text-white/60 mt-1">
+                <p className="text-xs text-plum/60 mt-1">
                   Create, edit, pulse, activate, duplicate, and delete promotional announcements
                   broadcasted across the storefront.
                 </p>
@@ -1742,15 +1734,15 @@ function AdminDashboard() {
                 <button
                   type="button"
                   onClick={handleResetAnnouncements}
-                  className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 rounded-xl border border-plum/15 bg-white px-3.5 py-2.5 text-xs text-plum/70 hover:bg-plum/5 hover:text-plum transition-all cursor-pointer shadow-xs"
                   title="Reset to 3 studio default templates"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   <span>Reset Defaults</span>
                 </button>
 
-                <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-2 text-xs font-bold text-emerald-300">
-                  <Radio className="h-4 w-4 animate-pulse text-emerald-400" />
+                <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-2 text-xs font-bold text-emerald-800 shadow-xs">
+                  <Radio className="h-4 w-4 animate-pulse text-emerald-600" />
                   <span>
                     {activeAnnouncement
                       ? `Live: "${activeAnnouncement.title}"`
@@ -1761,7 +1753,7 @@ function AdminDashboard() {
                 <button
                   type="button"
                   onClick={handleOpenCreateAnnouncement}
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-300 text-plum px-5 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-400/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                  className="flex items-center gap-2 rounded-xl bg-plum text-[#FAF9F5] hover:bg-lavender-deep px-5 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-plum/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
                 >
                   <PlusCircle className="h-4 w-4" />
                   <span>+ Create Announcement</span>
@@ -1770,17 +1762,17 @@ function AdminDashboard() {
             </div>
 
             {/* Live Visual Simulation Container */}
-            <div className="rounded-3xl border border-amber-400/30 bg-gradient-to-br from-[#1C101A] to-[#120B10] p-6 shadow-2xl backdrop-blur-xl space-y-3">
+            <div className="rounded-3xl border border-plum/15 bg-white p-6 sm:p-8 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
-                  <Eye className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-wider text-plum flex items-center gap-1.5">
+                  <Eye className="h-4 w-4 text-lavender-deep" />
                   <span>Live Storefront Marquee Simulation</span>
                 </span>
                 <span
                   className={`text-[10px] rounded-full px-2.5 py-0.5 font-bold uppercase border ${
                     activeAnnouncement
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                      : "bg-white/10 text-white/50 border-white/10"
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                      : "bg-plum/5 text-plum/50 border-plum/10"
                   }`}
                 >
                   {activeAnnouncement ? "● Broadcasting to All Users" : "○ Hidden from Public"}
@@ -1790,7 +1782,7 @@ function AdminDashboard() {
               {/* Simulated Header Announcement Bar */}
               {activeAnnouncement ? (
                 <div
-                  className={`rounded-2xl p-4 md:p-5 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 border relative overflow-hidden transition-all duration-300 ${
+                  className={`rounded-2xl p-4 md:p-5 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 border relative overflow-hidden transition-all duration-300 ${
                     activeAnnouncement.theme === "amber"
                       ? "bg-gradient-to-r from-[#3D2502] via-[#5C3A08] to-[#2B1A02] text-amber-100 border-amber-400/40"
                       : activeAnnouncement.theme === "emerald"
@@ -1842,15 +1834,15 @@ function AdminDashboard() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-white/50 text-xs">
+                <div className="rounded-2xl border border-plum/10 bg-[#FAF7F2] p-6 text-center text-plum/60 text-xs">
                   No announcement banner is currently active. Select one of the campaigns below and
-                  click "Activate Broadcast" to display it on the website.
+                  click "Set as Live" to display it on the website.
                 </div>
               )}
             </div>
 
             {/* Filter & Search Bar */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="rounded-3xl border border-plum/10 bg-white p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
                 {(
                   [
@@ -1871,8 +1863,8 @@ function AdminDashboard() {
                     onClick={() => setAnnouncementFilter(tab.id)}
                     className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                       announcementFilter === tab.id
-                        ? "bg-amber-400 text-plum font-bold shadow-xs"
-                        : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                        ? "bg-plum text-[#FAF9F5] font-bold shadow-xs"
+                        : "bg-[#FAF7F2] text-plum/70 hover:bg-plum/5 hover:text-plum border border-plum/10"
                     }`}
                   >
                     {tab.label}
@@ -1881,18 +1873,18 @@ function AdminDashboard() {
               </div>
 
               <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-plum/40" />
                 <input
                   type="text"
                   value={announcementSearch}
                   onChange={(e) => setAnnouncementSearch(e.target.value)}
                   placeholder="Search campaigns..."
-                  className="h-9 w-full rounded-xl border border-white/15 bg-white/10 pl-9 pr-8 text-xs text-white placeholder:text-white/40 focus:border-amber-300 focus:outline-none"
+                  className="h-9 w-full rounded-xl border border-plum/15 bg-[#FAF7F2] pl-9 pr-8 text-xs text-plum placeholder:text-plum/40 focus:border-plum focus:bg-white focus:outline-none"
                 />
                 {announcementSearch && (
                   <button
                     onClick={() => setAnnouncementSearch("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white cursor-pointer"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-plum/40 hover:text-plum cursor-pointer"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -1902,10 +1894,10 @@ function AdminDashboard() {
 
             {/* Campaigns Grid */}
             {filteredAnnouncements.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur-md">
-                <Megaphone className="mx-auto h-12 w-12 text-white/30 mb-3" />
-                <h4 className="font-display text-lg text-white">No announcements found</h4>
-                <p className="text-xs text-white/60 mt-1 max-w-sm mx-auto">
+              <div className="rounded-3xl border border-plum/10 bg-white p-12 text-center shadow-sm">
+                <Megaphone className="mx-auto h-12 w-12 text-plum/30 mb-3" />
+                <h4 className="font-display text-lg text-plum font-bold">No announcements found</h4>
+                <p className="text-xs text-plum/60 mt-1 max-w-sm mx-auto">
                   Try adjusting your filter or click "+ Create Announcement" to launch a new studio
                   promotion.
                 </p>
@@ -1922,20 +1914,20 @@ function AdminDashboard() {
                   };
 
                   const themePills = {
-                    plum: "bg-plum/40 border-plum/60 text-purple-200",
-                    amber: "bg-amber-500/20 border-amber-400/40 text-amber-300",
-                    emerald: "bg-emerald-500/20 border-emerald-400/40 text-emerald-300",
-                    rose: "bg-rose-500/20 border-rose-400/40 text-rose-300",
-                    dark: "bg-black/60 border-white/20 text-white/80",
+                    plum: "bg-plum/10 border-plum/20 text-plum",
+                    amber: "bg-amber-100 border-amber-300 text-amber-900",
+                    emerald: "bg-emerald-100 border-emerald-300 text-emerald-900",
+                    rose: "bg-rose-100 border-rose-300 text-rose-900",
+                    dark: "bg-neutral-800 text-white border-neutral-700",
                   };
 
                   return (
                     <div
                       key={item.id}
-                      className={`group relative rounded-3xl border p-5 backdrop-blur-md flex flex-col justify-between space-y-4 transition-all shadow-lg ${
+                      className={`group relative rounded-3xl border p-5 sm:p-6 backdrop-blur-md flex flex-col justify-between space-y-4 transition-all shadow-sm ${
                         item.isActive
-                          ? "border-amber-400/50 bg-white/[0.08] shadow-amber-400/10 ring-1 ring-amber-400/30"
-                          : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.07]"
+                          ? "border-plum bg-plum/[0.03] ring-2 ring-plum/10 shadow-md"
+                          : "border-plum/10 bg-white hover:border-plum/30 hover:shadow-md"
                       }`}
                     >
                       <div>
@@ -1949,7 +1941,7 @@ function AdminDashboard() {
                             >
                               {themeLabels[item.theme]}
                             </span>
-                            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-bold text-amber-300 border border-white/10">
+                            <span className="rounded-full bg-plum/5 px-2 py-0.5 text-[9px] font-bold text-plum border border-plum/15">
                               {item.badgeLabel}
                             </span>
                           </div>
@@ -1958,8 +1950,8 @@ function AdminDashboard() {
                           <span
                             className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${
                               item.isActive
-                                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 animate-pulse"
-                                : "bg-white/5 text-white/40 border-white/10"
+                                ? "bg-emerald-100 text-emerald-800 border-emerald-300 animate-pulse"
+                                : "bg-plum/5 text-plum/50 border-plum/10"
                             }`}
                           >
                             {item.isActive ? "● Broadcast Live" : "○ Paused"}
@@ -1967,29 +1959,29 @@ function AdminDashboard() {
                         </div>
 
                         {/* Title & Headline Text */}
-                        <h4 className="font-sans font-bold text-base text-white truncate">
+                        <h4 className="font-sans font-bold text-base text-plum truncate">
                           {item.title}
                         </h4>
-                        <p className="mt-1 text-xs text-white/70 line-clamp-3 leading-relaxed font-sans">
+                        <p className="mt-1 text-xs text-plum/75 line-clamp-3 leading-relaxed font-sans">
                           "{item.text}"
                         </p>
 
                         {/* Voucher & Value Card */}
-                        <div className="mt-3.5 flex items-center justify-between rounded-xl bg-black/30 p-2.5 border border-white/10 text-xs">
+                        <div className="mt-3.5 flex items-center justify-between rounded-xl bg-[#FAF7F2] p-2.5 border border-plum/10 text-xs">
                           <div className="flex items-center gap-1.5">
-                            <Tag className="h-3.5 w-3.5 text-amber-300" />
-                            <span className="font-bold text-amber-300 uppercase tracking-wider">
+                            <Tag className="h-3.5 w-3.5 text-lavender-deep" />
+                            <span className="font-bold text-plum uppercase tracking-wider">
                               {item.voucherCode}
                             </span>
                           </div>
-                          <span className="font-semibold text-white/90">
+                          <span className="font-semibold text-amber-700">
                             {item.discountPercent}
                           </span>
                         </div>
                       </div>
 
                       {/* Controls Bar: Pulse, Broadcast, Edit, Duplicate, Delete */}
-                      <div className="pt-3 border-t border-white/10 space-y-2.5">
+                      <div className="pt-3 border-t border-plum/10 space-y-2.5">
                         <div className="flex items-center justify-between gap-2">
                           {/* 1-Click Pulse Animation Toggle */}
                           <button
@@ -1997,14 +1989,14 @@ function AdminDashboard() {
                             onClick={() => handleTogglePulse(item)}
                             className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                               item.pulseAnimation
-                                ? "bg-amber-400/20 text-amber-300 border border-amber-400/40 shadow-xs"
-                                : "bg-white/5 text-white/40 border border-white/10 hover:text-white"
+                                ? "bg-amber-100 text-amber-900 border border-amber-300 shadow-xs"
+                                : "bg-plum/5 text-plum/50 border border-plum/10 hover:text-plum"
                             }`}
                             title="Toggle live pulsing neon glow effect on website"
                           >
                             <Zap
                               className={`h-3.5 w-3.5 ${
-                                item.pulseAnimation ? "fill-amber-400 text-amber-400" : ""
+                                item.pulseAnimation ? "fill-amber-500 text-amber-600" : ""
                               }`}
                             />
                             <span>{item.pulseAnimation ? "Pulse ON" : "Pulse OFF"}</span>
@@ -2016,8 +2008,8 @@ function AdminDashboard() {
                             onClick={() => handleToggleActive(item)}
                             className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                               item.isActive
-                                ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
-                                : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white border border-white/15"
+                                ? "bg-plum text-white shadow-md shadow-plum/20"
+                                : "bg-[#FAF7F2] text-plum/70 hover:bg-plum/10 hover:text-plum border border-plum/15"
                             }`}
                           >
                             <Radio className="h-3 w-3" />
@@ -2030,7 +2022,7 @@ function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleOpenEditAnnouncement(item)}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-amber-300 hover:bg-amber-400/20 transition-colors cursor-pointer"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-plum/15 bg-white text-plum hover:bg-plum/5 transition-colors cursor-pointer shadow-xs"
                             title="Edit announcement campaign"
                           >
                             <Pencil className="h-3.5 w-3.5" />
@@ -2039,7 +2031,7 @@ function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleDuplicateAnnouncement(item)}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-indigo-300 hover:bg-indigo-400/20 transition-colors cursor-pointer"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-plum/15 bg-white text-lavender-deep hover:bg-plum/5 transition-colors cursor-pointer shadow-xs"
                             title="Duplicate campaign"
                           >
                             <CopyPlus className="h-3.5 w-3.5" />
@@ -2048,7 +2040,7 @@ function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => setDeleteConfirmAnnouncement(item)}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-plum/15 bg-white text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer shadow-xs"
                             title="Delete announcement"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -2065,21 +2057,21 @@ function AdminDashboard() {
             {/* CREATE / EDIT ANNOUNCEMENT MODAL */}
             {/* ==================================================== */}
             {isAnnouncementModalOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-                <div className="relative w-full max-w-2xl rounded-3xl border border-white/15 bg-[#170E15] p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto space-y-6">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-plum/40 backdrop-blur-md p-4 overflow-y-auto">
+                <div className="relative w-full max-w-2xl rounded-3xl border border-plum/15 bg-white p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto space-y-6 text-plum">
                   {/* Modal Header */}
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <div className="flex items-center justify-between border-b border-plum/10 pb-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/15 text-amber-300 border border-amber-400/30">
-                        <Megaphone className="h-5 w-5" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-plum/5 text-plum border border-plum/15">
+                        <Megaphone className="h-5 w-5 text-lavender-deep" />
                       </div>
                       <div>
-                        <h3 className="font-display text-2xl text-white">
+                        <h3 className="font-display text-2xl text-plum font-bold">
                           {editingAnnouncementId
                             ? "Edit Announcement Campaign"
                             : "Create New Announcement Campaign"}
                         </h3>
-                        <p className="text-xs text-white/60">
+                        <p className="text-xs text-plum/60">
                           Configure promotion copy, coupon code, theme palette, and live pulsing
                           effects.
                         </p>
@@ -2088,7 +2080,7 @@ function AdminDashboard() {
                     <button
                       type="button"
                       onClick={() => setIsAnnouncementModalOpen(false)}
-                      className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-white/60 hover:bg-white/15 hover:text-white cursor-pointer"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FAF7F2] text-plum/60 hover:bg-plum/10 hover:text-plum cursor-pointer"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -2099,7 +2091,7 @@ function AdminDashboard() {
                     {/* Campaign Title & Badge */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Campaign Name / Title *
                         </label>
                         <input
@@ -2108,12 +2100,12 @@ function AdminDashboard() {
                           value={annFormTitle}
                           onChange={(e) => setAnnFormTitle(e.target.value)}
                           placeholder="e.g. Bridal Season 20% Drop"
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Badge Tag Label
                         </label>
                         <input
@@ -2121,14 +2113,14 @@ function AdminDashboard() {
                           value={annFormBadge}
                           onChange={(e) => setAnnFormBadge(e.target.value)}
                           placeholder="e.g. Exclusive Promo, Flash Drop, VIP Offer"
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
                     </div>
 
                     {/* Headline Text */}
                     <div>
-                      <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                         Announcement Headline Copy (Shown on Website) *
                       </label>
                       <textarea
@@ -2137,14 +2129,14 @@ function AdminDashboard() {
                         value={annFormText}
                         onChange={(e) => setAnnFormText(e.target.value)}
                         placeholder="e.g. Enjoy 20% OFF your first wig order + ALL beauty & bridal installation services!"
-                        className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none leading-relaxed"
+                        className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none leading-relaxed"
                       />
                     </div>
 
                     {/* Voucher Code & Discount Tag */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Coupon Voucher Code:
                         </label>
                         <input
@@ -2152,12 +2144,12 @@ function AdminDashboard() {
                           value={annFormVoucher}
                           onChange={(e) => setAnnFormVoucher(e.target.value.toUpperCase())}
                           placeholder="e.g. SEDDY20"
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm font-bold uppercase tracking-widest text-amber-300 focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm font-bold uppercase tracking-widest text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Discount / Offer Value Label:
                         </label>
                         <input
@@ -2165,14 +2157,14 @@ function AdminDashboard() {
                           value={annFormDiscount}
                           onChange={(e) => setAnnFormDiscount(e.target.value)}
                           placeholder="e.g. 20% OFF or FREE GIFT"
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
                     </div>
 
                     {/* Theme Palette & Pulsing Switch */}
-                    <div className="border-t border-white/10 pt-4 space-y-4">
-                      <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block">
+                    <div className="border-t border-plum/10 pt-4 space-y-4">
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block">
                         Visual Color Theme:
                       </label>
                       <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
@@ -2193,14 +2185,14 @@ function AdminDashboard() {
                               onClick={() => setAnnFormTheme(t.id)}
                               className={`rounded-2xl p-2.5 border text-center transition-all cursor-pointer ${
                                 isSelected
-                                  ? "border-amber-400 bg-white/15 ring-2 ring-amber-400/30"
-                                  : "border-white/10 bg-white/5 hover:border-white/30"
+                                  ? "border-plum bg-plum/5 ring-2 ring-plum/20"
+                                  : "border-plum/10 bg-[#FAF7F2] hover:border-plum/30"
                               }`}
                             >
                               <div
                                 className={`h-6 w-full rounded-lg ${t.bg} border border-white/20 mb-1.5`}
                               />
-                              <span className="text-[10px] font-semibold text-white truncate block">
+                              <span className="text-[10px] font-semibold text-plum truncate block">
                                 {t.label}
                               </span>
                             </button>
@@ -2209,22 +2201,22 @@ function AdminDashboard() {
                       </div>
 
                       {/* Pulse Animation Toggle Switch */}
-                      <div className="flex items-center justify-between rounded-2xl bg-white/5 p-3.5 border border-white/10">
+                      <div className="flex items-center justify-between rounded-2xl bg-[#FAF7F2] p-3.5 border border-plum/10">
                         <div className="flex items-center gap-3">
-                          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300">
-                            <Zap className="h-5 w-5" />
+                          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-plum/5 text-plum">
+                            <Zap className="h-5 w-5 text-lavender-deep" />
                             {annFormPulse && (
                               <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400" />
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
                               </span>
                             )}
                           </div>
                           <div>
-                            <span className="text-xs font-bold text-white block">
+                            <span className="text-xs font-bold text-plum block">
                               Live Pulse Glowing Animation
                             </span>
-                            <span className="text-[10px] text-white/50">
+                            <span className="text-[10px] text-plum/50">
                               Display pulsing neon badge beacon on customer storefront.
                             </span>
                           </div>
@@ -2234,11 +2226,11 @@ function AdminDashboard() {
                           type="button"
                           onClick={() => setAnnFormPulse(!annFormPulse)}
                           className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${
-                            annFormPulse ? "bg-amber-400" : "bg-white/20"
+                            annFormPulse ? "bg-plum" : "bg-plum/20"
                           }`}
                         >
                           <div
-                            className={`h-5 w-5 rounded-full bg-plum shadow-md transition-transform ${
+                            className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
                               annFormPulse ? "translate-x-5" : "translate-x-0"
                             }`}
                           />
@@ -2247,17 +2239,17 @@ function AdminDashboard() {
                     </div>
 
                     {/* Actions */}
-                    <div className="border-t border-white/10 pt-4 flex items-center justify-end gap-3">
+                    <div className="border-t border-plum/10 pt-4 flex items-center justify-end gap-3">
                       <button
                         type="button"
                         onClick={() => setIsAnnouncementModalOpen(false)}
-                        className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 hover:text-white cursor-pointer"
+                        className="rounded-xl border border-plum/15 bg-white px-5 py-2.5 text-xs font-bold text-plum/70 hover:bg-plum/5 hover:text-plum cursor-pointer"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="flex items-center gap-2 rounded-xl bg-amber-400 text-plum px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-400/20 hover:bg-amber-300 active:scale-95 transition-all cursor-pointer"
+                        className="flex items-center gap-2 rounded-xl bg-plum text-[#FAF9F5] px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-plum/20 hover:bg-lavender-deep active:scale-95 transition-all cursor-pointer"
                       >
                         <Save className="h-4 w-4" />
                         <span>Save Announcement</span>
@@ -2272,16 +2264,18 @@ function AdminDashboard() {
             {/* DELETE ANNOUNCEMENT CONFIRMATION MODAL */}
             {/* ==================================================== */}
             {deleteConfirmAnnouncement && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
-                <div className="relative w-full max-w-md rounded-3xl border border-red-500/30 bg-[#170E15] p-6 shadow-2xl text-center space-y-4">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/15 text-red-400 border border-red-500/30">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-plum/40 backdrop-blur-md p-4 animate-in fade-in duration-150">
+                <div className="relative w-full max-w-md rounded-3xl border border-rose-200 bg-white p-6 sm:p-8 shadow-2xl text-center space-y-4 text-plum">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 border border-rose-200">
                     <Trash2 className="h-6 w-6" />
                   </div>
                   <div>
-                    <h4 className="font-display text-xl text-white">Delete Promo Announcement?</h4>
-                    <p className="text-xs text-white/70 mt-1.5 leading-relaxed">
+                    <h4 className="font-display text-xl text-plum font-bold">
+                      Delete Promo Announcement?
+                    </h4>
+                    <p className="text-xs text-plum/70 mt-1.5 leading-relaxed">
                       Are you sure you want to remove{" "}
-                      <span className="font-bold text-amber-300">
+                      <span className="font-bold text-plum">
                         "{deleteConfirmAnnouncement.title}"
                       </span>
                       ? If this campaign is currently broadcasting, the announcement banner will be
@@ -2293,14 +2287,14 @@ function AdminDashboard() {
                     <button
                       type="button"
                       onClick={() => setDeleteConfirmAnnouncement(null)}
-                      className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 hover:text-white cursor-pointer"
+                      className="rounded-xl border border-plum/15 bg-white px-5 py-2.5 text-xs font-bold text-plum/70 hover:bg-plum/5 hover:text-plum cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteAnnouncement(deleteConfirmAnnouncement)}
-                      className="rounded-xl bg-red-500 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-red-600 active:scale-95 transition-all cursor-pointer shadow-lg shadow-red-500/20"
+                      className="rounded-xl bg-rose-600 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-rose-700 active:scale-95 transition-all cursor-pointer shadow-lg shadow-rose-500/20"
                     >
                       Yes, Delete Campaign
                     </button>
@@ -2319,11 +2313,11 @@ function AdminDashboard() {
             {/* Header & Main Actions */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h3 className="font-display text-2xl sm:text-3xl text-white flex items-center gap-2.5">
-                  <Package className="h-7 w-7 text-amber-300" />
+                <h3 className="font-display text-2xl sm:text-3xl text-plum font-bold flex items-center gap-2.5">
+                  <Package className="h-7 w-7 text-lavender-deep" />
                   <span>Boutique Catalog &amp; Inventory Controller</span>
                 </h3>
-                <p className="text-xs text-white/60 mt-1">
+                <p className="text-xs text-plum/60 mt-1">
                   Add, edit, duplicate, and delete luxury wigs, hair bundles, and cosmetic items
                   displayed on the `/shop` and homepage.
                 </p>
@@ -2333,22 +2327,22 @@ function AdminDashboard() {
                 <button
                   type="button"
                   onClick={handleResetCatalog}
-                  className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 rounded-xl border border-plum/15 bg-white px-3.5 py-2.5 text-xs text-plum/70 hover:bg-plum/5 hover:text-plum transition-all cursor-pointer shadow-xs"
                   title="Reset to default 7 products"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   <span>Reset Defaults</span>
                 </button>
 
-                <div className="flex items-center gap-2 rounded-xl bg-amber-400/10 border border-amber-400/30 px-3.5 py-2 text-xs font-bold text-amber-300">
-                  <Crown className="h-4 w-4" />
+                <div className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3.5 py-2 text-xs font-bold text-amber-900 shadow-xs">
+                  <Crown className="h-4 w-4 text-amber-600" />
                   <span>{pinnedProductIds.length} Pinned on Home</span>
                 </div>
 
                 <button
                   type="button"
                   onClick={handleOpenAddProduct}
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-300 text-plum px-5 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-400/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                  className="flex items-center gap-2 rounded-xl bg-plum text-[#FAF9F5] hover:bg-lavender-deep px-5 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-plum/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
                 >
                   <PlusCircle className="h-4 w-4" />
                   <span>+ Add New Product</span>
@@ -2357,7 +2351,7 @@ function AdminDashboard() {
             </div>
 
             {/* Search & Category Filter Strip */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="rounded-3xl border border-plum/10 bg-white p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
               {/* Category Filter Pills */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
                 {(
@@ -2383,8 +2377,8 @@ function AdminDashboard() {
                     onClick={() => setInventoryCategoryFilter(cat.id)}
                     className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                       inventoryCategoryFilter === cat.id
-                        ? "bg-amber-400 text-plum font-bold shadow-xs"
-                        : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                        ? "bg-plum text-[#FAF9F5] font-bold shadow-xs"
+                        : "bg-[#FAF7F2] text-plum/70 hover:bg-plum/5 hover:text-plum border border-plum/10"
                     }`}
                   >
                     {cat.label}
@@ -2394,18 +2388,18 @@ function AdminDashboard() {
 
               {/* Live Search Box */}
               <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-plum/40" />
                 <input
                   type="text"
                   value={inventorySearchQuery}
                   onChange={(e) => setInventorySearchQuery(e.target.value)}
                   placeholder="Search catalog..."
-                  className="h-9 w-full rounded-xl border border-white/15 bg-white/10 pl-9 pr-8 text-xs text-white placeholder:text-white/40 focus:border-amber-300 focus:outline-none"
+                  className="h-9 w-full rounded-xl border border-plum/15 bg-[#FAF7F2] pl-9 pr-8 text-xs text-plum placeholder:text-plum/40 focus:border-plum focus:bg-white focus:outline-none"
                 />
                 {inventorySearchQuery && (
                   <button
                     onClick={() => setInventorySearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-plum/40 hover:text-plum cursor-pointer"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -2415,10 +2409,12 @@ function AdminDashboard() {
 
             {/* Products Inventory Grid */}
             {filteredInventoryProducts.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur-md">
-                <Package className="mx-auto h-12 w-12 text-white/30 mb-3" />
-                <h4 className="font-display text-lg text-white">No matching products found</h4>
-                <p className="text-xs text-white/60 mt-1 max-w-sm mx-auto">
+              <div className="rounded-3xl border border-plum/10 bg-white p-12 text-center shadow-sm">
+                <Package className="mx-auto h-12 w-12 text-plum/30 mb-3" />
+                <h4 className="font-display text-lg text-plum font-bold">
+                  No matching products found
+                </h4>
+                <p className="text-xs text-plum/60 mt-1 max-w-sm mx-auto">
                   Try adjusting your search query or category filter, or click "+ Add New Product"
                   above.
                 </p>
@@ -2431,7 +2427,7 @@ function AdminDashboard() {
                   return (
                     <div
                       key={product.id}
-                      className="group relative rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md flex flex-col justify-between space-y-4 hover:border-amber-400/40 hover:bg-white/[0.07] transition-all shadow-lg shadow-black/20"
+                      className="group relative rounded-3xl border border-plum/10 bg-white p-5 sm:p-6 backdrop-blur-md flex flex-col justify-between space-y-4 hover:border-plum/30 hover:shadow-md transition-all shadow-sm"
                     >
                       <div>
                         {/* Top Image + Badges */}
@@ -2440,10 +2436,10 @@ function AdminDashboard() {
                             <img
                               src={product.img}
                               alt={product.name}
-                              className="h-22 w-22 rounded-xl object-cover bg-[#F7EBE8] border border-white/15"
+                              className="h-22 w-22 rounded-2xl object-cover bg-[#FAF7F2] border border-plum/10"
                             />
                             {product.discountBadge && (
-                              <span className="absolute -top-1.5 -left-1.5 rounded-full bg-red-500/90 px-2 py-0.5 text-[9px] font-bold text-white shadow-xs">
+                              <span className="absolute -top-1.5 -left-1.5 rounded-full bg-rose-500 px-2 py-0.5 text-[9px] font-bold text-white shadow-xs">
                                 {product.discountBadge}
                               </span>
                             )}
@@ -2451,26 +2447,26 @@ function AdminDashboard() {
 
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-300 truncate">
+                              <span className="text-[10px] uppercase tracking-wider font-bold text-lavender-deep truncate">
                                 {product.categoryLabel}
                               </span>
                               {product.badge && (
-                                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-bold text-white/80 border border-white/15">
+                                <span className="rounded-full bg-plum/5 px-2 py-0.5 text-[9px] font-bold text-plum border border-plum/15">
                                   {product.badge}
                                 </span>
                               )}
                             </div>
 
-                            <h4 className="font-sans font-bold text-base text-white truncate mt-1">
+                            <h4 className="font-sans font-bold text-base text-plum truncate mt-1">
                               {product.name}
                             </h4>
 
                             <div className="flex items-center gap-2 mt-1.5">
-                              <span className="text-base font-bold text-amber-300">
+                              <span className="text-base font-bold text-amber-700">
                                 {product.price}
                               </span>
                               {product.originalPrice && (
-                                <span className="text-xs text-white/40 line-through">
+                                <span className="text-xs text-plum/40 line-through">
                                   {product.originalPrice}
                                 </span>
                               )}
@@ -2478,9 +2474,9 @@ function AdminDashboard() {
 
                             {/* Variants count */}
                             {product.dots && product.dots.length > 0 && (
-                              <div className="flex items-center gap-1 mt-2 text-[10px] text-white/50">
+                              <div className="flex items-center gap-1 mt-2 text-[10px] text-plum/60">
                                 <span>{product.dots.length} lengths/variants:</span>
-                                <span className="text-white/80 font-semibold truncate">
+                                <span className="text-plum font-semibold truncate">
                                   {product.dots.map((d) => d.name).join(", ")}
                                 </span>
                               </div>
@@ -2489,25 +2485,25 @@ function AdminDashboard() {
                         </div>
 
                         {/* Description */}
-                        <p className="text-xs text-white/70 line-clamp-2 leading-relaxed font-sans mt-3">
+                        <p className="text-xs text-plum/70 line-clamp-2 leading-relaxed font-sans mt-3">
                           {product.desc}
                         </p>
                       </div>
 
                       {/* Controls Strip */}
-                      <div className="pt-3 border-t border-white/10 space-y-2.5">
+                      <div className="pt-3 border-t border-plum/10 space-y-2.5">
                         <div className="flex items-center justify-between">
                           {/* Pin to Home Toggle */}
                           <button
                             type="button"
                             onClick={() => togglePinProduct(product.id)}
-                            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                               isPinned
-                                ? "bg-amber-400 text-plum shadow-sm"
-                                : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white border border-white/15"
+                                ? "bg-amber-100 text-amber-900 border border-amber-300 shadow-xs"
+                                : "bg-[#FAF7F2] text-plum/60 hover:bg-plum/5 hover:text-plum border border-plum/15"
                             }`}
                           >
-                            <Crown className="h-3 w-3" />
+                            <Crown className="h-3 w-3 text-amber-600" />
                             <span>{isPinned ? "Pinned" : "Pin Home"}</span>
                           </button>
 
@@ -2516,7 +2512,7 @@ function AdminDashboard() {
                             <button
                               type="button"
                               onClick={() => handleOpenEditProduct(product)}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-amber-300 hover:bg-amber-400/20 transition-colors cursor-pointer"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-plum/15 bg-white text-plum hover:bg-plum/5 transition-colors cursor-pointer shadow-xs"
                               title="Edit product details"
                             >
                               <Pencil className="h-3.5 w-3.5" />
@@ -2525,7 +2521,7 @@ function AdminDashboard() {
                             <button
                               type="button"
                               onClick={() => handleDuplicateProduct(product)}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-indigo-300 hover:bg-indigo-400/20 transition-colors cursor-pointer"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-plum/15 bg-white text-lavender-deep hover:bg-plum/5 transition-colors cursor-pointer shadow-xs"
                               title="Duplicate as new product"
                             >
                               <CopyPlus className="h-3.5 w-3.5" />
@@ -2534,7 +2530,7 @@ function AdminDashboard() {
                             <button
                               type="button"
                               onClick={() => setDeleteConfirmProduct(product)}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-plum/15 bg-white text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer shadow-xs"
                               title="Delete product"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -2546,7 +2542,7 @@ function AdminDashboard() {
                               )}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors shadow-xs"
                               title="Test client WhatsApp inquiry"
                             >
                               <MessageCircle className="h-3.5 w-3.5" />
@@ -2564,22 +2560,22 @@ function AdminDashboard() {
             {/* ADD / EDIT PRODUCT MODAL */}
             {/* ==================================================== */}
             {isProductModalOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-                <div className="relative w-full max-w-2xl rounded-3xl border border-white/15 bg-[#170E15] p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto space-y-6">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-plum/40 backdrop-blur-md p-4 overflow-y-auto">
+                <div className="relative w-full max-w-2xl rounded-3xl border border-plum/15 bg-white p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto space-y-6 text-plum">
                   {/* Modal Header */}
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <div className="flex items-center justify-between border-b border-plum/10 pb-4">
                     <div>
-                      <h3 className="font-display text-2xl text-white">
+                      <h3 className="font-display text-2xl text-plum font-bold">
                         {editingProductId ? "Edit Boutique Product" : "Add New Boutique Product"}
                       </h3>
-                      <p className="text-xs text-white/60 mt-0.5">
+                      <p className="text-xs text-plum/60 mt-0.5">
                         Configure pricing, variants, descriptions, and visual presentation.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsProductModalOpen(false)}
-                      className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-white/60 hover:bg-white/15 hover:text-white cursor-pointer"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FAF7F2] text-plum/60 hover:bg-plum/10 hover:text-plum cursor-pointer"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -2590,7 +2586,7 @@ function AdminDashboard() {
                     {/* Basic Info */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Product Name / Title *
                         </label>
                         <input
@@ -2599,18 +2595,18 @@ function AdminDashboard() {
                           value={formName}
                           onChange={(e) => setFormName(e.target.value)}
                           placeholder="e.g. Bone Straight 30 Inch Virgin Unit"
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Category *
                         </label>
                         <select
                           value={formCategory}
                           onChange={(e) => setFormCategory(e.target.value as "wigs" | "cosmetics")}
-                          className="w-full rounded-xl border border-white/15 bg-[#251522] px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         >
                           <option value="wigs">Luxury Wigs &amp; Extensions</option>
                           <option value="cosmetics">Signature Cosmetics &amp; Tools</option>
@@ -2621,7 +2617,7 @@ function AdminDashboard() {
                     {/* Pricing */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Selling Price (₦) *
                         </label>
                         <input
@@ -2634,12 +2630,12 @@ function AdminDashboard() {
                             if (!isNaN(num)) setFormNumericPrice(num);
                           }}
                           placeholder="₦280,000"
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-amber-300 font-bold focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-amber-700 font-bold focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Original / Strikethrough Price
                         </label>
                         <input
@@ -2647,12 +2643,12 @@ function AdminDashboard() {
                           value={formOriginalPrice}
                           onChange={(e) => setFormOriginalPrice(e.target.value)}
                           placeholder="₦350,000"
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white/70 focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum/70 focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Numeric Value (for sort)
                         </label>
                         <input
@@ -2660,7 +2656,7 @@ function AdminDashboard() {
                           required
                           value={formNumericPrice}
                           onChange={(e) => setFormNumericPrice(Number(e.target.value))}
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
                     </div>
@@ -2668,13 +2664,13 @@ function AdminDashboard() {
                     {/* Badges & Promo Tag */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Featured Badge
                         </label>
                         <select
                           value={formBadge}
                           onChange={(e) => setFormBadge(e.target.value as Product["badge"] | "")}
-                          className="w-full rounded-xl border border-white/15 bg-[#251522] px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         >
                           <option value="">None</option>
                           <option value="Bestseller">Bestseller</option>
@@ -2686,7 +2682,7 @@ function AdminDashboard() {
                       </div>
 
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Discount Tag Badge
                         </label>
                         <input
@@ -2694,14 +2690,14 @@ function AdminDashboard() {
                           value={formDiscountBadge}
                           onChange={(e) => setFormDiscountBadge(e.target.value)}
                           placeholder="e.g. 20% OFF or 15% OFF"
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
                     </div>
 
                     {/* Image Selection */}
                     <div className="space-y-2">
-                      <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block">
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block">
                         Select Product Visual Preset:
                       </label>
                       <div className="grid grid-cols-4 sm:grid-cols-7 gap-2.5">
@@ -2715,18 +2711,18 @@ function AdminDashboard() {
                                 setFormImg(preset.value);
                                 setFormCustomImg("");
                               }}
-                              className={`relative rounded-xl border overflow-hidden p-1 transition-all cursor-pointer ${
+                              className={`relative rounded-2xl border overflow-hidden p-1 transition-all cursor-pointer ${
                                 isSelected
-                                  ? "border-amber-400 ring-2 ring-amber-400/30 bg-amber-400/10"
-                                  : "border-white/15 hover:border-white/40 bg-white/5"
+                                  ? "border-plum ring-2 ring-plum/20 bg-plum/5"
+                                  : "border-plum/10 hover:border-plum/30 bg-[#FAF7F2]"
                               }`}
                             >
                               <img
                                 src={preset.value}
                                 alt={preset.label}
-                                className="h-14 w-full object-cover rounded-lg"
+                                className="h-14 w-full object-cover rounded-xl"
                               />
-                              <span className="block text-[9px] text-white/70 truncate mt-1 text-center font-medium">
+                              <span className="block text-[9px] text-plum/70 truncate mt-1 text-center font-medium">
                                 {preset.label.split(" ")[0]}
                               </span>
                             </button>
@@ -2735,7 +2731,7 @@ function AdminDashboard() {
                       </div>
 
                       <div className="pt-2">
-                        <label className="text-[10px] text-white/60 block mb-1">
+                        <label className="text-[10px] text-plum/60 block mb-1">
                           Or enter custom image URL:
                         </label>
                         <input
@@ -2743,7 +2739,7 @@ function AdminDashboard() {
                           value={formCustomImg}
                           onChange={(e) => setFormCustomImg(e.target.value)}
                           placeholder="https://example.com/custom-wig-photo.jpg"
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2 text-xs text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
                     </div>
@@ -2751,7 +2747,7 @@ function AdminDashboard() {
                     {/* Descriptions */}
                     <div className="space-y-3">
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Short Card Description *
                         </label>
                         <input
@@ -2760,12 +2756,12 @@ function AdminDashboard() {
                           value={formDesc}
                           onChange={(e) => setFormDesc(e.target.value)}
                           placeholder="Summary shown on product cards..."
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-amber-300 block mb-1.5">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-plum/80 block mb-1.5">
                           Full In-Depth Description
                         </label>
                         <textarea
@@ -2773,75 +2769,73 @@ function AdminDashboard() {
                           value={formFullDesc}
                           onChange={(e) => setFormFullDesc(e.target.value)}
                           placeholder="Detailed product craft, single-donor specs, and hair texture notes shown in quick view..."
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-sm text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
                     </div>
 
                     {/* Specifications Details */}
-                    <div className="border-t border-white/10 pt-4 space-y-3">
-                      <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300">
+                    <div className="border-t border-plum/10 pt-4 space-y-3">
+                      <h4 className="text-xs uppercase font-bold tracking-wider text-plum">
                         Detailed Specifications:
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div>
-                          <label className="text-white/60 block mb-1">Density / Weight:</label>
+                          <label className="text-plum/60 block mb-1">Density / Weight:</label>
                           <input
                             type="text"
                             value={formDensityOrSize}
                             onChange={(e) => setFormDensityOrSize(e.target.value)}
-                            className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                            className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3 py-2 text-xs text-plum focus:border-plum focus:bg-white focus:outline-none"
                           />
                         </div>
 
                         <div>
-                          <label className="text-white/60 block mb-1">Lace / Finish:</label>
+                          <label className="text-plum/60 block mb-1">Lace / Finish:</label>
                           <input
                             type="text"
                             value={formLaceOrFinish}
                             onChange={(e) => setFormLaceOrFinish(e.target.value)}
-                            className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                            className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3 py-2 text-xs text-plum focus:border-plum focus:bg-white focus:outline-none"
                           />
                         </div>
 
                         <div>
-                          <label className="text-white/60 block mb-1">Origin / Formulation:</label>
+                          <label className="text-plum/60 block mb-1">Origin / Formulation:</label>
                           <input
                             type="text"
                             value={formOrigin}
                             onChange={(e) => setFormOrigin(e.target.value)}
-                            className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                            className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3 py-2 text-xs text-plum focus:border-plum focus:bg-white focus:outline-none"
                           />
                         </div>
 
                         <div>
-                          <label className="text-white/60 block mb-1">Longevity:</label>
+                          <label className="text-plum/60 block mb-1">Longevity:</label>
                           <input
                             type="text"
                             value={formLongevity}
                             onChange={(e) => setFormLongevity(e.target.value)}
-                            className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                            className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3 py-2 text-xs text-plum focus:border-plum focus:bg-white focus:outline-none"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="text-white/60 block mb-1 text-xs">
-                          Studio Care Tips:
-                        </label>
+                        <label className="text-plum/60 block mb-1 text-xs">Studio Care Tips:</label>
                         <input
                           type="text"
                           value={formCareTips}
                           onChange={(e) => setFormCareTips(e.target.value)}
-                          className="w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-white focus:border-amber-300 focus:outline-none"
+                          className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3 py-2 text-xs text-plum focus:border-plum focus:bg-white focus:outline-none"
                         />
                       </div>
                     </div>
 
                     {/* Variant Lengths / Shades */}
-                    <div className="border-t border-white/10 pt-4 space-y-3">
+                    <div className="border-t border-plum/10 pt-4 space-y-3">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300">
+                        <h4 className="text-xs uppercase font-bold tracking-wider text-plum">
                           Length / Color Variants ({formDots.length}):
                         </h4>
                         <button
@@ -2857,7 +2851,7 @@ function AdminDashboard() {
                               },
                             ]);
                           }}
-                          className="text-[11px] font-bold text-amber-300 hover:text-white flex items-center gap-1 cursor-pointer"
+                          className="text-[11px] font-bold text-lavender-deep hover:text-plum flex items-center gap-1 cursor-pointer"
                         >
                           <Plus className="h-3 w-3" />
                           <span>Add Variant</span>
@@ -2868,7 +2862,7 @@ function AdminDashboard() {
                         {formDots.map((dot, index) => (
                           <div
                             key={index}
-                            className="flex items-center gap-2 rounded-xl bg-white/5 p-2 border border-white/10"
+                            className="flex items-center gap-2 rounded-xl bg-[#FAF7F2] p-2 border border-plum/10"
                           >
                             <input
                               type="text"
@@ -2879,7 +2873,7 @@ function AdminDashboard() {
                                 setFormDots(next);
                               }}
                               placeholder="e.g. 26 Inch"
-                              className="flex-1 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                              className="flex-1 rounded-lg border border-plum/20 bg-white px-2.5 py-1.5 text-xs text-plum focus:outline-none"
                             />
                             <input
                               type="text"
@@ -2892,7 +2886,7 @@ function AdminDashboard() {
                                 setFormDots(next);
                               }}
                               placeholder="₦340,000"
-                              className="w-28 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs text-amber-300 font-bold focus:outline-none"
+                              className="w-28 rounded-lg border border-plum/20 bg-white px-2.5 py-1.5 text-xs text-amber-700 font-bold focus:outline-none"
                             />
                             <button
                               type="button"
@@ -2903,7 +2897,7 @@ function AdminDashboard() {
                                 }
                                 setFormDots(formDots.filter((_, i) => i !== index));
                               }}
-                              className="text-red-400 hover:text-red-300 p-1.5 cursor-pointer"
+                              className="text-rose-500 hover:text-rose-700 p-1.5 cursor-pointer"
                               title="Remove variant"
                             >
                               <X className="h-3.5 w-3.5" />
@@ -2914,17 +2908,17 @@ function AdminDashboard() {
                     </div>
 
                     {/* Actions */}
-                    <div className="border-t border-white/10 pt-4 flex items-center justify-end gap-3">
+                    <div className="border-t border-plum/10 pt-4 flex items-center justify-end gap-3">
                       <button
                         type="button"
                         onClick={() => setIsProductModalOpen(false)}
-                        className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 hover:text-white cursor-pointer"
+                        className="rounded-xl border border-plum/15 bg-white px-5 py-2.5 text-xs font-bold text-plum/70 hover:bg-plum/5 hover:text-plum cursor-pointer"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="flex items-center gap-2 rounded-xl bg-amber-400 text-plum px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-400/20 hover:bg-amber-300 active:scale-95 transition-all cursor-pointer"
+                        className="flex items-center gap-2 rounded-xl bg-plum text-[#FAF9F5] px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-lg shadow-plum/20 hover:bg-lavender-deep active:scale-95 transition-all cursor-pointer"
                       >
                         <Save className="h-4 w-4" />
                         <span>Save &amp; Publish Product</span>
@@ -2939,18 +2933,18 @@ function AdminDashboard() {
             {/* DELETE CONFIRMATION MODAL */}
             {/* ==================================================== */}
             {deleteConfirmProduct && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
-                <div className="relative w-full max-w-md rounded-3xl border border-red-500/30 bg-[#170E15] p-6 shadow-2xl text-center space-y-4">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/15 text-red-400 border border-red-500/30">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-plum/40 backdrop-blur-md p-4 animate-in fade-in duration-150">
+                <div className="relative w-full max-w-md rounded-3xl border border-rose-200 bg-white p-6 sm:p-8 shadow-2xl text-center space-y-4 text-plum">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 border border-rose-200">
                     <Trash2 className="h-6 w-6" />
                   </div>
                   <div>
-                    <h4 className="font-display text-xl text-white">Delete Product Item?</h4>
-                    <p className="text-xs text-white/70 mt-1.5 leading-relaxed">
+                    <h4 className="font-display text-xl text-plum font-bold">
+                      Delete Product Item?
+                    </h4>
+                    <p className="text-xs text-plum/70 mt-1.5 leading-relaxed">
                       Are you sure you want to remove{" "}
-                      <span className="font-bold text-amber-300">
-                        "{deleteConfirmProduct.name}"
-                      </span>{" "}
+                      <span className="font-bold text-plum">"{deleteConfirmProduct.name}"</span>{" "}
                       from the boutique inventory? This item will no longer appear on the `/shop` or
                       homepage.
                     </p>
@@ -2960,14 +2954,14 @@ function AdminDashboard() {
                     <button
                       type="button"
                       onClick={() => setDeleteConfirmProduct(null)}
-                      className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-xs font-bold text-white/70 hover:bg-white/10 hover:text-white cursor-pointer"
+                      className="rounded-xl border border-plum/15 bg-white px-5 py-2.5 text-xs font-bold text-plum/70 hover:bg-plum/5 hover:text-plum cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteProduct(deleteConfirmProduct)}
-                      className="rounded-xl bg-red-500 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-red-600 active:scale-95 transition-all cursor-pointer shadow-lg shadow-red-500/20"
+                      className="rounded-xl bg-rose-600 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-rose-700 active:scale-95 transition-all cursor-pointer shadow-lg shadow-rose-500/20"
                     >
                       Yes, Delete Product
                     </button>
@@ -2979,67 +2973,77 @@ function AdminDashboard() {
         )}
 
         {/* ==================================================== */}
-        {/* MODULE 4: HERO LOOKBOOK ACCORDION CURATOR */}
+        {/* MODULE 4: LOOKBOOK SLIDER CURATOR */}
         {/* ==================================================== */}
         {activeTab === "lookbook" && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div>
-              <h3 className="font-display text-2xl sm:text-3xl text-white">
-                Hero Accordion Carousel Curator
-              </h3>
-              <p className="text-xs text-white/60 mt-1">
-                Reorder and curate the 4 signature bridal looks that expand and contract on the
-                homepage hero section.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-display text-2xl sm:text-3xl text-plum font-bold flex items-center gap-2.5">
+                  <ImageIcon className="h-7 w-7 text-lavender-deep" />
+                  <span>Homepage Lookbook &amp; Editorial Slides</span>
+                </h3>
+                <p className="text-xs text-plum/60 mt-1">
+                  Arrange slide orders and customize headings displayed on the homepage bridal
+                  accordion.
+                </p>
+              </div>
+
+              <span className="rounded-xl bg-plum/5 border border-plum/15 px-3.5 py-2 text-xs font-bold text-plum self-start sm:self-auto">
+                {lookbookSlides.length} Editorial Slides Active
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {lookbookSlides.map((slide, index) => (
                 <div
                   key={slide.id}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-col justify-between space-y-3 backdrop-blur-md hover:border-amber-400/40 transition-all"
+                  className="rounded-3xl border border-plum/10 bg-white p-5 sm:p-6 shadow-sm space-y-4 hover:border-plum/30 transition-all"
                 >
-                  <div className="relative h-56 rounded-xl overflow-hidden border border-white/10">
-                    <img src={slide.img} alt={slide.title} className="h-full w-full object-cover" />
-                    <div className="absolute top-2 left-2 flex items-center gap-1 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-bold text-amber-300 backdrop-blur-md">
-                      <span>{slide.vol}</span>
-                    </div>
-                    <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-plum font-display font-bold text-xs">
-                      {slide.num}
+                  <div className="flex items-start gap-4">
+                    <img
+                      src={slide.img}
+                      alt={slide.title}
+                      className="h-28 w-24 rounded-2xl object-cover border border-plum/10 shadow-xs shrink-0"
+                    />
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-display text-base font-bold text-lavender-deep">
+                          Slide #{slide.num}
+                        </span>
+                        <span className="text-[10px] uppercase font-bold text-plum/60 bg-plum/5 px-2 py-0.5 rounded-full border border-plum/10">
+                          {slide.category}
+                        </span>
+                      </div>
+                      <h4 className="font-display text-lg font-bold text-plum truncate">
+                        {slide.title}
+                      </h4>
+                      <p className="text-xs text-plum/70 truncate">{slide.subtitle}</p>
+                      <p className="text-[11px] text-plum/50 italic truncate">{slide.technique}</p>
                     </div>
                   </div>
 
-                  <div>
-                    <span className="text-[9.5px] uppercase tracking-wider font-bold text-amber-300 block">
-                      {slide.tag}
+                  {/* Move Up / Down Buttons */}
+                  <div className="pt-3 border-t border-plum/10 flex items-center justify-between text-xs">
+                    <span className="text-[11px] font-semibold text-plum/60">
+                      Editorial Sequence
                     </span>
-                    <h4 className="font-display text-lg text-white font-semibold italic mt-0.5">
-                      {slide.title}
-                    </h4>
-                    <p className="text-xs text-white/60 mt-0.5">{slide.technique}</p>
-                  </div>
-
-                  {/* Reorder Buttons */}
-                  <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                    <span className="text-[10px] uppercase font-bold text-white/40">
-                      Position: {index + 1} of {lookbookSlides.length}
-                    </span>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleMoveSlide(index, "up")}
+                        type="button"
                         disabled={index === 0}
-                        aria-label="Move lookbook slide left"
-                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white hover:bg-white/20 disabled:opacity-30 cursor-pointer"
+                        onClick={() => handleMoveSlide(index, "up")}
+                        className="rounded-xl border border-plum/15 bg-[#FAF7F2] px-3 py-1.5 font-bold text-xs text-plum hover:bg-plum/10 disabled:opacity-30 cursor-pointer"
                       >
-                        <ChevronLeft className="h-3.5 w-3.5" />
+                        ▲ Move Earlier
                       </button>
                       <button
-                        onClick={() => handleMoveSlide(index, "down")}
+                        type="button"
                         disabled={index === lookbookSlides.length - 1}
-                        aria-label="Move lookbook slide right"
-                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white hover:bg-white/20 disabled:opacity-30 cursor-pointer"
+                        onClick={() => handleMoveSlide(index, "down")}
+                        className="rounded-xl border border-plum/15 bg-[#FAF7F2] px-3 py-1.5 font-bold text-xs text-plum hover:bg-plum/10 disabled:opacity-30 cursor-pointer"
                       >
-                        <ChevronRight className="h-3.5 w-3.5" />
+                        ▼ Move Later
                       </button>
                     </div>
                   </div>
@@ -3050,182 +3054,188 @@ function AdminDashboard() {
         )}
 
         {/* ==================================================== */}
-        {/* MODULE 5: STUDIO CONCIERGE & CONTACT SETTINGS */}
+        {/* MODULE 5: STUDIO CONTACTS & CONCIERGE */}
         {/* ==================================================== */}
         {activeTab === "concierge" && (
-          <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8 backdrop-blur-md space-y-6">
-              <div>
-                <h3 className="font-display text-2xl text-white">
-                  Studio Concierge &amp; Contact Synced Settings
-                </h3>
-                <p className="text-xs text-white/60 mt-1">
-                  These hotline numbers and addresses are synchronized across the landing page
-                  footer, booking confirmation screen, and shop concierge.
-                </p>
-              </div>
+          <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-300">
+            <div>
+              <h3 className="font-display text-2xl sm:text-3xl text-plum font-bold flex items-center gap-2.5">
+                <Sliders className="h-7 w-7 text-lavender-deep" />
+                <span>Studio Concierge &amp; Direct Hotline</span>
+              </h3>
+              <p className="text-xs text-plum/60 mt-1">
+                Configure primary WhatsApp phone number, physical studio address, and operating
+                hours.
+              </p>
+            </div>
 
+            <form
+              onSubmit={handleSaveContacts}
+              className="rounded-3xl border border-plum/15 bg-white p-6 sm:p-8 shadow-sm space-y-6"
+            >
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs uppercase tracking-wider font-bold text-amber-300 block mb-2 flex items-center gap-1.5">
-                    <Phone className="h-3.5 w-3.5" /> Studio Hotline &amp; WhatsApp Number:
+                  <label className="text-xs uppercase tracking-wider font-bold text-plum/80 block mb-2">
+                    Primary WhatsApp Hotline:
                   </label>
                   <input
                     type="text"
+                    required
                     value={studioPhone}
                     onChange={(e) => setStudioPhone(e.target.value)}
-                    className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white focus:border-amber-300 focus:outline-none"
+                    className="w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] px-4 py-3 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                   />
-                  <span className="text-[10px] text-white/40 mt-1 block">
-                    Rendered as clickable link in footer directly under "{studioLocation}".
+                  <span className="text-[10px] text-plum/50 mt-1 block">
+                    Clients will be directed here from WhatsApp booking buttons.
                   </span>
                 </div>
 
                 <div>
-                  <label className="text-xs uppercase tracking-wider font-bold text-amber-300 block mb-2 flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5" /> Studio City / Location:
+                  <label className="text-xs uppercase tracking-wider font-bold text-plum/80 block mb-2">
+                    Studio Location Label:
                   </label>
                   <input
                     type="text"
+                    required
                     value={studioLocation}
                     onChange={(e) => setStudioLocation(e.target.value)}
-                    className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white focus:border-amber-300 focus:outline-none"
+                    className="w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] px-4 py-3 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs uppercase tracking-wider font-bold text-amber-300 block mb-2 flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" /> Studio Operating Hours:
+                  <label className="text-xs uppercase tracking-wider font-bold text-plum/80 block mb-2">
+                    Studio Operating Hours:
                   </label>
                   <input
                     type="text"
+                    required
                     value={studioHours}
                     onChange={(e) => setStudioHours(e.target.value)}
-                    className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white focus:border-amber-300 focus:outline-none"
+                    className="w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] px-4 py-3 text-sm text-plum focus:border-plum focus:bg-white focus:outline-none"
                   />
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs uppercase tracking-wider font-bold text-amber-300 block mb-2">
-                      Instagram Handle:
-                    </label>
-                    <input
-                      type="text"
-                      value={instagramHandle}
-                      onChange={(e) => setInstagramHandle(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white focus:border-amber-300 focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs uppercase tracking-wider font-bold text-amber-300 block mb-2">
-                      TikTok Handle:
-                    </label>
-                    <input
-                      type="text"
-                      value={tiktokHandle}
-                      onChange={(e) => setTiktokHandle(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white focus:border-amber-300 focus:outline-none"
-                    />
-                  </div>
-                </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex justify-end">
+              <div className="pt-4 border-t border-plum/10 flex items-center justify-end">
                 <button
-                  type="button"
-                  onClick={() => toast.success("Studio concierge details saved and synchronized.")}
-                  className="flex items-center gap-2 rounded-xl bg-amber-400 text-plum px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-amber-300 active:scale-95 transition-all shadow-lg shadow-amber-400/20 cursor-pointer"
+                  type="submit"
+                  className="flex items-center gap-2 rounded-xl bg-plum text-[#FAF9F5] px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-lavender-deep active:scale-95 transition-all shadow-lg shadow-plum/20 cursor-pointer"
                 >
                   <Save className="h-4 w-4" />
-                  <span>Update Studio Contact Info</span>
+                  <span>{contactSaved ? "Saved Successfully!" : "Save Studio Contacts"}</span>
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         )}
 
         {/* ==================================================== */}
-        {/* MODULE 6: STUDIO REVENUE & DEMAND ANALYTICS */}
+        {/* MODULE 6: PERFORMANCE & REVENUE ANALYTICS */}
         {/* ==================================================== */}
         {activeTab === "analytics" && (
-          <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="space-y-8 animate-in fade-in duration-300">
             <div>
-              <h3 className="font-display text-2xl sm:text-3xl text-white">
-                Studio Performance &amp; Demand Insights
+              <h3 className="font-display text-2xl sm:text-3xl text-plum font-bold flex items-center gap-2.5">
+                <BarChart3 className="h-7 w-7 text-lavender-deep" />
+                <span>Performance &amp; Conversion Analytics</span>
               </h3>
-              <p className="text-xs text-white/60 mt-1">
-                Real-time booking distribution, pipeline valuation, and popular bridal artistry
-                breakdown.
+              <p className="text-xs text-plum/60 mt-1">
+                Real-time booking conversion, pipeline valuation, and client engagement metrics.
               </p>
             </div>
 
-            {/* Service Popularity Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md space-y-4">
-                <h4 className="font-display text-xl text-white">Most Requested Services</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="rounded-3xl border border-plum/10 bg-white p-6 sm:p-8 shadow-sm space-y-4">
+                <h4 className="font-display text-xl text-plum font-bold">
+                  Appointment Conversion Pipeline
+                </h4>
+
                 <div className="space-y-3">
-                  {[
-                    { name: "Bridal Makeup", pct: 45, count: 18, color: "bg-amber-400" },
-                    { name: "Gele Styling", pct: 25, count: 10, color: "bg-lavender-deep" },
-                    { name: "Professional Glam", pct: 15, count: 6, color: "bg-emerald-400" },
-                    { name: "Beauty Masterclasses", pct: 15, count: 6, color: "bg-indigo-400" },
-                  ].map((srv) => (
-                    <div key={srv.name} className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-white/80">{srv.name}</span>
-                        <span className="text-amber-300 font-bold">
-                          {srv.pct}% ({srv.count} sessions)
-                        </span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${srv.color}`}
-                          style={{ width: `${srv.pct}%` }}
-                        />
-                      </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-1 font-semibold">
+                      <span>Confirmed Sessions</span>
+                      <span className="text-emerald-700 font-bold">{stats.confirmed}</span>
                     </div>
-                  ))}
+                    <div className="h-3 w-full rounded-full bg-plum/5 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                        style={{
+                          width: `${stats.total > 0 ? (stats.confirmed / stats.total) * 100 : 0}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs mb-1 font-semibold">
+                      <span>Completed Artistry</span>
+                      <span className="text-indigo-700 font-bold">{stats.completed}</span>
+                    </div>
+                    <div className="h-3 w-full rounded-full bg-plum/5 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+                        style={{
+                          width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs mb-1 font-semibold">
+                      <span>Pending Inquiries</span>
+                      <span className="text-amber-800 font-bold">{stats.pending}</span>
+                    </div>
+                    <div className="h-3 w-full rounded-full bg-plum/5 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-amber-400 transition-all duration-500"
+                        style={{
+                          width: `${stats.total > 0 ? (stats.pending / stats.total) * 100 : 0}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Conversion & Reliability Cards */}
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md flex flex-col justify-between space-y-6">
+              <div className="rounded-3xl border border-plum/10 bg-white p-6 sm:p-8 shadow-sm space-y-6 flex flex-col justify-between">
                 <div>
-                  <h4 className="font-display text-xl text-white">Client Conversion Efficiency</h4>
-                  <p className="text-xs text-white/60 mt-1">
-                    Based on ratio of registered inquiries converted into confirmed studio bookings.
+                  <h4 className="font-display text-xl text-plum font-bold">
+                    Financial &amp; Revenue Projection
+                  </h4>
+                  <p className="text-xs text-plum/60 mt-1">
+                    Calculated from confirmed and pending bridal packages.
                   </p>
                 </div>
 
-                <div className="flex items-center justify-around py-4 border-y border-white/10">
+                <div className="flex items-center justify-around py-4 border-y border-plum/10">
                   <div className="text-center">
-                    <span className="font-display text-4xl font-bold text-emerald-400">
+                    <span className="font-display text-4xl font-bold text-emerald-700">
                       {stats.conversionRate}%
                     </span>
-                    <span className="text-[10px] uppercase font-bold text-white/50 block mt-1">
+                    <span className="text-[10px] uppercase font-bold text-plum/50 block mt-1">
                       Inquiry Conversion
                     </span>
                   </div>
 
-                  <div className="h-12 w-px bg-white/10" />
+                  <div className="h-12 w-px bg-plum/10" />
 
                   <div className="text-center">
-                    <span className="font-display text-4xl font-bold text-amber-300">
+                    <span className="font-display text-4xl font-bold text-plum">
                       ₦{Math.round(stats.estimatedValue / (stats.total || 1)).toLocaleString()}
                     </span>
-                    <span className="text-[10px] uppercase font-bold text-white/50 block mt-1">
+                    <span className="text-[10px] uppercase font-bold text-plum/50 block mt-1">
                       Avg Inquiry Value
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-white/60">
+                <div className="flex items-center justify-between text-xs text-plum/60">
                   <span>Fast WhatsApp response increases booking rate by 38%</span>
                   <button
                     onClick={() => setActiveTab("appointments")}
-                    className="text-amber-300 hover:text-white flex items-center gap-1 font-bold uppercase tracking-wider text-[11px]"
+                    className="text-lavender-deep hover:text-plum flex items-center gap-1 font-bold uppercase tracking-wider text-[11px]"
                   >
                     <span>View CRM</span>
                     <ChevronRight className="h-3 w-3" />
@@ -3235,23 +3245,24 @@ function AdminDashboard() {
             </div>
           </div>
         )}
+
         {/* ==================================================== */}
         {/* SETTINGS & PREFERENCES MODAL */}
         {/* ==================================================== */}
         {isSettingsModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-            <div className="relative w-full max-w-xl rounded-3xl border border-white/15 bg-[#170E15] p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto space-y-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-plum/40 backdrop-blur-md p-4 overflow-y-auto">
+            <div className="relative w-full max-w-xl rounded-3xl border border-plum/15 bg-white p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto space-y-6 text-plum">
               {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center justify-between border-b border-plum/10 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/15 text-amber-300 border border-amber-400/30">
-                    <Settings className="h-5 w-5" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-plum/5 text-plum border border-plum/15">
+                    <Settings className="h-5 w-5 text-lavender-deep" />
                   </div>
                   <div>
-                    <h3 className="font-display text-xl sm:text-2xl text-white">
+                    <h3 className="font-display text-xl sm:text-2xl text-plum font-bold">
                       Studio &amp; Suite Settings
                     </h3>
-                    <p className="text-xs text-white/60">
+                    <p className="text-xs text-plum/60">
                       Manage administrator profile, workspace preferences, and security options.
                     </p>
                   </div>
@@ -3259,7 +3270,7 @@ function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => setIsSettingsModalOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-white/60 hover:bg-white/15 hover:text-white cursor-pointer"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FAF7F2] text-plum/60 hover:bg-plum/10 hover:text-plum cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -3269,60 +3280,64 @@ function AdminDashboard() {
               <div className="space-y-5">
                 {/* Profile Section */}
                 <div className="space-y-3">
-                  <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1.5">
-                    <User className="h-3.5 w-3.5" />
+                  <h4 className="text-xs uppercase font-bold tracking-wider text-plum flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-lavender-deep" />
                     <span>Administrator Profile</span>
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="text-[11px] text-white/60 block mb-1">Display Name:</label>
+                      <label className="text-[11px] text-plum/60 block mb-1 font-semibold">
+                        Display Name:
+                      </label>
                       <input
                         type="text"
                         value={currentAdminUser}
                         onChange={(e) => setCurrentAdminUser(e.target.value)}
-                        className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-xs text-white focus:border-amber-300 focus:outline-none"
+                        className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-xs text-plum focus:border-plum focus:bg-white focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[11px] text-white/60 block mb-1">
+                      <label className="text-[11px] text-plum/60 block mb-1 font-semibold">
                         Role Designation:
                       </label>
                       <input
                         type="text"
                         value={adminRole}
                         onChange={(e) => setAdminRole(e.target.value)}
-                        className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-xs text-white focus:border-amber-300 focus:outline-none"
+                        className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-xs text-plum focus:border-plum focus:bg-white focus:outline-none"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-white/60 block mb-1">Contact Email:</label>
+                    <label className="text-[11px] text-plum/60 block mb-1 font-semibold">
+                      Contact Email:
+                    </label>
                     <input
                       type="email"
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-xs text-white focus:border-amber-300 focus:outline-none"
+                      className="w-full rounded-xl border border-plum/20 bg-[#FAF7F2] px-3.5 py-2.5 text-xs text-plum focus:border-plum focus:bg-white focus:outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Workspace Preferences */}
-                <div className="border-t border-white/10 pt-4 space-y-3">
-                  <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1.5">
-                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                <div className="border-t border-plum/10 pt-4 space-y-3">
+                  <h4 className="text-xs uppercase font-bold tracking-wider text-plum flex items-center gap-1.5">
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-lavender-deep" />
                     <span>Workspace Preferences</span>
                   </h4>
 
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between rounded-xl bg-white/5 p-3 border border-white/10">
+                    <div className="flex items-center justify-between rounded-2xl bg-[#FAF7F2] p-3.5 border border-plum/10">
                       <div>
-                        <span className="text-xs font-semibold text-white block">
+                        <span className="text-xs font-semibold text-plum block">
                           Sound Cues &amp; Audio Notifications
                         </span>
-                        <span className="text-[10px] text-white/50">
+                        <span className="text-[10px] text-plum/50">
                           Play soft chime when new bridal inquiry is registered.
                         </span>
                       </div>
@@ -3330,54 +3345,54 @@ function AdminDashboard() {
                         type="button"
                         onClick={() => setSoundNotifications(!soundNotifications)}
                         className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${
-                          soundNotifications ? "bg-amber-400" : "bg-white/20"
+                          soundNotifications ? "bg-plum" : "bg-plum/20"
                         }`}
                       >
                         <div
-                          className={`h-5 w-5 rounded-full bg-plum shadow-md transition-transform ${
+                          className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
                             soundNotifications ? "translate-x-5" : "translate-x-0"
                           }`}
                         />
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between rounded-xl bg-white/5 p-3 border border-white/10">
+                    <div className="flex items-center justify-between rounded-2xl bg-[#FAF7F2] p-3.5 border border-plum/10">
                       <div>
-                        <span className="text-xs font-semibold text-white block">
-                          Ambient Luxury Glow
+                        <span className="text-xs font-semibold text-plum block">
+                          Ambient Luxury Background Glow
                         </span>
-                        <span className="text-[10px] text-white/50">
-                          Show animated plum and gold background gradients.
+                        <span className="text-[10px] text-plum/50">
+                          Display soft blush and mauve background radial lighting.
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => setAmbientGlow(!ambientGlow)}
                         className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${
-                          ambientGlow ? "bg-amber-400" : "bg-white/20"
+                          ambientGlow ? "bg-plum" : "bg-plum/20"
                         }`}
                       >
                         <div
-                          className={`h-5 w-5 rounded-full bg-plum shadow-md transition-transform ${
+                          className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
                             ambientGlow ? "translate-x-5" : "translate-x-0"
                           }`}
                         />
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between rounded-xl bg-white/5 p-3 border border-white/10">
+                    <div className="flex items-center justify-between rounded-2xl bg-[#FAF7F2] p-3.5 border border-plum/10">
                       <div>
-                        <span className="text-xs font-semibold text-white block">
+                        <span className="text-xs font-semibold text-plum block">
                           Auto-Refresh Interval
                         </span>
-                        <span className="text-[10px] text-white/50">
+                        <span className="text-[10px] text-plum/50">
                           Automatically poll for new customer appointments.
                         </span>
                       </div>
                       <select
                         value={autoRefreshInterval}
                         onChange={(e) => setAutoRefreshInterval(Number(e.target.value))}
-                        className="rounded-lg border border-white/15 bg-[#251522] px-2.5 py-1.5 text-xs text-white focus:border-amber-300 focus:outline-none"
+                        className="rounded-xl border border-plum/20 bg-white px-3 py-1.5 text-xs text-plum font-semibold focus:border-plum focus:outline-none"
                       >
                         <option value={0}>Manual Only</option>
                         <option value={30}>Every 30 Seconds</option>
@@ -3389,32 +3404,32 @@ function AdminDashboard() {
                 </div>
 
                 {/* Security & Access Section */}
-                <div className="border-t border-white/10 pt-4 space-y-3">
-                  <h4 className="text-xs uppercase font-bold tracking-wider text-amber-300 flex items-center gap-1.5">
-                    <ShieldCheck className="h-3.5 w-3.5" />
+                <div className="border-t border-plum/10 pt-4 space-y-3">
+                  <h4 className="text-xs uppercase font-bold tracking-wider text-plum flex items-center gap-1.5">
+                    <ShieldCheck className="h-3.5 w-3.5 text-lavender-deep" />
                     <span>Security &amp; Active Session</span>
                   </h4>
 
-                  <div className="rounded-xl bg-white/5 p-3.5 border border-white/10 space-y-2 text-xs">
-                    <div className="flex items-center justify-between text-white/70">
+                  <div className="rounded-2xl bg-[#FAF7F2] p-3.5 border border-plum/10 space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-plum/70">
                       <span>Session Duration:</span>
-                      <span className="font-semibold text-white">8 Hours (HTTP-Only Cookie)</span>
+                      <span className="font-semibold text-plum">8 Hours (HTTP-Only Cookie)</span>
                     </div>
-                    <div className="flex items-center justify-between text-white/70">
+                    <div className="flex items-center justify-between text-plum/70">
                       <span>Brute Force Lockout:</span>
-                      <span className="font-semibold text-emerald-400">
+                      <span className="font-semibold text-emerald-700">
                         Active (5 attempts / 30m lock)
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-white/70">
+                    <div className="flex items-center justify-between text-plum/70">
                       <span>Authorized Super-Admins:</span>
-                      <span className="font-semibold text-amber-300">ajuhlouis, seddypluz</span>
+                      <span className="font-semibold text-plum">ajuhlouis, seddypluz</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Data Backup Section */}
-                <div className="border-t border-white/10 pt-4 flex items-center justify-between">
+                <div className="border-t border-plum/10 pt-4 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => {
@@ -3423,6 +3438,7 @@ function AdminDashboard() {
                         appointments,
                         products: managedProducts,
                         pinnedProductIds,
+                        announcements,
                         contacts: {
                           phone: studioPhone,
                           location: studioLocation,
@@ -3440,9 +3456,9 @@ function AdminDashboard() {
                       URL.revokeObjectURL(url);
                       toast.success("Studio backup JSON exported successfully.");
                     }}
-                    className="flex items-center gap-1.5 text-xs text-amber-300 hover:text-white font-semibold cursor-pointer"
+                    className="flex items-center gap-1.5 text-xs text-plum hover:text-lavender-deep font-semibold cursor-pointer"
                   >
-                    <Download className="h-3.5 w-3.5" />
+                    <Download className="h-3.5 w-3.5 text-lavender-deep" />
                     <span>Export Full Studio Backup (JSON)</span>
                   </button>
 
@@ -3452,7 +3468,7 @@ function AdminDashboard() {
                       setIsSettingsModalOpen(false);
                       toast.success("Studio & suite preferences updated.");
                     }}
-                    className="flex items-center gap-2 rounded-xl bg-amber-400 text-plum px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-amber-300 active:scale-95 transition-all cursor-pointer shadow-md shadow-amber-400/20"
+                    className="flex items-center gap-2 rounded-xl bg-plum text-[#FAF9F5] px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-lavender-deep active:scale-95 transition-all cursor-pointer shadow-md shadow-plum/20"
                   >
                     <Save className="h-4 w-4" />
                     <span>Save Settings</span>
