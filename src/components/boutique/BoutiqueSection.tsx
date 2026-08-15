@@ -41,9 +41,10 @@ export function BoutiqueSection({ isFullShopPage = false, limit = 3 }: BoutiqueS
     const handleUpdate = () => {
       setProducts(getStoredBoutiqueProducts());
     };
-    const handleAnnounceUpdate = (e: any) => {
-      if (e?.detail?.active !== undefined) {
-        setActiveAnnouncement(e.detail.active);
+    const handleAnnounceUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<{ active?: AnnouncementItem | null }>;
+      if (customEvent?.detail?.active !== undefined) {
+        setActiveAnnouncement(customEvent.detail.active);
       } else {
         setActiveAnnouncement(getActiveAnnouncement());
       }
