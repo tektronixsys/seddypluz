@@ -1,5 +1,17 @@
-import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { FieldValue as AdminFieldValue, Timestamp as AdminTimestamp } from "firebase-admin/firestore";
 import { getAdminDb } from "./admin";
+import {
+  addDoc,
+  collection,
+  serverTimestamp as clientServerTimestamp,
+  getDocs,
+  query,
+  orderBy,
+  doc,
+  updateDoc,
+  Timestamp as ClientTimestamp,
+} from "firebase/firestore";
+import { db as clientDb } from "./config";
 
 export interface AppointmentData {
   name: string;
@@ -82,10 +94,11 @@ const mockAppointmentsStore: AppointmentRequest[] = [
 ];
 
 export async function submitAppointmentToFirestore(data: AppointmentData): Promise<string> {
-  const db = getAdminDb();
-  if (db) {
+  // 1. Try Firebase Admin SDK first (Server-side privileged execution)
+  const adminDb = getAdminDb();
+  if (adminDb) {
     try {
-      const docRef = await db.collection("appointment_requests").add({
+      const docRef = await adminDb.collection("appointment_requests").add({
         name: data.name,
         email: data.email,
         phone: data.phone || null,
@@ -94,16 +107,37 @@ export async function submitAppointmentToFirestore(data: AppointmentData): Promi
         preferred_time: data.preferredTime,
         notes: data.notes || null,
         status: "pending",
-        created_at: FieldValue.serverTimestamp(),
-        updated_at: FieldValue.serverTimestamp(),
+        created_at: AdminFieldValue.serverTimestamp(),
+        updated_at: AdminFieldValue.serverTimestamp(),
       });
       return docRef.id;
     } catch (err) {
-      console.warn("Firestore submit failed, falling back to local store:", err);
+      console.warn("Firebase Admin SDK submit failed, trying client SDK:", err);
     }
   }
 
-  // Fallback to in-memory store
+  // 2. Try Firebase Client Web SDK (configured for seddypluz project)
+  if (clientDb) {
+    try {
+      const docRef = await addDoc(collection(clientDb, "appointment_requests"), {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        service: data.service,
+        appointment_date: data.appointmentDate,
+        preferred_time: data.preferredTime,
+        notes: data.notes || null,
+        status: "pending",
+        created_at: clientServerTimestamp(),
+        updated_at: clientServerTimestamp(),
+      });
+      return docRef.id;
+    } catch (err) {
+      console.warn("Firebase Client SDK submit failed, falling back to in-memory store:", err);
+    }
+  }
+
+  // 3. Fallback to in-memory store for offline resilience
   const id = `apt_${Date.now()}`;
   mockAppointmentsStore.unshift({
     id,
@@ -122,10 +156,11 @@ export async function submitAppointmentToFirestore(data: AppointmentData): Promi
 }
 
 export async function getAppointmentRequestsFromFirestore(): Promise<AppointmentRequest[]> {
-  const db = getAdminDb();
-  if (db) {
+  // 1. Try Firebase Admin SDK first
+  const adminDb = getAdminDb();
+  if (adminDb) {
     try {
-      const querySnapshot = await db
+      const querySnapshot = await adminDb
         .collection("appointment_requests")
         .orderBy("created_at", "desc")
         .get();
@@ -146,17 +181,70 @@ export async function getAppointmentRequestsFromFirestore(): Promise<Appointment
           preferred_time: data.preferred_time || "",
           notes: data.notes || null,
           status: data.status || "pending",
-          created_at: createdAt instanceof Timestamp ? createdAt.toDate().toISOString() : null,
-          updated_at: updatedAt instanceof Timestamp ? updatedAt.toDate().toISOString() : null,
+          created_at:
+            createdAt instanceof AdminTimestamp
+              ? createdAt.toDate().toISOString()
+              : typeof createdAt === "string"
+                ? createdAt
+                : null,
+          updated_at:
+            updatedAt instanceof AdminTimestamp
+              ? updatedAt.toDate().toISOString()
+              : typeof updatedAt === "string"
+                ? updatedAt
+                : null,
         });
       });
 
       return results;
     } catch (err) {
-      console.warn("Firestore fetch failed, returning in-memory store:", err);
+      console.warn("Firebase Admin SDK fetch failed, attempting client SDK:", err);
     }
   }
 
+  // 2. Try Client SDK if permitted
+  if (clientDb) {
+    try {
+      const q = query(collection(clientDb, "appointment_requests"), orderBy("created_at", "desc"));
+      const querySnapshot = await getDocs(q);
+      const results: AppointmentRequest[] = [];
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const createdAt = data.created_at;
+        const updatedAt = data.updated_at;
+
+        results.push({
+          id: docSnap.id,
+          name: data.name || "",
+          email: data.email || "",
+          phone: data.phone || null,
+          service: data.service || "",
+          appointment_date: data.appointment_date || "",
+          preferred_time: data.preferred_time || "",
+          notes: data.notes || null,
+          status: data.status || "pending",
+          created_at:
+            createdAt instanceof ClientTimestamp
+              ? createdAt.toDate().toISOString()
+              : typeof createdAt === "string"
+                ? createdAt
+                : null,
+          updated_at:
+            updatedAt instanceof ClientTimestamp
+              ? updatedAt.toDate().toISOString()
+              : typeof updatedAt === "string"
+                ? updatedAt
+                : null,
+        });
+      });
+
+      if (results.length > 0) return results;
+    } catch (err) {
+      console.warn("Firebase Client SDK fetch blocked or failed:", err);
+    }
+  }
+
+  // 3. Fallback to in-memory store
   return [...mockAppointmentsStore];
 }
 
@@ -165,24 +253,40 @@ export async function updateAppointmentRequestInFirestore(
   status: string,
   notes: string | null,
 ): Promise<void> {
-  const db = getAdminDb();
-  if (db) {
+  // 1. Try Firebase Admin SDK
+  const adminDb = getAdminDb();
+  if (adminDb) {
     try {
-      await db
+      await adminDb
         .collection("appointment_requests")
         .doc(id)
         .update({
           status,
           notes: notes || null,
-          updated_at: FieldValue.serverTimestamp(),
+          updated_at: AdminFieldValue.serverTimestamp(),
         });
       return;
     } catch (err) {
-      console.warn("Firestore update failed, updating in-memory store:", err);
+      console.warn("Firebase Admin SDK update failed:", err);
     }
   }
 
-  // Update in-memory fallback store
+  // 2. Try Client SDK if matching document
+  if (clientDb) {
+    try {
+      const docRef = doc(clientDb, "appointment_requests", id);
+      await updateDoc(docRef, {
+        status,
+        notes: notes || null,
+        updated_at: clientServerTimestamp(),
+      });
+      return;
+    } catch (err) {
+      console.warn("Firebase Client SDK update blocked or failed:", err);
+    }
+  }
+
+  // 3. Fallback in-memory store update
   const target = mockAppointmentsStore.find((a) => a.id === id);
   if (target) {
     target.status = status as AppointmentRequest["status"];
