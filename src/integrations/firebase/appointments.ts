@@ -1,4 +1,7 @@
-import { FieldValue as AdminFieldValue, Timestamp as AdminTimestamp } from "firebase-admin/firestore";
+import {
+  FieldValue as AdminFieldValue,
+  Timestamp as AdminTimestamp,
+} from "firebase-admin/firestore";
 import { getAdminDb } from "./admin";
 import {
   addDoc,
