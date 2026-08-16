@@ -17,5 +17,5 @@ export default defineConfig({
     preset: "node-server",
     // Bundle dependencies directly into the server build — prevents @vercel/nft named export errors
     noExternals: true,
-  },
+  } as any,
 });
