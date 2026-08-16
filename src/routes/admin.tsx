@@ -374,7 +374,10 @@ function AdminDashboard() {
       }
     } catch (err: unknown) {
       console.error("Login request failed:", err);
-      const errorMessage = err instanceof Error ? err.message : "Invalid credentials. Please verify username and password.";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Invalid credentials. Please verify username and password.";
       toast.error(errorMessage);
     } finally {
       setAuthChecking(false);
