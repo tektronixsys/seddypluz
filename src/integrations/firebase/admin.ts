@@ -11,9 +11,17 @@ export function getFirebaseAdminApp(): App | null {
     return cachedApp;
   }
 
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
+  let rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY?.trim();
+  if (
+    rawPrivateKey &&
+    ((rawPrivateKey.startsWith('"') && rawPrivateKey.endsWith('"')) ||
+      (rawPrivateKey.startsWith("'") && rawPrivateKey.endsWith("'")))
+  ) {
+    rawPrivateKey = rawPrivateKey.slice(1, -1);
+  }
+  const privateKey = rawPrivateKey?.replace(/\\n/g, "\n");
 
   const hasValidKey =
     privateKey &&

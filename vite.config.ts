@@ -12,4 +12,8 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  nitro: {
+    // Build standard Node.js server for cPanel / CloudLinux Passenger / Node 22+
+    preset: "node-server",
+  },
 });
