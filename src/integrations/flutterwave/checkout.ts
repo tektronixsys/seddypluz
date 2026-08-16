@@ -98,7 +98,7 @@ export function generateTxRef(): string {
  * @throws If the script fails to load or FlutterwaveCheckout is not available
  */
 export async function openFlutterwaveCheckout(config: FlutterwaveConfig): Promise<void> {
-  await loadFlutterwaveScript();
+  await waitForFlutterwaveReady();
 
   if (!window.FlutterwaveCheckout) {
     throw new Error("FlutterwaveCheckout is not available after script load. Please try again.");
