@@ -20,7 +20,7 @@ This guide documents the exact configuration and procedure for deploying the **S
 In your cPanel dashboard, navigate to **Software** ➜ **Setup Node.js App** ➜ **Create Application**:
 
 | Setting | Recommended Value | Notes |
-|:---|:---|:---|
+| :--- | :--- | :--- |
 | **Node.js version** | `22.x` (e.g. `22.14.0` or latest 22.x) | **Mandatory** — Firebase Admin & modern packages require Node 22+ |
 | **Application mode** | `Production` | Enables production optimizations & secure cookie handling |
 | **Application root** | `seddypluz` (or your folder path) | Directory where your project files reside |
@@ -34,6 +34,7 @@ In your cPanel dashboard, navigate to **Software** ➜ **Setup Node.js App** ➜
 Set these variables in the **Environment variables** section of the cPanel Node.js App manager (or via a protected `.env` file in the application root):
 
 ### A. Core & Authentication Secrets (Required)
+
 ```env
 NODE_ENV=production
 ADMIN_PASSCODE=your-strong-random-admin-passcode
@@ -41,15 +42,18 @@ ADMIN_SESSION_SECRET=your-64-character-random-session-secret
 ```
 
 ### B. Firebase Admin SDK Secrets (Server-Side)
+
 ```env
 FIREBASE_PROJECT_ID=seddypluz
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@seddypluz.iam.gserviceaccount.com
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n"
 ```
+
 > [!TIP]
 > Keep `\n` escaped newlines in `FIREBASE_PRIVATE_KEY`. `src/integrations/firebase/admin.ts` automatically converts escaped `\n` to real newlines.
 
 ### C. Flutterwave Payment Gateway Secrets
+
 ```env
 FLUTTERWAVE_PUBLIC_KEY=FLWPUBK-xxxxxxxxxxxxxxxx-X
 FLUTTERWAVE_SECRET_KEY=FLWSECK-xxxxxxxxxxxxxxxx-X
@@ -63,32 +67,38 @@ FLUTTERWAVE_ENCRYPTION_KEY=xxxxxxxxxxxxxxxx
 ### Method 1: Via cPanel Terminal / Git (Recommended)
 
 1. Open **cPanel Terminal** and navigate to your application root:
+
    ```bash
    cd ~/seddypluz
    ```
 
 2. Enter the Node 22 virtual environment (cPanel provides the exact command at the top of the Node.js App page, e.g.):
+
    ```bash
    source /home/username/nodevenv/seddypluz/22/bin/activate && cd /home/username/seddypluz
    ```
 
 3. Install production dependencies:
+
    ```bash
    npm ci
    ```
 
 4. Build the Nitro Node server:
+
    ```bash
    npm run build
    ```
 
 5. Validate environment secrets:
+
    ```bash
    npm run check:env
    ```
 
 6. Restart the application:
    - Click **Restart** in the cPanel Node.js App UI, or run:
+
    ```bash
    mkdir -p tmp && touch tmp/restart.txt
    ```
@@ -98,6 +108,7 @@ FLUTTERWAVE_ENCRYPTION_KEY=xxxxxxxxxxxxxxxx
 ### Method 2: Via File Manager / FTP Upload
 
 1. **Build locally** (with Node.js 22):
+
    ```bash
    npm ci
    npm run build
@@ -131,6 +142,7 @@ If you encounter any issues, inspect the Passenger logs:
 - **Passenger stderr log**: `~/seddypluz/stderr.log` (or `passenger.log`)
 - **Passenger stdout log**: `~/seddypluz/stdout.log`
 - **Application test**:
+
   ```bash
   # Inside cPanel Terminal:
   node cpanel-start.mjs
