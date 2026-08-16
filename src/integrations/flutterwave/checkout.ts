@@ -51,50 +51,35 @@ declare global {
   }
 }
 
-const FLUTTERWAVE_INLINE_URL = "https://checkout.flutterwave.com/v3.js";
-
-let scriptLoaded = false;
-let scriptLoading: Promise<void> | null = null;
-
 /**
- * Dynamically load the Flutterwave Inline v3 script into the page.
- * Safe to call multiple times — will only load once.
+ * Wait for the Flutterwave Inline v3 script (loaded statically in <head>)
+ * to initialise window.FlutterwaveCheckout. Polls with a short timeout to
+ * handle any async bootstrap delay without injecting a duplicate script tag.
  */
-function loadFlutterwaveScript(): Promise<void> {
-  if (scriptLoaded && window.FlutterwaveCheckout) {
-    return Promise.resolve();
-  }
-
-  if (scriptLoading) {
-    return scriptLoading;
-  }
-
-  scriptLoading = new Promise<void>((resolve, reject) => {
-    const existingScript = document.querySelector(`script[src="${FLUTTERWAVE_INLINE_URL}"]`);
-    if (existingScript) {
-      scriptLoaded = true;
+function waitForFlutterwaveReady(timeoutMs = 8000): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    if (window.FlutterwaveCheckout) {
       resolve();
       return;
     }
 
-    const script = document.createElement("script");
-    script.src = FLUTTERWAVE_INLINE_URL;
-    script.async = true;
-
-    script.onload = () => {
-      scriptLoaded = true;
-      resolve();
-    };
-
-    script.onerror = () => {
-      scriptLoading = null;
-      reject(new Error("Failed to load Flutterwave checkout script"));
-    };
-
-    document.head.appendChild(script);
+    const start = Date.now();
+    const interval = setInterval(() => {
+      if (window.FlutterwaveCheckout) {
+        clearInterval(interval);
+        resolve();
+        return;
+      }
+      if (Date.now() - start > timeoutMs) {
+        clearInterval(interval);
+        reject(
+          new Error(
+            "Flutterwave checkout did not initialise in time. Please check your internet connection and try again.",
+          ),
+        );
+      }
+    }, 100);
   });
-
-  return scriptLoading;
 }
 
 /**
