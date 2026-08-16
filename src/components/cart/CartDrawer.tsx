@@ -74,7 +74,7 @@ export function CartDrawer() {
         customizations: {
           title: "Seddypluz Beauty Studio",
           description: orderDescription.substring(0, 150),
-          logo: "https://seddypluz.com/favicon.ico",
+          logo: `${window.location.origin}/favicon.ico`,
         },
         callback: async (response) => {
           // Payment flow completed — verify on the server

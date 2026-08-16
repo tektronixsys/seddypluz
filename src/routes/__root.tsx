@@ -104,6 +104,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "icon", href: "/site-icon.png", type: "image/png" },
     ],
+    // Load Flutterwave Inline v3 in the <head> so cryptico.js and all
+    // sub-dependencies are fully available before checkout is triggered.
+    scripts: [
+      {
+        src: "https://checkout.flutterwave.com/v3.js",
+        async: true,
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
