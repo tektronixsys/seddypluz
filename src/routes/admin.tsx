@@ -763,15 +763,15 @@ function AdminDashboard() {
       specs:
         formCategory === "wigs"
           ? [
-              { icon: Sparkles, label: "Virgin Hair" },
-              { icon: Layers, label: "HD Lace" },
-              { icon: ShieldCheck, label: "Tangle Free" },
-            ]
+            { icon: Sparkles, label: "Virgin Hair" },
+            { icon: Layers, label: "HD Lace" },
+            { icon: ShieldCheck, label: "Tangle Free" },
+          ]
           : [
-              { icon: Sparkles, label: "Long Wear" },
-              { icon: ShieldCheck, label: "Cruelty Free" },
-              { icon: Star, label: "Studio Grade" },
-            ],
+            { icon: Sparkles, label: "Long Wear" },
+            { icon: ShieldCheck, label: "Cruelty Free" },
+            { icon: Star, label: "Studio Grade" },
+          ],
       details: {
         densityOrSize: formDensityOrSize.trim() || "Studio Grade",
         laceOrFinish: formLaceOrFinish.trim() || "HD Finish",
@@ -1074,11 +1074,10 @@ function AdminDashboard() {
                 onClick={() => setIsAvatarMenuOpen(!isAvatarMenuOpen)}
                 aria-expanded={isAvatarMenuOpen}
                 aria-haspopup="true"
-                className={`group flex items-center gap-2.5 rounded-2xl border p-1.5 pr-3 transition-all cursor-pointer select-none ${
-                  isAvatarMenuOpen
+                className={`group flex items-center gap-2.5 rounded-2xl border p-1.5 pr-3 transition-all cursor-pointer select-none ${isAvatarMenuOpen
                     ? "border-plum bg-plum/5 shadow-md ring-2 ring-plum/10"
                     : "border-plum/15 bg-white hover:border-plum/30 hover:bg-plum/5 shadow-xs"
-                }`}
+                  }`}
               >
                 {/* Circular Gradient Avatar Badge with Online Dot */}
                 <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-plum via-[#684a62] to-lavender-deep text-[#FAF9F5] font-bold text-xs tracking-wider shadow-sm ring-1 ring-plum/20 shrink-0">
@@ -1104,9 +1103,8 @@ function AdminDashboard() {
 
                 {/* Dropdown Chevron */}
                 <ChevronDown
-                  className={`h-3.5 w-3.5 text-plum/50 transition-transform duration-200 ${
-                    isAvatarMenuOpen ? "rotate-180 text-plum" : ""
-                  }`}
+                  className={`h-3.5 w-3.5 text-plum/50 transition-transform duration-200 ${isAvatarMenuOpen ? "rotate-180 text-plum" : ""
+                    }`}
                 />
               </button>
 
@@ -1260,19 +1258,17 @@ function AdminDashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as AdminTab)}
-                  className={`flex items-center gap-2 shrink-0 rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                    isActive
+                  className={`flex items-center gap-2 shrink-0 rounded-xl px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${isActive
                       ? "bg-plum text-[#FAF9F5] shadow-md shadow-plum/20 font-extrabold"
                       : "bg-transparent text-plum/70 hover:bg-plum/5 hover:text-plum"
-                  }`}
+                    }`}
                 >
                   <Icon className="h-4 w-4" />
                   <span>{tab.label}</span>
                   {tab.badge !== undefined && (
                     <span
-                      className={`flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
-                        isActive ? "bg-amber-400 text-plum" : "bg-plum/10 text-plum"
-                      }`}
+                      className={`flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${isActive ? "bg-amber-400 text-plum" : "bg-plum/10 text-plum"
+                        }`}
                     >
                       {tab.badge}
                     </span>
@@ -1385,21 +1381,19 @@ function AdminDashboard() {
                   <div className="flex items-center rounded-xl border border-plum/15 bg-[#FAF7F2] p-1">
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                        viewMode === "list"
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${viewMode === "list"
                           ? "bg-plum text-[#FAF9F5] shadow-xs"
                           : "text-plum/60 hover:text-plum"
-                      }`}
+                        }`}
                     >
                       List
                     </button>
                     <button
                       onClick={() => setViewMode("kanban")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                        viewMode === "kanban"
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${viewMode === "kanban"
                           ? "bg-plum text-[#FAF9F5] shadow-xs"
                           : "text-plum/60 hover:text-plum"
-                      }`}
+                        }`}
                     >
                       Pipeline
                     </button>
@@ -1430,11 +1424,10 @@ function AdminDashboard() {
                   <button
                     key={chip.id}
                     onClick={() => setFilterStatus(chip.id)}
-                    className={`rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
-                      filterStatus === chip.id
+                    className={`rounded-xl px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${filterStatus === chip.id
                         ? "bg-plum text-[#FAF9F5] shadow-xs"
                         : "bg-[#FAF7F2] text-plum/70 hover:bg-plum/5 hover:text-plum border border-plum/10"
-                    }`}
+                      }`}
                   >
                     {chip.label}
                   </button>
@@ -1491,9 +1484,8 @@ function AdminDashboard() {
                                 {app.name}
                               </h4>
                               <span
-                                className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
-                                  statusColors[app.status]
-                                }`}
+                                className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${statusColors[app.status]
+                                  }`}
                               >
                                 {app.status}
                               </span>
@@ -1588,7 +1580,7 @@ function AdminDashboard() {
                                 onChange={(e) =>
                                   setEditStatus(
                                     e.target.value as
-                                      "pending" | "confirmed" | "declined" | "completed",
+                                    "pending" | "confirmed" | "declined" | "completed",
                                   )
                                 }
                                 className="w-full rounded-xl border border-plum/20 bg-white px-3 py-2 text-xs text-plum font-semibold focus:outline-none"
@@ -1772,11 +1764,10 @@ function AdminDashboard() {
                   <span>Live Storefront Marquee Simulation</span>
                 </span>
                 <span
-                  className={`text-[10px] rounded-full px-2.5 py-0.5 font-bold uppercase border ${
-                    activeAnnouncement
+                  className={`text-[10px] rounded-full px-2.5 py-0.5 font-bold uppercase border ${activeAnnouncement
                       ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                       : "bg-plum/5 text-plum/50 border-plum/10"
-                  }`}
+                    }`}
                 >
                   {activeAnnouncement ? "● Broadcasting to All Users" : "○ Hidden from Public"}
                 </span>
@@ -1785,8 +1776,7 @@ function AdminDashboard() {
               {/* Simulated Header Announcement Bar */}
               {activeAnnouncement ? (
                 <div
-                  className={`rounded-2xl p-4 md:p-5 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 border relative overflow-hidden transition-all duration-300 ${
-                    activeAnnouncement.theme === "amber"
+                  className={`rounded-2xl p-4 md:p-5 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 border relative overflow-hidden transition-all duration-300 ${activeAnnouncement.theme === "amber"
                       ? "bg-gradient-to-r from-[#3D2502] via-[#5C3A08] to-[#2B1A02] text-amber-100 border-amber-400/40"
                       : activeAnnouncement.theme === "emerald"
                         ? "bg-gradient-to-r from-[#032B1C] via-[#084D34] to-[#021F14] text-emerald-100 border-emerald-500/40"
@@ -1795,7 +1785,7 @@ function AdminDashboard() {
                           : activeAnnouncement.theme === "dark"
                             ? "bg-gradient-to-r from-[#170E15] via-[#241320] to-[#120B10] text-[#FAF9F5] border-white/20"
                             : "bg-gradient-to-r from-plum via-[#684a62] to-plum text-[#FAF9F5] border-white/10"
-                  }`}
+                    }`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
 
@@ -1864,11 +1854,10 @@ function AdminDashboard() {
                     key={tab.id}
                     type="button"
                     onClick={() => setAnnouncementFilter(tab.id)}
-                    className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                      announcementFilter === tab.id
+                    className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${announcementFilter === tab.id
                         ? "bg-plum text-[#FAF9F5] font-bold shadow-xs"
                         : "bg-[#FAF7F2] text-plum/70 hover:bg-plum/5 hover:text-plum border border-plum/10"
-                    }`}
+                      }`}
                   >
                     {tab.label}
                   </button>
@@ -1927,20 +1916,18 @@ function AdminDashboard() {
                   return (
                     <div
                       key={item.id}
-                      className={`group relative rounded-3xl border p-5 sm:p-6 backdrop-blur-md flex flex-col justify-between space-y-4 transition-all shadow-sm ${
-                        item.isActive
+                      className={`group relative rounded-3xl border p-5 sm:p-6 backdrop-blur-md flex flex-col justify-between space-y-4 transition-all shadow-sm ${item.isActive
                           ? "border-plum bg-plum/[0.03] ring-2 ring-plum/10 shadow-md"
                           : "border-plum/10 bg-white hover:border-plum/30 hover:shadow-md"
-                      }`}
+                        }`}
                     >
                       <div>
                         {/* Top Meta Bar */}
                         <div className="flex items-center justify-between gap-2 mb-3">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span
-                              className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${
-                                themePills[item.theme]
-                              }`}
+                              className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${themePills[item.theme]
+                                }`}
                             >
                               {themeLabels[item.theme]}
                             </span>
@@ -1951,11 +1938,10 @@ function AdminDashboard() {
 
                           {/* Active / Inactive Badge */}
                           <span
-                            className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${
-                              item.isActive
+                            className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${item.isActive
                                 ? "bg-emerald-100 text-emerald-800 border-emerald-300 animate-pulse"
                                 : "bg-plum/5 text-plum/50 border-plum/10"
-                            }`}
+                              }`}
                           >
                             {item.isActive ? "● Broadcast Live" : "○ Paused"}
                           </span>
@@ -1990,17 +1976,15 @@ function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleTogglePulse(item)}
-                            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                              item.pulseAnimation
+                            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${item.pulseAnimation
                                 ? "bg-amber-100 text-amber-900 border border-amber-300 shadow-xs"
                                 : "bg-plum/5 text-plum/50 border border-plum/10 hover:text-plum"
-                            }`}
+                              }`}
                             title="Toggle live pulsing neon glow effect on website"
                           >
                             <Zap
-                              className={`h-3.5 w-3.5 ${
-                                item.pulseAnimation ? "fill-amber-500 text-amber-600" : ""
-                              }`}
+                              className={`h-3.5 w-3.5 ${item.pulseAnimation ? "fill-amber-500 text-amber-600" : ""
+                                }`}
                             />
                             <span>{item.pulseAnimation ? "Pulse ON" : "Pulse OFF"}</span>
                           </button>
@@ -2009,11 +1993,10 @@ function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleToggleActive(item)}
-                            className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                              item.isActive
+                            className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${item.isActive
                                 ? "bg-plum text-white shadow-md shadow-plum/20"
                                 : "bg-[#FAF7F2] text-plum/70 hover:bg-plum/10 hover:text-plum border border-plum/15"
-                            }`}
+                              }`}
                           >
                             <Radio className="h-3 w-3" />
                             <span>{item.isActive ? "Live (Broadcasting)" : "Set as Live"}</span>
@@ -2186,11 +2169,10 @@ function AdminDashboard() {
                               key={t.id}
                               type="button"
                               onClick={() => setAnnFormTheme(t.id)}
-                              className={`rounded-2xl p-2.5 border text-center transition-all cursor-pointer ${
-                                isSelected
+                              className={`rounded-2xl p-2.5 border text-center transition-all cursor-pointer ${isSelected
                                   ? "border-plum bg-plum/5 ring-2 ring-plum/20"
                                   : "border-plum/10 bg-[#FAF7F2] hover:border-plum/30"
-                              }`}
+                                }`}
                             >
                               <div
                                 className={`h-6 w-full rounded-lg ${t.bg} border border-white/20 mb-1.5`}
@@ -2228,14 +2210,12 @@ function AdminDashboard() {
                         <button
                           type="button"
                           onClick={() => setAnnFormPulse(!annFormPulse)}
-                          className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${
-                            annFormPulse ? "bg-plum" : "bg-plum/20"
-                          }`}
+                          className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${annFormPulse ? "bg-plum" : "bg-plum/20"
+                            }`}
                         >
                           <div
-                            className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
-                              annFormPulse ? "translate-x-5" : "translate-x-0"
-                            }`}
+                            className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform ${annFormPulse ? "translate-x-5" : "translate-x-0"
+                              }`}
                           />
                         </button>
                       </div>
@@ -2378,11 +2358,10 @@ function AdminDashboard() {
                     key={cat.id}
                     type="button"
                     onClick={() => setInventoryCategoryFilter(cat.id)}
-                    className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                      inventoryCategoryFilter === cat.id
+                    className={`rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${inventoryCategoryFilter === cat.id
                         ? "bg-plum text-[#FAF9F5] font-bold shadow-xs"
                         : "bg-[#FAF7F2] text-plum/70 hover:bg-plum/5 hover:text-plum border border-plum/10"
-                    }`}
+                      }`}
                   >
                     {cat.label}
                   </button>
@@ -2500,11 +2479,10 @@ function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => togglePinProduct(product.id)}
-                            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                              isPinned
+                            className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${isPinned
                                 ? "bg-amber-100 text-amber-900 border border-amber-300 shadow-xs"
                                 : "bg-[#FAF7F2] text-plum/60 hover:bg-plum/5 hover:text-plum border border-plum/15"
-                            }`}
+                              }`}
                           >
                             <Crown className="h-3 w-3 text-amber-600" />
                             <span>{isPinned ? "Pinned" : "Pin Home"}</span>
@@ -2714,11 +2692,10 @@ function AdminDashboard() {
                                 setFormImg(preset.value);
                                 setFormCustomImg("");
                               }}
-                              className={`relative rounded-2xl border overflow-hidden p-1 transition-all cursor-pointer ${
-                                isSelected
+                              className={`relative rounded-2xl border overflow-hidden p-1 transition-all cursor-pointer ${isSelected
                                   ? "border-plum ring-2 ring-plum/20 bg-plum/5"
                                   : "border-plum/10 hover:border-plum/30 bg-[#FAF7F2]"
-                              }`}
+                                }`}
                             >
                               <img
                                 src={preset.value}
@@ -3347,14 +3324,12 @@ function AdminDashboard() {
                       <button
                         type="button"
                         onClick={() => setSoundNotifications(!soundNotifications)}
-                        className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${
-                          soundNotifications ? "bg-plum" : "bg-plum/20"
-                        }`}
+                        className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${soundNotifications ? "bg-plum" : "bg-plum/20"
+                          }`}
                       >
                         <div
-                          className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
-                            soundNotifications ? "translate-x-5" : "translate-x-0"
-                          }`}
+                          className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform ${soundNotifications ? "translate-x-5" : "translate-x-0"
+                            }`}
                         />
                       </button>
                     </div>
@@ -3371,14 +3346,12 @@ function AdminDashboard() {
                       <button
                         type="button"
                         onClick={() => setAmbientGlow(!ambientGlow)}
-                        className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${
-                          ambientGlow ? "bg-plum" : "bg-plum/20"
-                        }`}
+                        className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors cursor-pointer ${ambientGlow ? "bg-plum" : "bg-plum/20"
+                          }`}
                       >
                         <div
-                          className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform ${
-                            ambientGlow ? "translate-x-5" : "translate-x-0"
-                          }`}
+                          className={`h-5 w-5 rounded-full bg-white shadow-md transition-transform ${ambientGlow ? "translate-x-5" : "translate-x-0"
+                            }`}
                         />
                       </button>
                     </div>
