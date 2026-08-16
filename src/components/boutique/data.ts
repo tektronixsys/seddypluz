@@ -360,7 +360,9 @@ export function resetStoredBoutiqueProducts(): Product[] {
     window.dispatchEvent(
       new CustomEvent("seddypluz_inventory_updated", { detail: boutiqueProducts }),
     );
-  } catch {}
+  } catch (_error) {
+    // Ignore storage access errors in non-browser environments
+  }
   return boutiqueProducts;
 }
 
@@ -468,6 +470,8 @@ export function resetStoredAnnouncements(): AnnouncementItem[] {
         detail: { announcements: defaultAnnouncements, active: defaultAnnouncements[0] },
       }),
     );
-  } catch {}
+  } catch (_error) {
+    // Ignore storage access errors in non-browser environments
+  }
   return defaultAnnouncements;
 }

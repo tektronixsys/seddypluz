@@ -72,7 +72,7 @@ if (!fs.existsSync(serverEntryPath)) {
       serverEntryPath +
       "\n\nPlease build the application first by running:\n" +
       "  npm run build\n" +
-      "or check the build logs if deploying via CI/CD.\n"
+      "or check the build logs if deploying via CI/CD.\n",
   );
   process.exit(1);
 }

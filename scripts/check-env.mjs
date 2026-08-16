@@ -1,16 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const coreRequired = [
-  "ADMIN_PASSCODE",
-  "ADMIN_SESSION_SECRET",
-];
+const coreRequired = ["ADMIN_PASSCODE", "ADMIN_SESSION_SECRET"];
 
-const firebaseRequired = [
-  "FIREBASE_PROJECT_ID",
-  "FIREBASE_CLIENT_EMAIL",
-  "FIREBASE_PRIVATE_KEY",
-];
+const firebaseRequired = ["FIREBASE_PROJECT_ID", "FIREBASE_CLIENT_EMAIL", "FIREBASE_PRIVATE_KEY"];
 
 const paymentOptional = [
   "FLUTTERWAVE_PUBLIC_KEY",
@@ -74,7 +67,9 @@ if (missingCore.length > 0) {
 }
 
 if (missingFirebase.length > 0) {
-  console.warn("⚠️  Firebase Admin credentials not fully configured (fallback in-memory/client mode will be used):");
+  console.warn(
+    "⚠️  Firebase Admin credentials not fully configured (fallback in-memory/client mode will be used):",
+  );
   for (const key of missingFirebase) console.warn(`   - ${key}`);
 } else {
   console.log("✅ Firebase Admin credentials configured.");

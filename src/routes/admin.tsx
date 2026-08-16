@@ -372,9 +372,10 @@ function AdminDashboard() {
         toast.success(`Welcome back, ${user}!`);
         loadData();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Login request failed:", err);
-      toast.error(err?.message || "Invalid credentials. Please verify username and password.");
+      const errorMessage = err instanceof Error ? err.message : "Invalid credentials. Please verify username and password.";
+      toast.error(errorMessage);
     } finally {
       setAuthChecking(false);
     }
@@ -413,9 +414,10 @@ function AdminDashboard() {
         toast.success(`Appointment status set to ${status.toUpperCase()}`);
         setEditingId(null);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Status update error:", err);
-      toast.error(err?.message || "Network error updating status.");
+      const errorMessage = err instanceof Error ? err.message : "Network error updating status.";
+      toast.error(errorMessage);
     } finally {
       setUpdating(false);
     }
