@@ -12,6 +12,13 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    resolve: {
+      alias: {
+        tslib: "tslib/tslib.es6.mjs",
+      },
+    },
+  },
   nitro: {
     // Dynamic preset: Vercel serverless when deployed on Vercel, Node server for cPanel / Passenger
     preset: process.env.VERCEL ? "vercel" : "node-server",
