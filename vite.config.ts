@@ -15,6 +15,11 @@ export default defineConfig({
   nitro: {
     // Dynamic preset: Vercel serverless when deployed on Vercel, Node server for cPanel / Passenger
     preset: process.env.VERCEL ? "vercel" : "node-server",
+    vercel: {
+      functions: {
+        runtime: "nodejs22.x",
+      },
+    },
     // Bundle dependencies directly into the server build
     noExternals: true,
   } as any,
