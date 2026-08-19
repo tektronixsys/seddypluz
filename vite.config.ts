@@ -13,9 +13,9 @@ export default defineConfig({
     server: { entry: "server" },
   },
   nitro: {
-    // Build standard Node.js server for cPanel / CloudLinux Passenger / Node 22+
-    preset: "node-server",
-    // Bundle dependencies directly into the server build — prevents @vercel/nft named export errors
+    // Dynamic preset: Vercel serverless when deployed on Vercel, Node server for cPanel / Passenger
+    preset: process.env.VERCEL ? "vercel" : "node-server",
+    // Bundle dependencies directly into the server build
     noExternals: true,
   } as any,
 });
