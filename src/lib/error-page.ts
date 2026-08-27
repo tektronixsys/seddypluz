@@ -9,11 +9,7 @@ function escapeHtml(str: string): string {
 
 export function renderErrorPage(error?: unknown): string {
   const errDetails =
-    error instanceof Error
-      ? error.stack || error.message
-      : error
-        ? String(error)
-        : "";
+    error instanceof Error ? error.stack || error.message : error ? String(error) : "";
   const safeErr = errDetails
     ? `<pre style="margin-top:1rem;padding:0.75rem;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;font-size:11px;text-align:left;overflow:auto;max-height:200px;color:#ef4444;">${escapeHtml(errDetails)}</pre>`
     : "";
