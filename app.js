@@ -117,14 +117,11 @@ if (!fs.existsSync(serverEntryPath)) {
   ]);
 } else {
   try {
-    console.log(
-      `[cPanel Starter] 🚀 Starting Seddypluz Node Server (Node ${process.version})...`,
-    );
+    console.log(`[cPanel Starter] 🚀 Starting Seddypluz Node Server (Node ${process.version})...`);
     console.log(`[cPanel Starter] Target Port: ${process.env.PORT || 3000}`);
     await import("./.output/server/index.mjs");
   } catch (err) {
-    const errorString =
-      err instanceof Error ? err.stack || err.message : String(err);
+    const errorString = err instanceof Error ? err.stack || err.message : String(err);
     console.error("[cPanel Starter] ❌ Fatal Error during server launch:", err);
     serveDiagnosticError("Fatal Server Startup Exception", errorString, [
       "Check that all environment variables are correctly configured in cPanel Node.js App settings.",
