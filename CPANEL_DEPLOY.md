@@ -25,7 +25,7 @@ In your cPanel dashboard, navigate to **Software** ➜ **Setup Node.js App** ➜
 | **Application mode** | `Production` | Enables production optimizations & secure cookie handling |
 | **Application root** | `seddypluz` (or your folder path) | Directory where your project files reside |
 | **Application URL** | `seddypluz.com` (or your domain/subdomain) | Primary public route |
-| **Application startup file** | `cpanel-start.mjs` | **Mandatory** — bootstraps the compiled Nitro Node server |
+| **Application startup file** | `app.js` (or `cpanel-start.mjs`) | **Mandatory** — bootstraps the compiled Nitro Node server |
 
 ---
 
