@@ -1,8 +1,12 @@
 /**
- * cPanel / CloudLinux Passenger Entrypoint (app.js)
+ * cPanel / CloudLinux Passenger & LiteSpeed Entrypoint (app.js)
  *
- * This file serves as the default startup file for cPanel "Setup Node.js App".
- * It bootstraps environment variables, handles diagnostics, and launches the Nitro Node server.
+ * This file serves as the default startup file for cPanel "Setup Node.js App"
+ * and LiteSpeed Web Server (lsnode.js / CloudLinux / Phusion Passenger).
+ *
+ * NOTE: DO NOT use top-level await in this file so that CommonJS require()
+ * runners (such as LiteSpeed lsnode.js) can synchronously load this module
+ * without throwing ERR_REQUIRE_ASYNC_MODULE.
  */
 
 import fs from "node:fs";
@@ -106,21 +110,23 @@ function serveDiagnosticError(title, message, helpTips) {
   });
 }
 
-// 3. Launch Nitro server or fallback to diagnostic page
-if (!fs.existsSync(serverEntryPath)) {
-  const errMsg = `Missing compiled server entry at:\n${serverEntryPath}\n\nThe '.output' directory is either missing or was not uploaded to cPanel.`;
-  console.error(`\n[cPanel Starter] ❌ ${errMsg}\n`);
-  serveDiagnosticError("Application Build Not Found (.output missing)", errMsg, [
-    "In cPanel File Manager, click <strong>Settings</strong> (top-right) and check <strong>Show Hidden Files (dotfiles)</strong> so <code>.output</code> is visible.",
-    "If deploying via cPanel Terminal, run <code>npm run build</code> inside your project directory.",
-    "If deploying via ZIP / FTP upload, make sure you ran <code>npm run build</code> locally and uploaded the entire <code>.output</code> directory.",
-  ]);
-} else {
-  try {
-    console.log(`[cPanel Starter] 🚀 Starting Seddypluz Node Server (Node ${process.version})...`);
-    console.log(`[cPanel Starter] Target Port: ${process.env.PORT || 3000}`);
-    await import("./.output/server/index.mjs");
-  } catch (err) {
+// 3. Launch Nitro server without top-level await
+function bootstrap() {
+  if (!fs.existsSync(serverEntryPath)) {
+    const errMsg = `Missing compiled server entry at:\n${serverEntryPath}\n\nThe '.output' directory is either missing or was not uploaded to cPanel.`;
+    console.error(`\n[cPanel Starter] ❌ ${errMsg}\n`);
+    serveDiagnosticError("Application Build Not Found (.output missing)", errMsg, [
+      "In cPanel File Manager, click <strong>Settings</strong> (top-right) and check <strong>Show Hidden Files (dotfiles)</strong> so <code>.output</code> is visible.",
+      "If deploying via cPanel Terminal, run <code>npm run build</code> inside your project directory.",
+      "If deploying via ZIP / FTP upload, make sure you ran <code>npm run build</code> locally and uploaded the entire <code>.output</code> directory.",
+    ]);
+    return;
+  }
+
+  console.log(`[cPanel Starter] 🚀 Starting Seddypluz Node Server (Node ${process.version})...`);
+  console.log(`[cPanel Starter] Target Port: ${process.env.PORT || 3000}`);
+
+  import("./.output/server/index.mjs").catch((err) => {
     const errorString = err instanceof Error ? err.stack || err.message : String(err);
     console.error("[cPanel Starter] ❌ Fatal Error during server launch:", err);
     serveDiagnosticError("Fatal Server Startup Exception", errorString, [
@@ -128,5 +134,7 @@ if (!fs.existsSync(serverEntryPath)) {
       "Ensure you ran <code>npm install</code> on the cPanel server directly (do not upload Windows <code>node_modules</code> to Linux cPanel).",
       "Verify Node.js version is <strong>22.x</strong> in cPanel Setup Node.js App.",
     ]);
-  }
+  });
 }
+
+bootstrap();
