@@ -167,6 +167,7 @@ function AdminDashboard() {
   // Authentication & Profile State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [initialAuthChecked, setInitialAuthChecked] = useState(false);
+  const [authMode, setAuthMode] = useState<"quick" | "manual">("quick");
   const [selectedProfileId, setSelectedProfileId] = useState<string>("ajuhlouis");
   const [usernameInput, setUsernameInput] = useState<string>(() => {
     if (typeof window !== "undefined") {
@@ -183,6 +184,7 @@ function AdminDashboard() {
   const [adminRole, setAdminRole] = useState<string>("Super Admin");
   const [adminEmail, setAdminEmail] = useState<string>("admin@seddypluz.com");
   const [authChecking, setAuthChecking] = useState(false);
+  const passwordInputRef = React.useRef<HTMLInputElement>(null);
 
   // Avatar Widget & Settings Modal State
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
@@ -931,7 +933,7 @@ function AdminDashboard() {
   if (!isAuthenticated) {
     if (!initialAuthChecked) {
       return (
-        <div className="relative flex min-h-screen items-center justify-center bg-[#FAF7F2] text-[#2D1B28] px-6 select-none">
+        <div className="relative flex min-h-[100dvh] items-center justify-center bg-[#FAF7F2] text-[#2D1B28] px-4 select-none">
           <div className="text-center space-y-4 animate-in fade-in duration-500">
             <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-tr from-plum via-[#5a3a52] to-lavender-deep text-[#FAF9F5] shadow-2xl shadow-plum/20">
               <Crown className="h-10 w-10 animate-pulse text-amber-300" />
@@ -951,184 +953,242 @@ function AdminDashboard() {
     }
 
     return (
-      <div className="relative flex min-h-screen items-center justify-center bg-[#FAF7F2] text-[#2D1B28] px-4 sm:px-6 py-12 overflow-hidden select-none">
+      <div className="relative flex min-h-[100dvh] items-center justify-center bg-[#FAF7F2] text-[#2D1B28] px-3.5 sm:px-6 py-8 sm:py-12 overflow-x-hidden select-none">
         {/* Ambient Luxury Soft Blooms & Mesh Orbs */}
-        <div className="absolute top-1/6 -left-36 h-[550px] w-[550px] rounded-full bg-mauve/20 blur-[130px] pointer-events-none animate-pulse duration-1000" />
-        <div className="absolute bottom-1/6 -right-36 h-[550px] w-[550px] rounded-full bg-blush-soft blur-[140px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[700px] w-[700px] rounded-full bg-plum/5 blur-[160px] pointer-events-none" />
+        <div className="absolute top-1/6 -left-36 h-[380px] sm:h-[550px] w-[380px] sm:w-[550px] rounded-full bg-mauve/20 blur-[100px] sm:blur-[130px] pointer-events-none animate-pulse duration-1000" />
+        <div className="absolute bottom-1/6 -right-36 h-[380px] sm:h-[550px] w-[380px] sm:w-[550px] rounded-full bg-blush-soft blur-[110px] sm:blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] sm:h-[700px] w-[500px] sm:w-[700px] rounded-full bg-plum/5 blur-[140px] pointer-events-none" />
 
         {/* Main Authentication Card */}
-        <div className="relative w-full max-w-xl rounded-[2.5rem] border border-plum/15 bg-white/95 p-6 sm:p-10 shadow-2xl shadow-plum/15 backdrop-blur-2xl z-10 animate-in fade-in zoom-in-95 duration-500">
+        <div className="relative w-full max-w-lg sm:max-w-xl rounded-3xl sm:rounded-[2.5rem] border border-plum/15 bg-white/95 p-5 sm:p-9 shadow-2xl shadow-plum/15 backdrop-blur-2xl z-10 animate-in fade-in zoom-in-95 duration-500">
           {/* Header Brand Section */}
           <div className="text-center">
-            <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-plum via-[#5a3a52] to-lavender-deep text-[#FAF9F5] shadow-lg shadow-plum/25 border border-amber-300/30">
-              <Crown className="h-8 w-8 text-amber-300" />
-              <span className="absolute -bottom-1 -right-1 flex h-4 w-4">
+            <div className="relative mx-auto mb-3.5 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-plum via-[#5a3a52] to-lavender-deep text-[#FAF9F5] shadow-lg shadow-plum/25 border border-amber-300/30">
+              <Crown className="h-7 w-7 sm:h-8 sm:w-8 text-amber-300" />
+              <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 sm:h-4 sm:w-4">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 ring-2 ring-white" />
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 sm:h-4 sm:w-4 bg-emerald-500 ring-2 ring-white" />
               </span>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-plum/5 px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-plum mb-2 border border-plum/15">
-              <Sparkles className="h-3 w-3 text-amber-500" />
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-plum/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-plum mb-1.5 border border-plum/15">
+              <Sparkles className="h-3 w-3 text-amber-500 shrink-0" />
               <span>Haute Couture Atelier HQ</span>
             </div>
 
-            <h1 className="font-display text-3xl sm:text-4xl text-plum font-bold tracking-tight">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl text-plum font-bold tracking-tight">
               Command Suite
             </h1>
-            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-plum/70 max-w-md mx-auto">
-              Welcome to the administrative console. Authenticate your credentials to manage
-              appointments, boutique inventory, and live campaigns.
+            <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-plum/70 max-w-md mx-auto">
+              Authenticate credentials to access live bookings, inventory, and storefront controls.
             </p>
           </div>
 
-          {/* Quick Profile Fast-Selector */}
-          <div className="mt-6">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center justify-between pl-1 mb-2">
-              <span className="flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5 text-lavender-deep" />
-                <span>Select Admin Profile</span>
-              </span>
-              <span className="text-[10px] text-plum/50 font-normal">Quick Switch</span>
-            </label>
+          {/* Mode Switcher Tabs (Quick Select vs Manual ID) */}
+          <div className="mt-5 sm:mt-6 rounded-2xl bg-plum/5 p-1 border border-plum/10 flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode("quick");
+                setUsernameInput("ajuhlouis");
+                setPasswordInput("");
+                setTimeout(() => passwordInputRef.current?.focus(), 50);
+              }}
+              className={`flex-1 min-h-[38px] sm:min-h-[40px] rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                authMode === "quick"
+                  ? "bg-white text-plum shadow-xs border border-plum/10"
+                  : "text-plum/60 hover:text-plum"
+              }`}
+            >
+              <User className="h-3.5 w-3.5 text-lavender-deep" />
+              <span>Quick Profile</span>
+            </button>
 
-            <div className="grid grid-cols-2 gap-2.5">
-              {/* Ajuh Louis Profile Card */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedProfileId("ajuhlouis");
-                  setUsernameInput("ajuhlouis");
-                  setPasswordInput("");
-                }}
-                className={`group flex items-start gap-2.5 p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                  usernameInput.toLowerCase() === "ajuhlouis"
-                    ? "border-plum bg-plum/5 ring-2 ring-plum/10 shadow-xs"
-                    : "border-plum/15 bg-[#FAF7F2]/70 hover:border-plum/30 hover:bg-white"
-                }`}
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-600 to-amber-800 text-white font-bold text-xs shadow-xs">
-                  AL
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-plum truncate">Ajuh Louis</p>
-                    {usernameInput.toLowerCase() === "ajuhlouis" && (
-                      <CheckCircle2 className="h-3.5 w-3.5 text-lavender-deep shrink-0 ml-1" />
-                    )}
-                  </div>
-                  <p className="text-[10px] font-medium text-amber-700">Super Admin</p>
-                </div>
-              </button>
-
-              {/* Seddypluz Profile Card */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedProfileId("seddypluz");
-                  setUsernameInput("seddypluz");
-                  setPasswordInput("");
-                }}
-                className={`group flex items-start gap-2.5 p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                  usernameInput.toLowerCase() === "seddypluz"
-                    ? "border-plum bg-plum/5 ring-2 ring-plum/10 shadow-xs"
-                    : "border-plum/15 bg-[#FAF7F2]/70 hover:border-plum/30 hover:bg-white"
-                }`}
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-plum via-[#684a62] to-lavender-deep text-white font-bold text-xs shadow-xs">
-                  SZ
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-plum truncate">Seddypluz</p>
-                    {usernameInput.toLowerCase() === "seddypluz" && (
-                      <CheckCircle2 className="h-3.5 w-3.5 text-lavender-deep shrink-0 ml-1" />
-                    )}
-                  </div>
-                  <p className="text-[10px] font-medium text-lavender-deep">Studio Super Admin</p>
-                </div>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode("manual");
+                setPasswordInput("");
+              }}
+              className={`flex-1 min-h-[38px] sm:min-h-[40px] rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                authMode === "manual"
+                  ? "bg-white text-plum shadow-xs border border-plum/10"
+                  : "text-plum/60 hover:text-plum"
+              }`}
+            >
+              <KeyRound className="h-3.5 w-3.5 text-amber-600" />
+              <span>Custom ID Sign-in</span>
+            </button>
           </div>
 
-          {/* Form Fields */}
-          <form onSubmit={handleLogin} className="mt-5 space-y-3.5">
-            {/* Username / Administrator ID Field */}
-            <div className="space-y-1 text-left">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center gap-1.5 pl-1">
-                <User className="h-3.5 w-3.5 text-lavender-deep" />
-                <span>Administrator Username</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  autoComplete="username"
-                  value={usernameInput}
-                  onChange={(e) => setUsernameInput(e.target.value)}
-                  placeholder="e.g. ajuhlouis or seddypluz"
-                  className="h-11 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] px-4 text-sm font-medium text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10 shadow-inner"
-                />
+          {/* Quick Profile Cards (Visible in Quick Mode) */}
+          {authMode === "quick" && (
+            <div className="mt-4 animate-in fade-in duration-300">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Ajuh Louis Profile Card */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProfileId("ajuhlouis");
+                    setUsernameInput("ajuhlouis");
+                    setPasswordInput("");
+                    passwordInputRef.current?.focus();
+                  }}
+                  className={`group flex items-center sm:items-start gap-3 p-3 sm:p-3.5 rounded-2xl border text-left transition-all min-h-[58px] cursor-pointer touch-manipulation active:scale-[0.98] ${
+                    usernameInput.toLowerCase() === "ajuhlouis"
+                      ? "border-plum bg-plum/5 ring-2 ring-plum/15 shadow-sm"
+                      : "border-plum/15 bg-[#FAF7F2]/80 hover:border-plum/30 hover:bg-white"
+                  }`}
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-600 to-amber-800 text-white font-bold text-xs shadow-xs ring-1 ring-white/50">
+                    AL
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs sm:text-sm font-bold text-plum truncate">Ajuh Louis</p>
+                      {usernameInput.toLowerCase() === "ajuhlouis" && (
+                        <CheckCircle2 className="h-4 w-4 text-lavender-deep shrink-0 ml-1" />
+                      )}
+                    </div>
+                    <p className="text-[11px] font-semibold text-amber-700">Super Admin</p>
+                  </div>
+                </button>
+
+                {/* Seddypluz Profile Card */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProfileId("seddypluz");
+                    setUsernameInput("seddypluz");
+                    setPasswordInput("");
+                    passwordInputRef.current?.focus();
+                  }}
+                  className={`group flex items-center sm:items-start gap-3 p-3 sm:p-3.5 rounded-2xl border text-left transition-all min-h-[58px] cursor-pointer touch-manipulation active:scale-[0.98] ${
+                    usernameInput.toLowerCase() === "seddypluz"
+                      ? "border-plum bg-plum/5 ring-2 ring-plum/15 shadow-sm"
+                      : "border-plum/15 bg-[#FAF7F2]/80 hover:border-plum/30 hover:bg-white"
+                  }`}
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-plum via-[#684a62] to-lavender-deep text-white font-bold text-xs shadow-xs ring-1 ring-white/50">
+                    SZ
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs sm:text-sm font-bold text-plum truncate">Seddypluz</p>
+                      {usernameInput.toLowerCase() === "seddypluz" && (
+                        <CheckCircle2 className="h-4 w-4 text-lavender-deep shrink-0 ml-1" />
+                      )}
+                    </div>
+                    <p className="text-[11px] font-semibold text-lavender-deep">
+                      Studio Super Admin
+                    </p>
+                  </div>
+                </button>
               </div>
             </div>
+          )}
+
+          {/* Form Fields */}
+          <form onSubmit={handleLogin} className="mt-4 sm:mt-5 space-y-3.5 sm:space-y-4">
+            {/* Username / Administrator ID Field (Visible if manual mode) */}
+            {authMode === "manual" && (
+              <div className="space-y-1.5 text-left animate-in fade-in duration-200">
+                <label
+                  htmlFor="admin-username-input"
+                  className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center gap-1.5 pl-1"
+                >
+                  <User className="h-3.5 w-3.5 text-lavender-deep shrink-0" />
+                  <span>Administrator Identifier</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="admin-username-input"
+                    type="text"
+                    required
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    autoComplete="username"
+                    value={usernameInput}
+                    onChange={(e) => setUsernameInput(e.target.value)}
+                    placeholder="Enter admin ID (e.g. ajuhlouis)"
+                    className="h-12 sm:h-11 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] px-4 text-base sm:text-sm font-medium text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10 shadow-inner"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Password Field */}
-            <div className="space-y-1 text-left">
+            <div className="space-y-1.5 text-left">
               <div className="flex items-center justify-between pl-1">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center gap-1.5">
-                  <Lock className="h-3.5 w-3.5 text-lavender-deep" />
+                <label
+                  htmlFor="admin-password-input"
+                  className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center gap-1.5"
+                >
+                  <Lock className="h-3.5 w-3.5 text-lavender-deep shrink-0" />
                   <span>Security Passcode</span>
                 </label>
                 {capsLockActive && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 flex items-center gap-1 animate-pulse">
-                    <AlertCircle className="h-3 w-3" />
-                    Caps Lock is ON
+                  <span
+                    aria-live="polite"
+                    className="text-[10px] font-bold uppercase tracking-wider text-amber-600 flex items-center gap-1 animate-pulse"
+                  >
+                    <AlertCircle className="h-3 w-3 shrink-0" />
+                    Caps Lock Active
                   </span>
                 )}
               </div>
               <div className="relative">
                 <input
+                  ref={passwordInputRef}
+                  id="admin-password-input"
                   type={showPassword ? "text" : "password"}
                   required
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   autoComplete="current-password"
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   onKeyDown={(e) => setCapsLockActive(e.getModifierState("CapsLock"))}
                   onKeyUp={(e) => setCapsLockActive(e.getModifierState("CapsLock"))}
-                  placeholder="Enter studio password"
-                  className="h-11 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] pl-4 pr-11 text-sm font-medium text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10 shadow-inner"
+                  placeholder={`Passcode for ${usernameInput || "account"}`}
+                  className="h-12 sm:h-11 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] pl-4 pr-12 text-base sm:text-sm font-medium text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10 shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-lg text-plum/40 hover:text-plum transition-colors cursor-pointer"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-xl text-plum/40 hover:text-plum transition-colors cursor-pointer touch-manipulation"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 shrink-0" />
+                  ) : (
+                    <Eye className="h-4 w-4 shrink-0" />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Session Persistence & Assistance Trigger */}
             <div className="flex items-center justify-between text-xs pt-1 px-1">
-              <label className="flex items-center gap-2 cursor-pointer text-plum/70 hover:text-plum transition-colors select-none">
+              <label className="flex items-center gap-2 cursor-pointer text-plum/70 hover:text-plum transition-colors select-none min-h-[36px]">
                 <input
                   type="checkbox"
                   checked={rememberDevice}
                   onChange={(e) => setRememberDevice(e.target.checked)}
                   className="h-4 w-4 rounded border-plum/30 text-plum focus:ring-plum/20 accent-plum cursor-pointer"
                 />
-                <span className="text-[11px] font-medium">Remember terminal</span>
+                <span className="text-xs font-medium">Remember terminal</span>
               </label>
 
               <button
                 type="button"
                 onClick={() => setIsAssistanceModalOpen(true)}
-                className="text-[11px] font-semibold text-lavender-deep hover:text-plum underline transition-colors cursor-pointer flex items-center gap-1"
+                className="text-xs font-semibold text-lavender-deep hover:text-plum underline transition-colors cursor-pointer flex items-center gap-1 min-h-[36px] touch-manipulation"
               >
-                <HelpCircle className="h-3 w-3" />
-                <span>Login Help</span>
+                <HelpCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>Forgot Passcode?</span>
               </button>
             </div>
 
@@ -1136,16 +1196,16 @@ function AdminDashboard() {
             <button
               type="submit"
               disabled={authChecking}
-              className="mt-2 flex h-12 w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-plum via-[#5a3a52] to-plum text-[#FAF9F5] text-xs uppercase tracking-[0.24em] font-bold shadow-xl shadow-plum/20 transition-all hover:bg-lavender-deep hover:shadow-plum/30 active:scale-[0.98] cursor-pointer disabled:opacity-50"
+              className="mt-2 flex h-13 sm:h-12 w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-plum via-[#5a3a52] to-plum text-[#FAF9F5] text-xs sm:text-sm uppercase tracking-[0.2em] font-bold shadow-xl shadow-plum/20 transition-all hover:bg-lavender-deep hover:shadow-plum/30 active:scale-[0.98] cursor-pointer touch-manipulation disabled:opacity-50"
             >
               {authChecking ? (
                 <>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  <RefreshCw className="h-4 w-4 animate-spin shrink-0" />
                   <span>Verifying Credentials...</span>
                 </>
               ) : (
                 <>
-                  <KeyRound className="h-4 w-4 text-amber-300" />
+                  <KeyRound className="h-4 w-4 text-amber-300 shrink-0" />
                   <span>Authorize &amp; Enter Command Suite</span>
                 </>
               )}
@@ -1153,49 +1213,49 @@ function AdminDashboard() {
           </form>
 
           {/* Realtime Security Status Ribbon */}
-          <div className="mt-6 rounded-2xl border border-plum/10 bg-[#FAF7F2]/80 p-3 flex flex-wrap items-center justify-around gap-2 text-[10px] text-plum/70 font-medium">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span>Firestore DB: Live</span>
+          <div className="mt-5 sm:mt-6 rounded-2xl border border-plum/10 bg-[#FAF7F2]/80 p-2.5 sm:p-3 grid grid-cols-3 gap-1 text-[10px] sm:text-[11px] text-plum/70 font-medium text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="truncate">Firestore Live</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Shield className="h-3 w-3 text-lavender-deep" />
-              <span>256-Bit Encrypted</span>
+            <div className="flex items-center justify-center sm:justify-start gap-1.5">
+              <Shield className="h-3 w-3 text-lavender-deep shrink-0" />
+              <span className="truncate">256-Bit TLS</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Activity className="h-3 w-3 text-amber-600" />
-              <span>Rate Armor: Active</span>
+            <div className="flex items-center justify-center sm:justify-start gap-1.5">
+              <Activity className="h-3 w-3 text-amber-600 shrink-0" />
+              <span className="truncate">Rate Armor</span>
             </div>
           </div>
 
           {/* Footer Navigation Links */}
-          <div className="mt-6 border-t border-plum/10 pt-4 flex items-center justify-between text-xs text-plum/60">
+          <div className="mt-5 sm:mt-6 border-t border-plum/10 pt-4 flex items-center justify-between text-xs text-plum/60">
             <Link
               to="/"
-              className="hover:text-plum transition-colors flex items-center gap-1 font-semibold"
+              className="hover:text-plum transition-colors flex items-center gap-1 font-semibold min-h-[40px] px-1 touch-manipulation"
             >
-              <ChevronLeft className="h-3.5 w-3.5" />
+              <ChevronLeft className="h-3.5 w-3.5 shrink-0" />
               <span>Studio Homepage</span>
             </Link>
             <Link
               to="/shop"
-              className="hover:text-plum transition-colors flex items-center gap-1 font-semibold"
+              className="hover:text-plum transition-colors flex items-center gap-1 font-semibold min-h-[40px] px-1 touch-manipulation"
             >
               <span>Boutique Catalog</span>
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-3.5 w-3.5 shrink-0" />
             </Link>
           </div>
         </div>
 
         {/* ==================================================== */}
-        {/* EMERGENCY CONCIERGE ASSISTANCE MODAL */}
+        {/* EMERGENCY CONCIERGE ASSISTANCE MODAL (Responsive Drawer) */}
         {/* ==================================================== */}
         {isAssistanceModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-plum/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
-            <div className="w-full max-w-md rounded-3xl border border-plum/20 bg-white p-6 sm:p-8 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-plum/60 backdrop-blur-md p-0 sm:p-4 animate-in fade-in duration-300">
+            <div className="w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-plum/20 bg-white p-6 sm:p-8 shadow-2xl space-y-5 animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-plum/5 text-plum border border-plum/15">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-plum/5 text-plum border border-plum/15 shrink-0">
                     <ShieldCheck className="h-5 w-5 text-lavender-deep" />
                   </div>
                   <div>
@@ -1208,7 +1268,7 @@ function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => setIsAssistanceModalOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-plum/50 hover:bg-plum/5 hover:text-plum transition-colors"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl text-plum/50 hover:bg-plum/5 hover:text-plum transition-colors touch-manipulation"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -1216,18 +1276,18 @@ function AdminDashboard() {
 
               <div className="space-y-3 text-xs leading-relaxed text-plum/80">
                 <p>
-                  If you have forgotten or need to reset your studio administrator passcode, access
-                  can be restored via the emergency studio concierge.
+                  If you need to restore or reset your studio administrator passcode, access can be
+                  verified directly through the emergency concierge.
                 </p>
 
                 <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 space-y-1.5 text-[11px] text-amber-900">
                   <p className="font-bold flex items-center gap-1.5">
                     <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                    <span>Administrator Identity Verification Required</span>
+                    <span>Identity Verification Protocol</span>
                   </p>
                   <p className="text-amber-800/90 leading-normal">
-                    All authentication changes require secondary confirmation with the Studio
-                    Executive Director.
+                    Passcode modifications require identity authorization with the Studio Executive
+                    Director.
                   </p>
                 </div>
               </div>
@@ -1237,10 +1297,10 @@ function AdminDashboard() {
                   href="https://wa.me/2348162292997?text=Hello%20Seddypluz%20Concierge,%20I%20need%20assistance%20accessing%20the%20Admin%20Command%20Suite."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-emerald-700 transition-colors shadow-sm"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-emerald-700 transition-colors shadow-sm touch-manipulation"
                 >
                   <MessageCircle className="h-4 w-4" />
-                  <span>Contact WhatsApp Support</span>
+                  <span>Contact WhatsApp Concierge</span>
                 </a>
 
                 <button
@@ -1249,18 +1309,18 @@ function AdminDashboard() {
                     navigator.clipboard.writeText("+2348162292997");
                     toast.success("Studio phone copied to clipboard: +234 816 229 2997");
                   }}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-plum/20 bg-plum/5 text-plum font-bold text-xs uppercase tracking-wider hover:bg-plum/10 transition-colors"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-plum/20 bg-plum/5 text-plum font-bold text-xs uppercase tracking-wider hover:bg-plum/10 transition-colors touch-manipulation"
                 >
                   <Phone className="h-4 w-4 text-lavender-deep" />
                   <span>Copy Direct Hotline (+234 816 229 2997)</span>
                 </button>
               </div>
 
-              <div className="border-t border-plum/10 pt-3 text-center">
+              <div className="border-t border-plum/10 pt-3 text-center pb-2 sm:pb-0">
                 <button
                   type="button"
                   onClick={() => setIsAssistanceModalOpen(false)}
-                  className="text-xs text-plum/60 hover:text-plum font-semibold transition-colors cursor-pointer"
+                  className="text-xs text-plum/60 hover:text-plum font-semibold transition-colors cursor-pointer min-h-[36px] px-3 touch-manipulation"
                 >
                   Return to Sign In
                 </button>
