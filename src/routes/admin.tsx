@@ -978,7 +978,8 @@ function AdminDashboard() {
               Command Suite
             </h1>
             <p className="mt-2 text-xs sm:text-sm leading-relaxed text-plum/70 max-w-md mx-auto">
-              Welcome to the administrative console. Authenticate your credentials to manage appointments, boutique inventory, and live campaigns.
+              Welcome to the administrative console. Authenticate your credentials to manage
+              appointments, boutique inventory, and live campaigns.
             </p>
           </div>
 
@@ -1215,7 +1216,8 @@ function AdminDashboard() {
 
               <div className="space-y-3 text-xs leading-relaxed text-plum/80">
                 <p>
-                  If you have forgotten or need to reset your studio administrator passcode, access can be restored via the emergency studio concierge.
+                  If you have forgotten or need to reset your studio administrator passcode, access
+                  can be restored via the emergency studio concierge.
                 </p>
 
                 <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 space-y-1.5 text-[11px] text-amber-900">
@@ -1224,7 +1226,8 @@ function AdminDashboard() {
                     <span>Administrator Identity Verification Required</span>
                   </p>
                   <p className="text-amber-800/90 leading-normal">
-                    All authentication changes require secondary confirmation with the Studio Executive Director.
+                    All authentication changes require secondary confirmation with the Studio
+                    Executive Director.
                   </p>
                 </div>
               </div>
