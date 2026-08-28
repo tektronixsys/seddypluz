@@ -11,7 +11,7 @@ export function getFirebaseAdminApp(): App | null {
     return cachedApp;
   }
 
-  const projectId = process.env.FIREBASE_PROJECT_ID?.trim();
+  const projectId = process.env.FIREBASE_PROJECT_ID?.trim() || "seddypluz";
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim();
   let rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY?.trim();
   if (
