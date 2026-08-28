@@ -375,11 +375,15 @@ function AdminDashboard() {
         if (rememberDevice) {
           try {
             localStorage.setItem("seddypluz_admin_saved_user", usernameInput.trim());
-          } catch {}
+          } catch (storageErr) {
+            console.debug("LocalStorage unavailable:", storageErr);
+          }
         } else {
           try {
             localStorage.removeItem("seddypluz_admin_saved_user");
-          } catch {}
+          } catch (storageErr) {
+            console.debug("LocalStorage unavailable:", storageErr);
+          }
         }
 
         setIsAuthenticated(true);
