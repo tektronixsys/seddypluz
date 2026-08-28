@@ -50,10 +50,10 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     const url = new URL(request.url);
     const isRpcOrApi =
-      url.pathname.startsWith("/_serverFn") ||
+      url.pathname.includes("_serverFn") ||
       url.pathname.startsWith("/api") ||
       url.pathname.startsWith("/_build") ||
-      request.headers.get("accept")?.includes("application/json");
+      !request.headers.get("accept")?.includes("text/html");
 
     try {
       const handler = await getServerEntry();

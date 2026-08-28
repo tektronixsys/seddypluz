@@ -75,7 +75,11 @@ const LOCKOUT_MS = 30 * 60 * 1000;
 const MAX_TRACKED_IPS = 2000;
 
 function getClientIpKey() {
-  return getRequestIP({ xForwardedFor: true }) ?? "unknown";
+  try {
+    return getRequestIP({ xForwardedFor: true }) ?? "unknown";
+  } catch {
+    return "unknown";
+  }
 }
 
 function pruneRateLimitStore(now: number) {
