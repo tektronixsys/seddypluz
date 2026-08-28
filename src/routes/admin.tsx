@@ -372,6 +372,8 @@ function AdminDashboard() {
         }
         toast.success(`Welcome back, ${user}!`);
         loadData();
+      } else if (res.error) {
+        toast.error(res.error);
       }
     } catch (err: unknown) {
       console.error("Login request failed:", err);

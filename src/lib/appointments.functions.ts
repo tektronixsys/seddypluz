@@ -140,8 +140,12 @@ function resetAttempts(ipKey: string) {
 }
 
 async function requireAdminSession() {
-  const session = await getSession<{ isAdmin?: boolean }>(getAdminSessionConfig());
-  if (session.data.isAdmin !== true) {
+  try {
+    const session = await getSession<{ isAdmin?: boolean }>(getAdminSessionConfig());
+    if (session.data?.isAdmin !== true) {
+      throw new Error("Unauthorized");
+    }
+  } catch (err) {
     throw new Error("Unauthorized");
   }
 }
@@ -173,9 +177,10 @@ export const adminLogin = createServerFn({ method: "POST" })
 
     const rateLimit = checkRateLimit(ipKey, now);
     if (rateLimit.blocked) {
-      throw new Error(
-        `Too many login attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.`,
-      );
+      return {
+        ok: false as const,
+        error: `Too many login attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.`,
+      };
     }
 
     const inputUserKey = data.username.toLowerCase().trim();
@@ -204,46 +209,70 @@ export const adminLogin = createServerFn({ method: "POST" })
 
     if (!isValid) {
       recordFailedAttempt(ipKey, now);
-      throw new Error("Unauthorized: Invalid username or password.");
+      return {
+        ok: false as const,
+        error: "Invalid username or password.",
+      };
     }
 
     resetAttempts(ipKey);
 
-    await updateSession<{
-      isAdmin?: boolean;
-      username?: string;
-      role?: string;
-      authenticatedAt?: string;
-    }>(getAdminSessionConfig(), {
-      isAdmin: true,
-      username: resolvedDisplayName,
-      role: resolvedRole,
-      authenticatedAt: new Date().toISOString(),
-    });
+    try {
+      await updateSession<{
+        isAdmin?: boolean;
+        username?: string;
+        role?: string;
+        authenticatedAt?: string;
+      }>(getAdminSessionConfig(), {
+        isAdmin: true,
+        username: resolvedDisplayName,
+        role: resolvedRole,
+        authenticatedAt: new Date().toISOString(),
+      });
+    } catch (sessionErr) {
+      console.error("[Session] Error saving admin session:", sessionErr);
+      return {
+        ok: false as const,
+        error: "Session could not be established. Please check server configuration.",
+      };
+    }
 
     return {
-      ok: true,
+      ok: true as const,
       username: resolvedDisplayName,
       role: resolvedRole,
     };
   });
 
 export const adminLogout = createServerFn({ method: "POST" }).handler(async () => {
-  await clearSession(getAdminSessionConfig());
+  try {
+    await clearSession(getAdminSessionConfig());
+  } catch (err) {
+    console.warn("[Session] Clear notice:", err);
+  }
   return { ok: true };
 });
 
 export const getAdminAuthStatus = createServerFn({ method: "GET" }).handler(async () => {
-  const session = await getSession<{
-    isAdmin?: boolean;
-    username?: string;
-    role?: string;
-  }>(getAdminSessionConfig());
-  return {
-    authenticated: session.data.isAdmin === true,
-    user: session.data.username || (session.data.isAdmin ? "Admin" : undefined),
-    role: session.data.role || (session.data.isAdmin ? "Super Admin" : undefined),
-  };
+  try {
+    const session = await getSession<{
+      isAdmin?: boolean;
+      username?: string;
+      role?: string;
+    }>(getAdminSessionConfig());
+    return {
+      authenticated: session.data?.isAdmin === true,
+      user: session.data?.username || (session.data?.isAdmin ? "Admin" : undefined),
+      role: session.data?.role || (session.data?.isAdmin ? "Super Admin" : undefined),
+    };
+  } catch (err) {
+    console.warn("[Session] Could not read admin session (returning unauthenticated):", err);
+    return {
+      authenticated: false,
+      user: undefined,
+      role: undefined,
+    };
+  }
 });
 
 export const getAppointments = createServerFn({ method: "GET" }).handler(async () => {

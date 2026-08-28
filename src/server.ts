@@ -48,12 +48,37 @@ function isH3SwallowedErrorBody(body: string): boolean {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const url = new URL(request.url);
+    const isRpcOrApi =
+      url.pathname.startsWith("/_serverFn") ||
+      url.pathname.startsWith("/api") ||
+      url.pathname.startsWith("/_build") ||
+      request.headers.get("accept")?.includes("application/json");
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
+
+      // Never replace API or server function RPC responses (_serverFn) with HTML
+      if (isRpcOrApi) {
+        return response;
+      }
+
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
       console.error("Fatal SSR server handler error:", error);
+      if (isRpcOrApi) {
+        return new Response(
+          JSON.stringify({
+            error: true,
+            message: error instanceof Error ? error.message : String(error),
+          }),
+          {
+            status: 500,
+            headers: { "content-type": "application/json" },
+          },
+        );
+      }
       return new Response(renderErrorPage(error), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
