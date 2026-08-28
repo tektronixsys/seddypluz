@@ -313,7 +313,7 @@ function AdminDashboard() {
     async function checkAuth() {
       try {
         const res = await getAuthStatus({});
-        if (res.authenticated) {
+        if (res && res.authenticated) {
           setIsAuthenticated(true);
           if (res.user) {
             setCurrentAdminUser(res.user);
@@ -328,7 +328,7 @@ function AdminDashboard() {
           loadData();
         }
       } catch (err) {
-        console.error("Auth check failed:", err);
+        console.debug("Session unauthenticated or expired:", err);
       } finally {
         setInitialAuthChecked(true);
       }
@@ -343,7 +343,9 @@ function AdminDashboard() {
     setRefreshing(true);
     try {
       const data = await fetchAppointments({});
-      setAppointments(data as AppointmentRequest[]);
+      if (Array.isArray(data)) {
+        setAppointments(data as AppointmentRequest[]);
+      }
       if (showSuccessToast) {
         toast.success("Appointments synchronized with database.");
       }
@@ -373,7 +375,7 @@ function AdminDashboard() {
         },
       });
 
-      if (res.ok) {
+      if (res && res.ok) {
         if (rememberDevice) {
           try {
             localStorage.setItem("seddypluz_admin_saved_user", usernameInput.trim());
@@ -402,15 +404,15 @@ function AdminDashboard() {
         }
         toast.success(`Welcome back, ${user}!`);
         loadData();
-      } else if (res.error) {
+      } else if (res && res.error) {
         toast.error(res.error);
       }
     } catch (err: unknown) {
-      console.error("Login request failed:", err);
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Invalid credentials. Please verify username and password.";
+      console.error("Login request error:", err);
+      let errorMessage = "Invalid credentials. Please verify username and password.";
+      if (err instanceof Error && !err.message.includes("<!doctype") && !err.message.includes("<html")) {
+        errorMessage = err.message;
+      }
       toast.error(errorMessage);
     } finally {
       setAuthChecking(false);

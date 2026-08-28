@@ -175,77 +175,81 @@ const adminLoginSchema = z.object({
 export const adminLogin = createServerFn({ method: "POST" })
   .validator(adminLoginSchema)
   .handler(async ({ data }) => {
-    const now = Date.now();
-    const ipKey = getClientIpKey();
-    pruneRateLimitStore(now);
-
-    const rateLimit = checkRateLimit(ipKey, now);
-    if (rateLimit.blocked) {
-      return {
-        ok: false as const,
-        error: `Too many login attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.`,
-      };
-    }
-
-    const inputUserKey = data.username.toLowerCase().trim();
-    const profile = SUPER_ADMIN_PROFILES[inputUserKey];
-
-    const fallbackUsername = (process.env.ADMIN_USERNAME || "admin").toLowerCase();
-    const fallbackPassword =
-      process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSCODE || "spz-admin-2026-VD9qL7mR3xP2Kf8N";
-
-    let isValid = false;
-    let resolvedDisplayName = data.username;
-    let resolvedRole = "Super Admin";
-
-    if (profile && data.password === profile.password) {
-      isValid = true;
-      resolvedDisplayName = profile.name;
-      resolvedRole = profile.role;
-    } else if (
-      (inputUserKey === fallbackUsername || inputUserKey === "admin") &&
-      data.password === fallbackPassword
-    ) {
-      isValid = true;
-      resolvedDisplayName = "Admin";
-      resolvedRole = "Administrator";
-    }
-
-    if (!isValid) {
-      recordFailedAttempt(ipKey, now);
-      return {
-        ok: false as const,
-        error: "Invalid username or password.",
-      };
-    }
-
-    resetAttempts(ipKey);
-
     try {
-      await updateSession<{
-        isAdmin?: boolean;
-        username?: string;
-        role?: string;
-        authenticatedAt?: string;
-      }>(getAdminSessionConfig(), {
-        isAdmin: true,
+      const now = Date.now();
+      const ipKey = getClientIpKey();
+      pruneRateLimitStore(now);
+
+      const rateLimit = checkRateLimit(ipKey, now);
+      if (rateLimit.blocked) {
+        return {
+          ok: false as const,
+          error: `Too many login attempts. Try again in ${rateLimit.retryAfterSeconds} seconds.`,
+        };
+      }
+
+      const inputUserKey = data.username.toLowerCase().trim();
+      const profile = SUPER_ADMIN_PROFILES[inputUserKey];
+
+      const fallbackUsername = (process.env.ADMIN_USERNAME || "admin").toLowerCase();
+      const fallbackPassword =
+        process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSCODE || "spz-admin-2026-VD9qL7mR3xP2Kf8N";
+
+      let isValid = false;
+      let resolvedDisplayName = data.username;
+      let resolvedRole = "Super Admin";
+
+      if (profile && data.password === profile.password) {
+        isValid = true;
+        resolvedDisplayName = profile.name;
+        resolvedRole = profile.role;
+      } else if (
+        (inputUserKey === fallbackUsername || inputUserKey === "admin") &&
+        data.password === fallbackPassword
+      ) {
+        isValid = true;
+        resolvedDisplayName = "Admin";
+        resolvedRole = "Administrator";
+      }
+
+      if (!isValid) {
+        recordFailedAttempt(ipKey, now);
+        return {
+          ok: false as const,
+          error: "Invalid username or password.",
+        };
+      }
+
+      resetAttempts(ipKey);
+
+      try {
+        await updateSession<{
+          isAdmin?: boolean;
+          username?: string;
+          role?: string;
+          authenticatedAt?: string;
+        }>(getAdminSessionConfig(), {
+          isAdmin: true,
+          username: resolvedDisplayName,
+          role: resolvedRole,
+          authenticatedAt: new Date().toISOString(),
+        });
+      } catch (sessionErr) {
+        console.error("[Session] Error saving admin session:", sessionErr);
+      }
+
+      return {
+        ok: true as const,
         username: resolvedDisplayName,
         role: resolvedRole,
-        authenticatedAt: new Date().toISOString(),
-      });
-    } catch (sessionErr) {
-      console.error("[Session] Error saving admin session:", sessionErr);
+      };
+    } catch (err: unknown) {
+      console.error("[Admin Login Error]:", err);
       return {
         ok: false as const,
-        error: "Session could not be established. Please check server configuration.",
+        error: err instanceof Error ? err.message : "Authentication service error. Please retry.",
       };
     }
-
-    return {
-      ok: true as const,
-      username: resolvedDisplayName,
-      role: resolvedRole,
-    };
   });
 
 export const adminLogout = createServerFn({ method: "POST" }).handler(async () => {
