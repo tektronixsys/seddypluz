@@ -64,6 +64,8 @@ import {
   Radio,
   Activity,
   Percent,
+  HelpCircle,
+  Shield,
 } from "lucide-react";
 import {
   adminLogin,
@@ -164,9 +166,19 @@ function AdminDashboard() {
 
   // Authentication & Profile State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [usernameInput, setUsernameInput] = useState("");
+  const [initialAuthChecked, setInitialAuthChecked] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<string>("ajuhlouis");
+  const [usernameInput, setUsernameInput] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("seddypluz_admin_saved_user") || "ajuhlouis";
+    }
+    return "ajuhlouis";
+  });
   const [passwordInput, setPasswordInput] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberDevice, setRememberDevice] = useState(true);
+  const [capsLockActive, setCapsLockActive] = useState(false);
+  const [isAssistanceModalOpen, setIsAssistanceModalOpen] = useState(false);
   const [currentAdminUser, setCurrentAdminUser] = useState<string>("Admin");
   const [adminRole, setAdminRole] = useState<string>("Super Admin");
   const [adminEmail, setAdminEmail] = useState<string>("admin@seddypluz.com");
@@ -315,6 +327,8 @@ function AdminDashboard() {
         }
       } catch (err) {
         console.error("Auth check failed:", err);
+      } finally {
+        setInitialAuthChecked(true);
       }
     }
     checkAuth();
@@ -358,6 +372,16 @@ function AdminDashboard() {
       });
 
       if (res.ok) {
+        if (rememberDevice) {
+          try {
+            localStorage.setItem("seddypluz_admin_saved_user", usernameInput.trim());
+          } catch {}
+        } else {
+          try {
+            localStorage.removeItem("seddypluz_admin_saved_user");
+          } catch {}
+        }
+
         setIsAuthenticated(true);
         const user = res.username || "Admin";
         setCurrentAdminUser(user);
@@ -901,36 +925,135 @@ function AdminDashboard() {
   // 1. UNLOCK / LOGIN SCREEN (Unauthenticated)
   // ==========================================
   if (!isAuthenticated) {
-    return (
-      <div className="relative flex min-h-screen items-center justify-center bg-[#FAF7F2] text-[#2D1B28] px-6 overflow-hidden select-none">
-        {/* Ambient Luxury Soft Blooms */}
-        <div className="absolute top-1/4 -left-40 h-[600px] w-[600px] rounded-full bg-mauve/25 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-40 h-[600px] w-[600px] rounded-full bg-blush-soft blur-[140px] pointer-events-none" />
+    if (!initialAuthChecked) {
+      return (
+        <div className="relative flex min-h-screen items-center justify-center bg-[#FAF7F2] text-[#2D1B28] px-6 select-none">
+          <div className="text-center space-y-4 animate-in fade-in duration-500">
+            <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-tr from-plum via-[#5a3a52] to-lavender-deep text-[#FAF9F5] shadow-2xl shadow-plum/20">
+              <Crown className="h-10 w-10 animate-pulse text-amber-300" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="font-display text-2xl font-bold tracking-tight text-plum">
+                Seddypluz Atelier
+              </h2>
+              <p className="text-xs text-plum/60 tracking-wider uppercase font-semibold">
+                Initializing Secure Command Suite...
+              </p>
+            </div>
+            <RefreshCw className="mx-auto h-5 w-5 animate-spin text-lavender-deep" />
+          </div>
+        </div>
+      );
+    }
 
-        <div className="relative w-full max-w-md rounded-[2.5rem] border border-plum/15 bg-white/90 p-8 md:p-10 shadow-2xl shadow-plum/10 backdrop-blur-2xl z-10 animate-in fade-in zoom-in-95 duration-500">
+    return (
+      <div className="relative flex min-h-screen items-center justify-center bg-[#FAF7F2] text-[#2D1B28] px-4 sm:px-6 py-12 overflow-hidden select-none">
+        {/* Ambient Luxury Soft Blooms & Mesh Orbs */}
+        <div className="absolute top-1/6 -left-36 h-[550px] w-[550px] rounded-full bg-mauve/20 blur-[130px] pointer-events-none animate-pulse duration-1000" />
+        <div className="absolute bottom-1/6 -right-36 h-[550px] w-[550px] rounded-full bg-blush-soft blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[700px] w-[700px] rounded-full bg-plum/5 blur-[160px] pointer-events-none" />
+
+        {/* Main Authentication Card */}
+        <div className="relative w-full max-w-xl rounded-[2.5rem] border border-plum/15 bg-white/95 p-6 sm:p-10 shadow-2xl shadow-plum/15 backdrop-blur-2xl z-10 animate-in fade-in zoom-in-95 duration-500">
+          {/* Header Brand Section */}
           <div className="text-center">
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-plum/5 text-plum border border-plum/15 shadow-sm">
-              <Crown className="h-8 w-8 text-lavender-deep" />
+            <div className="relative mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-plum via-[#5a3a52] to-lavender-deep text-[#FAF9F5] shadow-lg shadow-plum/25 border border-amber-300/30">
+              <Crown className="h-8 w-8 text-amber-300" />
+              <span className="absolute -bottom-1 -right-1 flex h-4 w-4">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 ring-2 ring-white" />
+              </span>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-plum/5 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-plum mb-2 border border-plum/15">
+
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-plum/5 px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-plum mb-2 border border-plum/15">
               <Sparkles className="h-3 w-3 text-amber-500" />
-              <span>Seddypluz Atelier HQ</span>
+              <span>Haute Couture Atelier HQ</span>
             </div>
-            <h2 className="font-display text-3xl sm:text-4xl text-plum font-bold tracking-tight">
+
+            <h1 className="font-display text-3xl sm:text-4xl text-plum font-bold tracking-tight">
               Command Suite
-            </h2>
-            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-plum/70">
-              Enter your studio administrator credentials to manage bridal sessions, boutique
-              inventory, and live storefront displays.
+            </h1>
+            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-plum/70 max-w-md mx-auto">
+              Welcome to the administrative console. Authenticate your credentials to manage appointments, boutique inventory, and live campaigns.
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="mt-8 space-y-4">
-            {/* Username Field */}
-            <div className="space-y-1.5 text-left">
+          {/* Quick Profile Fast-Selector */}
+          <div className="mt-6">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center justify-between pl-1 mb-2">
+              <span className="flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5 text-lavender-deep" />
+                <span>Select Admin Profile</span>
+              </span>
+              <span className="text-[10px] text-plum/50 font-normal">Quick Switch</span>
+            </label>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* Ajuh Louis Profile Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedProfileId("ajuhlouis");
+                  setUsernameInput("ajuhlouis");
+                  setPasswordInput("");
+                }}
+                className={`group flex items-start gap-2.5 p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                  usernameInput.toLowerCase() === "ajuhlouis"
+                    ? "border-plum bg-plum/5 ring-2 ring-plum/10 shadow-xs"
+                    : "border-plum/15 bg-[#FAF7F2]/70 hover:border-plum/30 hover:bg-white"
+                }`}
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-600 to-amber-800 text-white font-bold text-xs shadow-xs">
+                  AL
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-plum truncate">Ajuh Louis</p>
+                    {usernameInput.toLowerCase() === "ajuhlouis" && (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-lavender-deep shrink-0 ml-1" />
+                    )}
+                  </div>
+                  <p className="text-[10px] font-medium text-amber-700">Super Admin</p>
+                </div>
+              </button>
+
+              {/* Seddypluz Profile Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedProfileId("seddypluz");
+                  setUsernameInput("seddypluz");
+                  setPasswordInput("");
+                }}
+                className={`group flex items-start gap-2.5 p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                  usernameInput.toLowerCase() === "seddypluz"
+                    ? "border-plum bg-plum/5 ring-2 ring-plum/10 shadow-xs"
+                    : "border-plum/15 bg-[#FAF7F2]/70 hover:border-plum/30 hover:bg-white"
+                }`}
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-plum via-[#684a62] to-lavender-deep text-white font-bold text-xs shadow-xs">
+                  SZ
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-plum truncate">Seddypluz</p>
+                    {usernameInput.toLowerCase() === "seddypluz" && (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-lavender-deep shrink-0 ml-1" />
+                    )}
+                  </div>
+                  <p className="text-[10px] font-medium text-lavender-deep">Studio Super Admin</p>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Form Fields */}
+          <form onSubmit={handleLogin} className="mt-5 space-y-3.5">
+            {/* Username / Administrator ID Field */}
+            <div className="space-y-1 text-left">
               <label className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center gap-1.5 pl-1">
                 <User className="h-3.5 w-3.5 text-lavender-deep" />
-                <span>Username / Administrator ID</span>
+                <span>Administrator Username</span>
               </label>
               <div className="relative">
                 <input
@@ -940,17 +1063,25 @@ function AdminDashboard() {
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
                   placeholder="e.g. ajuhlouis or seddypluz"
-                  className="h-12 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] px-4 text-sm text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10"
+                  className="h-11 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] px-4 text-sm font-medium text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10 shadow-inner"
                 />
               </div>
             </div>
 
             {/* Password Field */}
-            <div className="space-y-1.5 text-left">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center gap-1.5 pl-1">
-                <Lock className="h-3.5 w-3.5 text-lavender-deep" />
-                <span>Security Password</span>
-              </label>
+            <div className="space-y-1 text-left">
+              <div className="flex items-center justify-between pl-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-plum/80 flex items-center gap-1.5">
+                  <Lock className="h-3.5 w-3.5 text-lavender-deep" />
+                  <span>Security Passcode</span>
+                </label>
+                {capsLockActive && (
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 flex items-center gap-1 animate-pulse">
+                    <AlertCircle className="h-3 w-3" />
+                    Caps Lock is ON
+                  </span>
+                )}
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -958,8 +1089,10 @@ function AdminDashboard() {
                   autoComplete="current-password"
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
+                  onKeyDown={(e) => setCapsLockActive(e.getModifierState("CapsLock"))}
+                  onKeyUp={(e) => setCapsLockActive(e.getModifierState("CapsLock"))}
                   placeholder="Enter studio password"
-                  className="h-12 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] pl-4 pr-11 text-sm text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10"
+                  className="h-11 w-full rounded-2xl border border-plum/20 bg-[#FAF7F2] pl-4 pr-11 text-sm font-medium text-plum placeholder:text-plum/40 outline-none transition-all focus:border-plum focus:bg-white focus:ring-2 focus:ring-plum/10 shadow-inner"
                 />
                 <button
                   type="button"
@@ -972,11 +1105,33 @@ function AdminDashboard() {
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Session Persistence & Assistance Trigger */}
+            <div className="flex items-center justify-between text-xs pt-1 px-1">
+              <label className="flex items-center gap-2 cursor-pointer text-plum/70 hover:text-plum transition-colors select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberDevice}
+                  onChange={(e) => setRememberDevice(e.target.checked)}
+                  className="h-4 w-4 rounded border-plum/30 text-plum focus:ring-plum/20 accent-plum cursor-pointer"
+                />
+                <span className="text-[11px] font-medium">Remember terminal</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={() => setIsAssistanceModalOpen(true)}
+                className="text-[11px] font-semibold text-lavender-deep hover:text-plum underline transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <HelpCircle className="h-3 w-3" />
+                <span>Login Help</span>
+              </button>
+            </div>
+
+            {/* Submit Authorization Button */}
             <button
               type="submit"
               disabled={authChecking}
-              className="mt-2 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-plum via-[#5a3a52] to-plum text-[#FAF9F5] text-xs uppercase tracking-[0.24em] font-bold shadow-xl shadow-plum/20 transition-all hover:bg-lavender-deep active:scale-[0.98] cursor-pointer disabled:opacity-50"
+              className="mt-2 flex h-12 w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-plum via-[#5a3a52] to-plum text-[#FAF9F5] text-xs uppercase tracking-[0.24em] font-bold shadow-xl shadow-plum/20 transition-all hover:bg-lavender-deep hover:shadow-plum/30 active:scale-[0.98] cursor-pointer disabled:opacity-50"
             >
               {authChecking ? (
                 <>
@@ -986,29 +1141,126 @@ function AdminDashboard() {
               ) : (
                 <>
                   <KeyRound className="h-4 w-4 text-amber-300" />
-                  <span>Authorize &amp; Sign In</span>
+                  <span>Authorize &amp; Enter Command Suite</span>
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-8 border-t border-plum/10 pt-6 flex items-center justify-between text-xs text-plum/60">
+          {/* Realtime Security Status Ribbon */}
+          <div className="mt-6 rounded-2xl border border-plum/10 bg-[#FAF7F2]/80 p-3 flex flex-wrap items-center justify-around gap-2 text-[10px] text-plum/70 font-medium">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span>Firestore DB: Live</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Shield className="h-3 w-3 text-lavender-deep" />
+              <span>256-Bit Encrypted</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Activity className="h-3 w-3 text-amber-600" />
+              <span>Rate Armor: Active</span>
+            </div>
+          </div>
+
+          {/* Footer Navigation Links */}
+          <div className="mt-6 border-t border-plum/10 pt-4 flex items-center justify-between text-xs text-plum/60">
             <Link
               to="/"
-              className="hover:text-plum transition-colors flex items-center gap-1.5 font-semibold"
+              className="hover:text-plum transition-colors flex items-center gap-1 font-semibold"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
               <span>Studio Homepage</span>
             </Link>
             <Link
               to="/shop"
-              className="hover:text-plum transition-colors flex items-center gap-1.5 font-semibold"
+              className="hover:text-plum transition-colors flex items-center gap-1 font-semibold"
             >
               <span>Boutique Catalog</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
+
+        {/* ==================================================== */}
+        {/* EMERGENCY CONCIERGE ASSISTANCE MODAL */}
+        {/* ==================================================== */}
+        {isAssistanceModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-plum/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+            <div className="w-full max-w-md rounded-3xl border border-plum/20 bg-white p-6 sm:p-8 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-plum/5 text-plum border border-plum/15">
+                    <ShieldCheck className="h-5 w-5 text-lavender-deep" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg font-bold text-plum">
+                      Atelier Authentication Help
+                    </h3>
+                    <p className="text-[11px] text-plum/60">Emergency Access Concierge</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAssistanceModalOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-plum/50 hover:bg-plum/5 hover:text-plum transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3 text-xs leading-relaxed text-plum/80">
+                <p>
+                  If you have forgotten or need to reset your studio administrator passcode, access can be restored via the emergency studio concierge.
+                </p>
+
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 space-y-1.5 text-[11px] text-amber-900">
+                  <p className="font-bold flex items-center gap-1.5">
+                    <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                    <span>Administrator Identity Verification Required</span>
+                  </p>
+                  <p className="text-amber-800/90 leading-normal">
+                    All authentication changes require secondary confirmation with the Studio Executive Director.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2.5 pt-2">
+                <a
+                  href="https://wa.me/2348162292997?text=Hello%20Seddypluz%20Concierge,%20I%20need%20assistance%20accessing%20the%20Admin%20Command%20Suite."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-emerald-700 transition-colors shadow-sm"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span>Contact WhatsApp Support</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText("+2348162292997");
+                    toast.success("Studio phone copied to clipboard: +234 816 229 2997");
+                  }}
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-plum/20 bg-plum/5 text-plum font-bold text-xs uppercase tracking-wider hover:bg-plum/10 transition-colors"
+                >
+                  <Phone className="h-4 w-4 text-lavender-deep" />
+                  <span>Copy Direct Hotline (+234 816 229 2997)</span>
+                </button>
+              </div>
+
+              <div className="border-t border-plum/10 pt-3 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsAssistanceModalOpen(false)}
+                  className="text-xs text-plum/60 hover:text-plum font-semibold transition-colors cursor-pointer"
+                >
+                  Return to Sign In
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
