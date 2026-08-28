@@ -1,10 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import {
-  clearSession,
-  getRequestIP,
-  getSession,
-  updateSession,
-} from "@tanstack/react-start/server";
 import { z } from "zod";
 import {
   submitAppointmentToFirestore,
@@ -12,34 +6,21 @@ import {
   updateAppointmentRequestInFirestore,
 } from "@/integrations/firebase/appointments";
 
-const appointmentSchema = z.object({
-  name: z.string().trim().min(2, "Name is required").max(120, "Name is too long"),
-  email: z.string().trim().email("Invalid email address").max(255, "Email is too long"),
-  phone: z.string().trim().max(30, "Phone number is too long").optional().or(z.literal("")),
-  service: z.string().min(1, "Please select a service"),
-  appointmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date"),
-  preferredTime: z.string().min(1, "Please select a preferred time"),
-  notes: z.string().max(1000, "Note is too long").optional().or(z.literal("")),
-});
+// ─── Session helpers ────────────────────────────────────────────────
+// Lazily import session utilities so the module itself never crashes
+// even if @tanstack/react-start/server has import-time issues on lsnode.
 
-export const submitAppointment = createServerFn({ method: "POST" })
-  .validator(appointmentSchema)
-  .handler(async ({ data }) => {
-    try {
-      await submitAppointmentToFirestore(data);
-      return { ok: true };
-    } catch (error) {
-      console.error("Appointment submission failed:", error);
-      throw new Error("Unable to submit your request. Please try again shortly.");
-    }
-  });
+let _sessionMod: typeof import("@tanstack/react-start/server") | null = null;
 
-function getRequiredEnvVar(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Server misconfiguration: ${name} is not set.`);
+async function loadSessionModule() {
+  if (_sessionMod) return _sessionMod;
+  try {
+    _sessionMod = await import("@tanstack/react-start/server");
+    return _sessionMod;
+  } catch (err) {
+    console.error("[Session Module] Failed to import @tanstack/react-start/server:", err);
+    return null;
   }
-  return value;
 }
 
 function getAdminSessionConfig() {
@@ -61,6 +42,57 @@ function getAdminSessionConfig() {
   };
 }
 
+async function safeGetSession(): Promise<{
+  data?: { isAdmin?: boolean; username?: string; role?: string };
+} | null> {
+  try {
+    const mod = await loadSessionModule();
+    if (!mod) return null;
+    return await mod.getSession<{ isAdmin?: boolean; username?: string; role?: string }>(
+      getAdminSessionConfig(),
+    );
+  } catch (err) {
+    console.warn("[Session] safeGetSession failed:", err);
+    return null;
+  }
+}
+
+async function safeUpdateSession(data: Record<string, unknown>): Promise<boolean> {
+  try {
+    const mod = await loadSessionModule();
+    if (!mod) return false;
+    await mod.updateSession(getAdminSessionConfig(), data);
+    return true;
+  } catch (err) {
+    console.error("[Session] safeUpdateSession failed:", err);
+    return false;
+  }
+}
+
+async function safeClearSession(): Promise<boolean> {
+  try {
+    const mod = await loadSessionModule();
+    if (!mod) return false;
+    await mod.clearSession(getAdminSessionConfig());
+    return true;
+  } catch (err) {
+    console.warn("[Session] safeClearSession failed:", err);
+    return false;
+  }
+}
+
+function safeGetClientIpKey(): string {
+  try {
+    const mod = _sessionMod;
+    if (!mod || !mod.getRequestIP) return "unknown";
+    return mod.getRequestIP({ xForwardedFor: true }) ?? "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
+// ─── Rate limiting ──────────────────────────────────────────────────
+
 type LoginAttemptState = {
   attempts: number;
   windowStartedAt: number;
@@ -74,19 +106,10 @@ const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_MS = 30 * 60 * 1000;
 const MAX_TRACKED_IPS = 2000;
 
-function getClientIpKey() {
-  try {
-    return getRequestIP({ xForwardedFor: true }) ?? "unknown";
-  } catch {
-    return "unknown";
-  }
-}
-
 function pruneRateLimitStore(now: number) {
   if (loginAttemptsByIp.size <= MAX_TRACKED_IPS) return;
   for (const [key, state] of loginAttemptsByIp) {
-    const stale = now - state.lastSeenAt > LOCKOUT_MS;
-    if (stale) {
+    if (now - state.lastSeenAt > LOCKOUT_MS) {
       loginAttemptsByIp.delete(key);
     }
   }
@@ -97,9 +120,7 @@ function checkRateLimit(
   now: number,
 ): { blocked: boolean; retryAfterSeconds: number } {
   const state = loginAttemptsByIp.get(ipKey);
-  if (!state) {
-    return { blocked: false, retryAfterSeconds: 0 };
-  }
+  if (!state) return { blocked: false, retryAfterSeconds: 0 };
 
   if (state.lockUntil > now) {
     return {
@@ -143,16 +164,7 @@ function resetAttempts(ipKey: string) {
   loginAttemptsByIp.delete(ipKey);
 }
 
-async function requireAdminSession() {
-  try {
-    const session = await getSession<{ isAdmin?: boolean }>(getAdminSessionConfig());
-    if (session.data?.isAdmin !== true) {
-      throw new Error("Unauthorized");
-    }
-  } catch (err) {
-    throw new Error("Unauthorized");
-  }
-}
+// ─── Admin profiles ─────────────────────────────────────────────────
 
 const SUPER_ADMIN_PROFILES: Record<string, { name: string; role: string; password: string }> = {
   ajuhlouis: {
@@ -167,17 +179,70 @@ const SUPER_ADMIN_PROFILES: Record<string, { name: string; role: string; passwor
   },
 };
 
+// ─── Schemas ────────────────────────────────────────────────────────
+
+const appointmentSchema = z.object({
+  name: z.string().trim().min(2, "Name is required").max(120, "Name is too long"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email is too long"),
+  phone: z.string().trim().max(30, "Phone number is too long").optional().or(z.literal("")),
+  service: z.string().min(1, "Please select a service"),
+  appointmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date"),
+  preferredTime: z.string().min(1, "Please select a preferred time"),
+  notes: z.string().max(1000, "Note is too long").optional().or(z.literal("")),
+});
+
 const adminLoginSchema = z.object({
   username: z.string().trim().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
 });
+
+const updateSchema = z.object({
+  id: z.string(),
+  status: z.enum(["pending", "confirmed", "declined", "completed"]),
+  notes: z.string().max(1000).nullable().optional(),
+});
+
+// ─── Public: Submit Appointment ─────────────────────────────────────
+
+export const submitAppointment = createServerFn({ method: "POST" })
+  .validator(appointmentSchema)
+  .handler(async ({ data }) => {
+    try {
+      await submitAppointmentToFirestore(data);
+      return { ok: true };
+    } catch (error) {
+      console.error("Appointment submission failed:", error);
+      return { ok: false, error: "Unable to submit your request. Please try again shortly." };
+    }
+  });
+
+// ─── Admin: Check Auth Status ───────────────────────────────────────
+
+export const getAdminAuthStatus = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const session = await safeGetSession();
+    if (!session || !session.data) {
+      return { authenticated: false, user: undefined, role: undefined };
+    }
+    return {
+      authenticated: session.data.isAdmin === true,
+      user: session.data.username || (session.data.isAdmin ? "Admin" : undefined),
+      role: session.data.role || (session.data.isAdmin ? "Super Admin" : undefined),
+    };
+  } catch (err: unknown) {
+    console.warn("[getAdminAuthStatus] Unhandled error:", err);
+    return { authenticated: false, user: undefined, role: undefined };
+  }
+});
+
+// ─── Admin: Login ───────────────────────────────────────────────────
 
 export const adminLogin = createServerFn({ method: "POST" })
   .validator(adminLoginSchema)
   .handler(async ({ data }) => {
     try {
       const now = Date.now();
-      const ipKey = getClientIpKey();
+      const ipKey = safeGetClientIpKey();
       pruneRateLimitStore(now);
 
       const rateLimit = checkRateLimit(ipKey, now);
@@ -193,7 +258,9 @@ export const adminLogin = createServerFn({ method: "POST" })
 
       const fallbackUsername = (process.env.ADMIN_USERNAME || "admin").toLowerCase();
       const fallbackPassword =
-        process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSCODE || "spz-admin-2026-VD9qL7mR3xP2Kf8N";
+        process.env.ADMIN_PASSWORD ||
+        process.env.ADMIN_PASSCODE ||
+        "spz-admin-2026-VD9qL7mR3xP2Kf8N";
 
       let isValid = false;
       let resolvedDisplayName = data.username;
@@ -222,21 +289,12 @@ export const adminLogin = createServerFn({ method: "POST" })
 
       resetAttempts(ipKey);
 
-      try {
-        await updateSession<{
-          isAdmin?: boolean;
-          username?: string;
-          role?: string;
-          authenticatedAt?: string;
-        }>(getAdminSessionConfig(), {
-          isAdmin: true,
-          username: resolvedDisplayName,
-          role: resolvedRole,
-          authenticatedAt: new Date().toISOString(),
-        });
-      } catch (sessionErr) {
-        console.error("[Session] Error saving admin session:", sessionErr);
-      }
+      await safeUpdateSession({
+        isAdmin: true,
+        username: resolvedDisplayName,
+        role: resolvedRole,
+        authenticatedAt: new Date().toISOString(),
+      });
 
       return {
         ok: true as const,
@@ -244,7 +302,7 @@ export const adminLogin = createServerFn({ method: "POST" })
         role: resolvedRole,
       };
     } catch (err: unknown) {
-      console.error("[Admin Login Error]:", err);
+      console.error("[adminLogin] Unhandled error:", err);
       return {
         ok: false as const,
         error: err instanceof Error ? err.message : "Authentication service error. Please retry.",
@@ -252,63 +310,48 @@ export const adminLogin = createServerFn({ method: "POST" })
     }
   });
 
+// ─── Admin: Logout ──────────────────────────────────────────────────
+
 export const adminLogout = createServerFn({ method: "POST" }).handler(async () => {
   try {
-    await clearSession(getAdminSessionConfig());
-  } catch (err) {
-    console.warn("[Session] Clear notice:", err);
+    await safeClearSession();
+    return { ok: true };
+  } catch (err: unknown) {
+    console.warn("[adminLogout] Error:", err);
+    return { ok: true };
   }
-  return { ok: true };
 });
 
-export const getAdminAuthStatus = createServerFn({ method: "GET" }).handler(async () => {
-  try {
-    const session = await getSession<{
-      isAdmin?: boolean;
-      username?: string;
-      role?: string;
-    }>(getAdminSessionConfig());
-    return {
-      authenticated: session.data?.isAdmin === true,
-      user: session.data?.username || (session.data?.isAdmin ? "Admin" : undefined),
-      role: session.data?.role || (session.data?.isAdmin ? "Super Admin" : undefined),
-    };
-  } catch (err) {
-    console.warn("[Session] Could not read admin session (returning unauthenticated):", err);
-    return {
-      authenticated: false,
-      user: undefined,
-      role: undefined,
-    };
-  }
-});
+// ─── Admin: Get Appointments ────────────────────────────────────────
 
 export const getAppointments = createServerFn({ method: "GET" }).handler(async () => {
-  await requireAdminSession();
   try {
+    const session = await safeGetSession();
+    if (!session?.data?.isAdmin) {
+      return [];
+    }
     const appointments = await getAppointmentRequestsFromFirestore();
     return appointments;
   } catch (error) {
     console.error("Failed to fetch appointments:", error);
-    throw new Error("Unable to fetch appointment requests.");
+    return [];
   }
 });
 
-const updateSchema = z.object({
-  id: z.string(),
-  status: z.enum(["pending", "confirmed", "declined", "completed"]),
-  notes: z.string().max(1000).nullable().optional(),
-});
+// ─── Admin: Update Appointment Status ───────────────────────────────
 
 export const updateAppointmentStatus = createServerFn({ method: "POST" })
   .validator(updateSchema)
   .handler(async ({ data }) => {
-    await requireAdminSession();
     try {
+      const session = await safeGetSession();
+      if (!session?.data?.isAdmin) {
+        return { ok: false, error: "Unauthorized" };
+      }
       await updateAppointmentRequestInFirestore(data.id, data.status, data.notes ?? null);
       return { ok: true };
     } catch (error) {
       console.error("Failed to update appointment:", error);
-      throw new Error("Unable to update appointment request.");
+      return { ok: false, error: "Unable to update appointment request." };
     }
   });

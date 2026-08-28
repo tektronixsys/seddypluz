@@ -2,33 +2,21 @@ import { createStart, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
 
-const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
+const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
     return await next();
   } catch (error) {
+    // Re-throw errors that already have a status code (framework-level redirects, etc.)
     if (error != null && typeof error === "object" && "statusCode" in error) {
       throw error;
     }
+
     console.error("[Start Middleware Error]:", error);
 
-    try {
-      const url = new URL(request.url);
-      const isRpcOrApi =
-        url.pathname.includes("_serverFn") ||
-        url.pathname.startsWith("/api") ||
-        !request.headers.get("accept")?.includes("text/html");
-
-      if (isRpcOrApi) {
-        throw error;
-      }
-    } catch (urlErr) {
-      if (urlErr === error) throw error;
-    }
-
-    return new Response(renderErrorPage(error), {
-      status: 500,
-      headers: { "content-type": "text/html; charset=utf-8" },
-    });
+    // Re-throw the error — let TanStack Start's own handler serialize it
+    // as JSON for _serverFn calls. Only produce HTML for page-level SSR
+    // requests, but even there, prefer re-throwing so server.ts handles it.
+    throw error;
   }
 });
 
